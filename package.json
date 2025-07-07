@@ -1,0 +1,22 @@
+{
+  "name": "swooche",
+  "description": "From call forwarding, voicemail summaries, to AI greetings, Swooche helps you stay on top.",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.3.0",
+  "scripts": {
+    "dev": "AWS_PROFILE=swooche sst dev",
+    "publish": "pnpm run build && pnpm --filter website ecs-prepare && pnpm run deploy",
+    "deploy": "AWS_PROFILE=swooche sst deploy --stage production",
+    "remove": "AWS_PROFILE=swooche sst remove --stage production",
+    "build": "turbo run build"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ecr": "^3.687.0",
+    "@types/node": "^20",
+    "sst": "^3.17.6",
+    "turbo": "2.4.2",
+    "typescript": "^5"
+  }
+}
