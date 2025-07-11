@@ -26,7 +26,7 @@ const twilioClient = new Twilio(
   process.env.TWILIO_AUTH_TOKEN!
 );
 
-const AGENT_IDENTITY = "agent-1"; // This might come from a model or something
+const AGENT_IDENTITY = "Shakeel"; // This might come from a model or something
 
 const { VoiceResponse } = twiml;
 const CONFERENCE_NAME = "forwarded-call-room";
@@ -54,7 +54,7 @@ app.post("/voice", async (req, res) => {
   //     CONFERENCE_NAME
   //   );
 
-  response.dial().client("agent-1");
+  response.dial().client(AGENT_IDENTITY);
 
   //   try {
   //     const call = await twilioClient.calls.create({

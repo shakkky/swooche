@@ -1,68 +1,42 @@
-import { useTwilioVoice } from "./hooks/useTwilioVoice";
-import { Call } from "@twilio/voice-sdk";
-import "./IncomingCall.css"; // Optional for styling
+import { Box, Button, Heading, HStack, Icon, Text } from "@chakra-ui/react";
+import { PiPhoneLight, PiPhoneSlash } from "react-icons/pi";
+import { useTwilioVoice } from "./contexts/TwilioVoiceContext";
 
-export const IncomingCallUI = () => {
-  const {
-    identity,
-    callStatus,
-    callDuration,
-    incomingCall,
-    acceptCall,
-    rejectCall,
-    error,
-    start,
-    started,
-  } = useTwilioVoice();
+export const IncomingCall = () => {
+  const { incomingCall, acceptCall, rejectCall, error } = useTwilioVoice();
 
-  // when the call is connected, we want to show how long the call has been going on
-  // and allow the user to end the call
-
-  if (callStatus === Call.State.Open) {
-    return (
-      <div className="call-status">
-        {callStatus}
-        <h3>📞 Call Connected</h3>
-        <p>
-          Duration: {Math.floor(callDuration / 60)}:{callDuration % 60}
-        </p>
-        <button onClick={rejectCall}>❌ End Call</button>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-      </div>
-    );
+  if (error) {
+    return <p style={{ color: "red" }}>{error}</p>;
   }
 
-  if (incomingCall) {
-    return (
-      <div className="incoming-call-popup">
-        {callStatus}
-        <h3>📞 Incoming Call</h3>
-        <p>From: {incomingCall.from}</p>
-        <div className="actions">
-          <button onClick={acceptCall}>✅ Answer</button>
-          <button onClick={rejectCall}>❌ Decline</button>
-        </div>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-      </div>
-    );
-  }
-
-  if (identity) {
-    return (
-      <div className="call-status">
-        {callStatus}
-        <h3>🔓 Phone System Ready</h3>
-        <p>Identity: {identity}</p>
-        <p>Status: {callStatus}</p>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-      </div>
-    );
-  }
+  if (!incomingCall) return null;
 
   return (
-    <div>
-      {!started && <button onClick={start}>🔓 Start Phone System</button>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-    </div>
+    <HStack
+      position="absolute"
+      top={4}
+      right={4}
+      padding={4}
+      bg="bg.emphasized"
+      gap={8}
+      borderRadius="md"
+    >
+      <Box>
+        <Heading>Incoming Call</Heading>
+        <Text>{incomingCall.from}</Text>
+      </Box>
+      <HStack gap={2} justifyContent="center" mt={4}>
+        <Button onClick={acceptCall} colorPalette="green" borderRadius="full">
+          <Icon size="md">
+            <PiPhoneLight />
+          </Icon>
+        </Button>
+        <Button onClick={rejectCall} colorPalette="red" borderRadius="full">
+          <Icon size="sm">
+            <PiPhoneSlash />
+          </Icon>
+        </Button>
+      </HStack>
+    </HStack>
   );
 };
