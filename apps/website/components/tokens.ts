@@ -32,16 +32,16 @@ export const semanticTokens = defineSemanticTokens({
   colors: {
     brand: {
       solid: { value: "{colors.brand.500}" },
-      contrast: { value: "{colors.brand.100}" },
-      fg: { value: "{colors.brand.700}" },
+      contrast: { value: "black" },
+      fg: { value: "white" },
       muted: { value: "{colors.brand.100}" },
       subtle: { value: "{colors.brand.200}" },
       emphasized: { value: "{colors.brand.300}" },
     },
     onBrand: {
-      solid: { value: "{colors.brand.100}" },
+      solid: { value: "white" },
       contrast: { value: "{colors.brand.900}" },
-      fg: { value: "{colors.brand.100}" },
+      fg: { value: "{colors.brand.200}" },
       muted: { value: "{colors.brand.900}" },
       subtle: { value: "{colors.brand.800}" },
       emphasized: { value: "{colors.brand.700}" },
