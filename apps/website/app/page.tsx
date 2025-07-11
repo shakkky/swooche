@@ -15,24 +15,26 @@ export default function Home() {
       <main>
         <Box
           bg="brand.solid"
-          p={{ base: 32, md: 16 }}
+          padding={{ base: 8, md: 16 }}
           minHeight="100vh"
-          width="100vw"
+          minWidth="100vw"
           display="flex"
           flexDirection="column"
           alignItems="center"
           justifyContent="center"
           textAlign="center"
           gap={8}
+          maxWidth="1400px"
         >
           <Heading
             as="h1"
             color="onBrand.fg"
-            fontSize={{ base: "8xl", md: "86px" }}
+            fontSize={{ base: "6xl", md: "7xl" }}
             fontFamily="modak"
             fontWeight="normal"
             letterSpacing="-0.02em"
             rotate={{ base: "-2deg", md: "-2deg" }}
+            marginTop={{ base: 16, md: 0 }}
           >
             Swooche
           </Heading>
@@ -42,22 +44,27 @@ export default function Home() {
             flexDirection="column"
             alignItems="center"
             gap={8}
-            maxWidth="1400px"
             color="brand.fg"
           >
-            <Text fontSize="6xl" fontWeight={900} letterSpacing="-0.05em">
+            <Text
+              fontSize={{ base: "5xl", md: "6xl" }}
+              fontWeight={900}
+              letterSpacing="-0.05em"
+            >
+              The power of a whole{" "}
               <span style={{ position: "relative" }}>
-                The power of a whole team
+                team
                 <Image
                   src="/handrawn-arrow.svg"
                   alt="handrawn arrow"
                   width="80px"
                   height="80px"
                   position="absolute"
-                  top={{ base: "120px", md: "60px" }}
+                  top={{ base: "20px", sm: "10px", md: "60px" }}
                   transform="rotateX(180deg) rotate(-170deg)"
                   zIndex={0}
-                  right={{ base: -10, md: 5 }}
+                  right={{ base: -5, sm: -10, md: 5 }}
+                  // display={{ base: "none", md: "block" }}
                 />
               </span>
               <br />
@@ -90,7 +97,7 @@ export default function Home() {
                   borderRadius="full"
                   color="brand.solid"
                 >
-                  Reserve your business number now
+                  Reserve your number now
                 </Button>
                 <Button
                   colorPalette="onBrand"
@@ -102,7 +109,7 @@ export default function Home() {
                   borderColor="brand.fg"
                   borderWidth={2}
                 >
-                  See what Swooche can do for your business
+                  See what Swooche can do
                 </Button>
               </Flex>
             </VStack>
