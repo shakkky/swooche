@@ -28,6 +28,8 @@ export const useTwilioVoice = (): State => {
   return ctx;
 };
 
+const SERVER_ENDPOINT = "https://5598b56cef28.ngrok-free.app";
+
 export const TwilioVoiceProvider = ({ children }: { children: ReactNode }) => {
   const [started, setStarted] = useState(false);
   const [identity, setIdentity] = useState<string>();
@@ -59,7 +61,7 @@ export const TwilioVoiceProvider = ({ children }: { children: ReactNode }) => {
     setStarted(true);
     await navigator.mediaDevices.getUserMedia({ audio: true }); // to prime AudioContext
 
-    const res = await fetch("https://5afc9cbcc0e0.ngrok-free.app/token");
+    const res = await fetch(`${SERVER_ENDPOINT}/token`);
     const { token, identity } = await res.json();
     setIdentity(identity);
 
@@ -72,26 +74,43 @@ export const TwilioVoiceProvider = ({ children }: { children: ReactNode }) => {
     bindListeners();
   };
 
+  const reportStatus = async (
+    status: "ready" | "offline" | "in-call" | "error"
+  ) => {
+    if (!identity) return;
+
+    try {
+      await fetch(`${SERVER_ENDPOINT}/agent/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identity, status }),
+      });
+    } catch (err) {
+      console.warn("Failed to report agent status:", err);
+    }
+  };
+
   const bindListeners = () => {
     if (!deviceRef.current) return;
     const device = deviceRef.current;
 
-    device.on("registered", () => {
+    device.on("registered", async () => {
       console.log("🟢 Twilio.Device registered");
+      await reportStatus("ready");
     });
 
     device.on("incoming", (call) => {
       console.log("📞 Incoming call from:", call.parameters.From);
       setIncomingCall({ from: call.parameters.From, call });
 
-      call.on("cancel", () => {
-        setIncomingCall(null);
-      });
-
       const events = ["accept", "reject", "disconnect", "cancel"];
       events.forEach((event) => {
-        call.on(event, () => {
+        call.on(event, async () => {
           setCallStatus(call.status());
+
+          if (["reject", "disconnect", "cancel"].includes(event)) {
+            await reportStatus("ready");
+          }
 
           if (event === "cancel") {
             setIncomingCall(null);
@@ -111,6 +130,7 @@ export const TwilioVoiceProvider = ({ children }: { children: ReactNode }) => {
           if (event === "accept") {
             console.log("✅ Call accepted");
             setIncomingCall(null);
+            await reportStatus("in-call");
             timerRef.current = setInterval(() => {
               setCallDuration((prev) => prev + 1);
             }, 1000);
@@ -119,18 +139,20 @@ export const TwilioVoiceProvider = ({ children }: { children: ReactNode }) => {
       });
     });
 
-    device.on("error", (err) => {
+    device.on("error", async (err) => {
       console.error("❌ Twilio.Device error", err);
       setError(err.message);
+      await reportStatus("error");
     });
 
     deviceRef.current = device;
     setDevice(device);
   };
 
-  const endCall = () => {
+  const endCall = async () => {
     if (deviceRef.current) {
       deviceRef.current.disconnectAll();
+      await reportStatus("ready");
     }
   };
 

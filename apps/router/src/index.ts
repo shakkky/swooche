@@ -31,6 +31,11 @@ const AGENT_IDENTITY = "Shakeel"; // This might come from a model or something
 const { VoiceResponse } = twiml;
 const CONFERENCE_NAME = "forwarded-call-room";
 
+type AgentStatus = "ready" | "offline" | "in-call" | "error";
+
+// Temporary in-memory store. Swap with Redis or DB in production.
+const agentStatusMap = new Map<string, AgentStatus>();
+
 // 🟢 STEP 1: Handle inbound PSTN call → join conference + call WebRTC agent
 app.post("/voice", async (req, res) => {
   console.log("📡 TwiML App hit for WebRTC connection. To:", req.body.To);
@@ -154,6 +159,21 @@ app.get("/token", (req, res) => {
   );
 
   res.json({ token: token.toJwt(), identity: AGENT_IDENTITY });
+});
+
+app.post("/agent/status", (req, res) => {
+  const { identity, status } = req.body;
+
+  if (
+    typeof identity !== "string" ||
+    !["ready", "offline", "in-call", "error"].includes(status)
+  ) {
+    return res.status(400).json({ error: "Invalid payload" });
+  }
+
+  agentStatusMap.set(identity, status);
+  console.log(`📡 Agent status updated: ${identity} → ${status}`);
+  res.sendStatus(200);
 });
 
 app.listen(port, () => {
