@@ -10,7 +10,8 @@
     "publish": "pnpm run build && pnpm --filter website ecs-prepare && pnpm run deploy",
     "deploy": "AWS_PROFILE=swooche sst deploy --stage production",
     "remove": "AWS_PROFILE=swooche sst remove --stage production",
-    "build": "turbo run build"
+    "build": "turbo run build",
+    "install:clean": "rm -rf node_modules apps/*/node_modules && pnpm install"
   },
   "dependencies": {
     "@aws-sdk/client-ecr": "^3.687.0",
