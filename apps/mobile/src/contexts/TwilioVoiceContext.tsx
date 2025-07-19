@@ -6,7 +6,11 @@ import React, {
   ReactNode,
 } from "react";
 import { Call, Device } from "@twilio/voice-sdk";
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
+import { Audio } from "expo-av";
+
+// Import WebRTC polyfills for React Native
+import "../utils/webrtc-polyfill";
 
 // Configure your server URL here
 const SERVER_URL = __DEV__
@@ -18,8 +22,15 @@ type IncomingCall = {
   call: Call;
 };
 
+type LinkedNumber = {
+  id: string;
+  number: string;
+  capabilities: string[];
+};
+
 type State = {
   identity?: string;
+  numbers?: LinkedNumber[];
   started: boolean;
   error: string | null;
   incomingCall: IncomingCall | null;
@@ -43,6 +54,7 @@ export const useTwilioVoice = (): State => {
 export const TwilioVoiceProvider = ({ children }: { children: ReactNode }) => {
   const [started, setStarted] = useState(false);
   const [identity, setIdentity] = useState<string>();
+  const [numbers, setNumbers] = useState<LinkedNumber[]>();
   const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null);
   const [callDuration, setCallDuration] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
@@ -73,17 +85,46 @@ export const TwilioVoiceProvider = ({ children }: { children: ReactNode }) => {
       setError(null);
 
       console.log("🔄 Starting Twilio Voice device...");
+
+      // Request audio permissions first
+      if (Platform.OS !== "web") {
+        console.log("🎤 Requesting audio permissions...");
+        const { status } = await Audio.requestPermissionsAsync();
+        if (status !== "granted") {
+          throw new Error("Audio permission not granted");
+        }
+
+        // Set audio mode for voice calls
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: true,
+          shouldDuckAndroid: true,
+          playThroughEarpieceAndroid: false,
+        });
+        console.log("✅ Audio permissions granted and mode set");
+      }
+
       const res = await fetch(`${SERVER_URL}/token`);
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
 
-      const { token, identity } = await res.json();
+      const { token, identity, numbers } = await res.json();
+      console.log("Token response:", {
+        token: token ? "exists" : "null",
+        identity,
+        numbers,
+      });
       setIdentity(identity);
+      setNumbers(numbers);
 
       console.log("📱 Creating Twilio Device with identity:", identity);
       const device = new Device(token, {
         logLevel: 1,
+        // Disable getUserMedia for React Native since we handle it with polyfills
+        getUserMedia:
+          Platform.OS === "web" ? undefined : () => Promise.resolve({} as any),
       });
 
       await device.register();
@@ -184,6 +225,19 @@ export const TwilioVoiceProvider = ({ children }: { children: ReactNode }) => {
 
     device.on("error", async (err) => {
       console.error("❌ Twilio.Device error", err);
+
+      // Handle specific getUserMedia errors
+      if (
+        err.message.includes("getUserMedia") ||
+        err.message.includes("NotSupportedError")
+      ) {
+        console.log(
+          "🔧 getUserMedia error detected, this might be expected in React Native"
+        );
+        // Don't set this as a fatal error since we have polyfills
+        return;
+      }
+
       setError(err.message);
       await reportStatus("error");
     });
@@ -205,6 +259,7 @@ export const TwilioVoiceProvider = ({ children }: { children: ReactNode }) => {
     <TwilioVoiceContext.Provider
       value={{
         identity,
+        numbers,
         started,
         error,
         incomingCall,

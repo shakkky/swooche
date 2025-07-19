@@ -12,6 +12,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useTwilioVoice } from "../contexts/TwilioVoiceContext";
 import { useAuth } from "../contexts/AuthContext";
+import { ContactsList } from "../components/ContactsList";
+import { LinkedNumbers } from "../components/LinkedNumbers";
 
 // Mock data for recent activity
 const recentActivity = [
@@ -184,6 +186,9 @@ const Home = () => {
             {/* Connection Status */}
             {renderConnectionStatus()}
 
+            {/* Linked Numbers */}
+            <LinkedNumbers />
+
             {/* Incoming Call */}
             {incomingCall && (
               <View style={styles.incomingCallContainer}>
@@ -246,11 +251,7 @@ const Home = () => {
           </ScrollView>
         );
       case "contacts":
-        return (
-          <View style={styles.content}>
-            <Text style={styles.placeholderText}>Contacts</Text>
-          </View>
-        );
+        return <ContactsList />;
       case "messages":
         return (
           <View style={styles.content}>

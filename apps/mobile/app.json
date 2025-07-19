@@ -21,19 +21,32 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.swooche"
+      "bundleIdentifier": "com.anonymous.swooche",
+      "infoPlist": {
+        "NSContactsUsageDescription": "This app needs access to your contacts to display them in the contacts tab.",
+        "NSMicrophoneUsageDescription": "This app needs access to your microphone to make voice calls."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.swooche"
+      "package": "com.anonymous.swooche",
+      "permissions": ["READ_CONTACTS", "RECORD_AUDIO", "MODIFY_AUDIO_SETTINGS"]
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-    "plugins": ["expo-router"]
+    "plugins": [
+      "expo-router",
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone for voice calls."
+        }
+      ]
+    ]
   }
 }

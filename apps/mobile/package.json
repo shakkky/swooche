@@ -10,13 +10,21 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "clean": "rimraf .expo android coverage ios",
-    "check-types": "tsc --noEmit --pretty"
+    "check-types": "tsc --noEmit --pretty",
+    "build:apk": "eas build --platform android --profile preview",
+    "build:apk-dev": "eas build --platform android --profile development",
+    "build:apk-prod": "eas build --platform android --profile production",
+    "build:ios": "eas build --platform ios --profile preview",
+    "build:ios-dev": "eas build --platform ios --profile development",
+    "build:ios-prod": "eas build --platform ios --profile production"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
     "@twilio/voice-sdk": "^2.14.0",
     "expo": "~53.0.0",
+    "expo-av": "^15.1.7",
     "expo-constants": "~17.1.7",
+    "expo-contacts": "^14.2.5",
     "expo-device": "^7.1.4",
     "expo-font": "^13.3.2",
     "expo-linking": "~7.1.7",
@@ -30,7 +38,8 @@
     "react-native-gesture-handler": "~2.24.0",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
-    "react-native-web": "^0.20.0"
+    "react-native-web": "^0.20.0",
+    "react-native-webrtc": "^124.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.22.9",

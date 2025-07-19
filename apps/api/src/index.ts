@@ -21,6 +21,23 @@ const { AccessToken } = jwt;
 const { VoiceGrant } = AccessToken;
 
 const AGENT_IDENTITY = "Shakeel"; // This might come from a model or something
+const numbers = [
+  {
+    id: "1",
+    number: "0483 943 524",
+    capabilities: ["calls", "texts"],
+  },
+  {
+    id: "2",
+    number: "1800 BITE ME",
+    capabilities: ["calls"],
+  },
+];
+
+/**
+ * Each person is meant to get a single number.
+ * - if they want text capabilities, they will have two numbers.
+ */
 
 type AgentStatus = "ready" | "offline" | "in-call" | "error";
 
@@ -43,10 +60,11 @@ app.get("/token", (req, res) => {
     })
   );
 
-  res.json({ token: token.toJwt(), identity: AGENT_IDENTITY });
+  res.json({ token: token.toJwt(), identity: AGENT_IDENTITY, numbers });
 });
 
 app.post("/agent/status", (req, res) => {
+  console.log("📡 Agent status updated: ", req.body);
   const { identity, status } = req.body;
 
   if (
