@@ -4,17 +4,21 @@ import { router } from "expo-router";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import * as Font from "expo-font";
-
-// Configure your server URL here
-const SERVER_URL = __DEV__
-  ? "https://72c4978bd775.ngrok-free.app"
-  : "https://router.swooche.com";
+import { useTwilioVoice } from "../contexts/TwilioVoiceContext";
 
 const Welcome = () => {
   const [token, setToken] = useState<string | null>(null);
-  const [twilioToken, setTwilioToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  const {
+    started,
+    error,
+    identity,
+    deviceState,
+    start: startTwilioVoice,
+    incomingCall,
+  } = useTwilioVoice();
 
   useEffect(() => {
     const loadFonts = async () => {
@@ -28,27 +32,23 @@ const Welcome = () => {
     registerForPushNotificationsAsync().then(setToken);
   }, []);
 
-  const fetchTwilioToken = async () => {
+  const handleStartTwilioVoice = async () => {
     setLoading(true);
     try {
-      console.log("Fetching Twilio token from:", SERVER_URL);
-      const res = await fetch(`${SERVER_URL}/token`);
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      const json = await res.json();
-      console.log("Twilio Token:", json);
-      setTwilioToken(json.token);
-      Alert.alert("Success", "Twilio token fetched successfully!");
+      await startTwilioVoice();
+      Alert.alert("Success", "Twilio Voice device started successfully!");
       // Automatically navigate to home page after a short delay
       setTimeout(() => {
         router.push("/home");
       }, 1500);
     } catch (error) {
-      console.error("Error fetching Twilio token:", error);
+      console.error("Error starting Twilio Voice device:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      Alert.alert("Error", `Failed to fetch Twilio token: ${errorMessage}`);
+      Alert.alert(
+        "Error",
+        `Failed to start Twilio Voice device: ${errorMessage}`
+      );
     } finally {
       setLoading(false);
     }
@@ -65,29 +65,60 @@ const Welcome = () => {
         {token || "Loading..."}
       </Text>
 
-      <Text style={styles.label}>Server URL:</Text>
-      <Text style={styles.urlText} selectable>
-        {SERVER_URL}
+      <Text style={styles.label}>Twilio Voice Status:</Text>
+      <Text style={styles.statusText}>
+        {started ? "🟢 Started" : "🔴 Not Started"}
       </Text>
 
-      <Pressable
-        style={[styles.button, loading && styles.buttonDisabled]}
-        onPress={fetchTwilioToken}
-        disabled={loading}
-      >
-        <Text style={[styles.buttonText, loading && styles.buttonTextDisabled]}>
-          {loading ? "Loading..." : "Fetch Twilio Token"}
-        </Text>
-      </Pressable>
+      {identity && (
+        <>
+          <Text style={styles.label}>Agent Identity:</Text>
+          <Text style={styles.identityText} selectable>
+            {identity}
+          </Text>
+        </>
+      )}
 
-      {twilioToken && (
-        <View style={styles.tokenContainer}>
-          <Text style={styles.label}>Twilio Token:</Text>
-          <Text style={styles.tokenText} selectable>
-            {twilioToken}
+      {deviceState && (
+        <>
+          <Text style={styles.label}>Device State:</Text>
+          <Text style={styles.statusText}>{deviceState}</Text>
+        </>
+      )}
+
+      {error && (
+        <>
+          <Text style={styles.label}>Error:</Text>
+          <Text style={styles.errorText}>{error}</Text>
+        </>
+      )}
+
+      {incomingCall && (
+        <View style={styles.incomingCallContainer}>
+          <Text style={styles.incomingCallText}>
+            📞 Incoming call from: {incomingCall.from}
           </Text>
         </View>
       )}
+
+      <Pressable
+        style={[styles.button, (loading || started) && styles.buttonDisabled]}
+        onPress={handleStartTwilioVoice}
+        disabled={loading || started}
+      >
+        <Text
+          style={[
+            styles.buttonText,
+            (loading || started) && styles.buttonTextDisabled,
+          ]}
+        >
+          {loading
+            ? "Starting..."
+            : started
+            ? "Voice Device Started"
+            : "Start Twilio Voice Device"}
+        </Text>
+      </Pressable>
     </View>
   );
 };
@@ -118,15 +149,37 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: "center",
   },
-  urlText: {
+  statusText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    marginBottom: 16,
+    textAlign: "center",
+    fontWeight: "600",
+  },
+  identityText: {
     color: "#FFFFFF",
     fontSize: 14,
     marginBottom: 16,
     textAlign: "center",
   },
-  tokenContainer: {
-    marginTop: 16,
+  errorText: {
+    color: "#FCA5A5",
+    fontSize: 14,
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  incomingCallContainer: {
+    backgroundColor: "#EF4444",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
     width: "100%",
+  },
+  incomingCallText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    textAlign: "center",
+    fontWeight: "600",
   },
   button: {
     backgroundColor: "#FFFFFF",

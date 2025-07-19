@@ -3,12 +3,14 @@ import {
   View,
   Text,
   StyleSheet,
+  Pressable,
+  Alert,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useTwilioVoice } from "../contexts/TwilioVoiceContext";
 
 // Mock data for recent activity
 const recentActivity = [
@@ -48,6 +50,40 @@ const recentActivity = [
 
 const Home = () => {
   const [activeTab, setActiveTab] = useState("home");
+
+  const {
+    started,
+    identity,
+    deviceState,
+    incomingCall,
+    callStatus,
+    callDuration,
+    error,
+    acceptCall,
+    rejectCall,
+    endCall,
+  } = useTwilioVoice();
+
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const handleAcceptCall = () => {
+    acceptCall();
+  };
+
+  const handleRejectCall = () => {
+    rejectCall();
+  };
+
+  const handleEndCall = () => {
+    Alert.alert("End Call", "Are you sure you want to end the current call?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "End Call", style: "destructive", onPress: endCall },
+    ]);
+  };
 
   const renderRecentActivity = () => (
     <View style={styles.activityContainer}>
@@ -97,6 +133,80 @@ const Home = () => {
                 Here's what's been happening lately
               </Text>
             </View>
+
+            {/* Voice Device Status */}
+            <View style={styles.statusContainer}>
+              <Text style={styles.sectionTitle}>Voice Device Status</Text>
+              <Text style={styles.statusText}>
+                Status: {started ? "🟢 Online" : "🔴 Offline"}
+              </Text>
+              {identity && (
+                <Text style={styles.statusText}>Agent: {identity}</Text>
+              )}
+              {deviceState && (
+                <Text style={styles.statusText}>Device: {deviceState}</Text>
+              )}
+              {error && <Text style={styles.errorText}>Error: {error}</Text>}
+            </View>
+
+            {/* Incoming Call */}
+            {incomingCall && (
+              <View style={styles.incomingCallContainer}>
+                <Text style={styles.incomingCallTitle}>📞 Incoming Call</Text>
+                <Text style={styles.incomingCallText}>
+                  From: {incomingCall.from}
+                </Text>
+                <View style={styles.callButtons}>
+                  <Pressable
+                    style={[styles.callButton, styles.rejectButton]}
+                    onPress={handleRejectCall}
+                  >
+                    <Text style={styles.callButtonText}>Reject</Text>
+                  </Pressable>
+                  <Pressable
+                    style={[styles.callButton, styles.acceptButton]}
+                    onPress={handleAcceptCall}
+                  >
+                    <Text style={styles.callButtonText}>Accept</Text>
+                  </Pressable>
+                </View>
+              </View>
+            )}
+
+            {/* Active Call */}
+            {callStatus === "open" && (
+              <View style={styles.activeCallContainer}>
+                <Text style={styles.activeCallTitle}>📞 Active Call</Text>
+                <Text style={styles.callDuration}>
+                  Duration: {formatDuration(callDuration)}
+                </Text>
+                <Pressable
+                  style={[styles.callButton, styles.endCallButton]}
+                  onPress={handleEndCall}
+                >
+                  <Text style={styles.callButtonText}>End Call</Text>
+                </Pressable>
+              </View>
+            )}
+
+            {/* Instructions */}
+            <View style={styles.instructionsContainer}>
+              <Text style={styles.instructionsTitle}>How to use:</Text>
+              <Text style={styles.instructionsText}>
+                1. Make sure the voice device is online (green status)
+              </Text>
+              <Text style={styles.instructionsText}>
+                2. When a call comes in, you'll see an alert and call controls
+              </Text>
+              <Text style={styles.instructionsText}>
+                3. Accept or reject incoming calls using the buttons
+              </Text>
+              <Text style={styles.instructionsText}>
+                4. Use the "End Call" button to hang up during active calls
+              </Text>
+            </View>
+
+            {/* Recent Activity */}
             {renderRecentActivity()}
           </ScrollView>
         );
@@ -130,7 +240,7 @@ const Home = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {renderTabContent()}
 
       <View style={styles.bottomNavigation}>
@@ -229,12 +339,13 @@ const Home = () => {
           </Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    paddingTop: 80,
     flex: 1,
     backgroundColor: "#F9FAFB",
   },
@@ -255,10 +366,129 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#6B7280",
   },
+  statusContainer: {
+    backgroundColor: "#FFFFFF",
+    padding: 20,
+    borderRadius: 12,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 12,
+  },
+  statusText: {
+    fontSize: 16,
+    color: "#6B7280",
+    marginBottom: 4,
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#EF4444",
+    marginBottom: 4,
+  },
+  incomingCallContainer: {
+    backgroundColor: "#FEF3C7",
+    padding: 20,
+    borderRadius: 12,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: "#F59E0B",
+  },
+  incomingCallTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#92400E",
+    marginBottom: 8,
+  },
+  incomingCallText: {
+    fontSize: 16,
+    color: "#92400E",
+    marginBottom: 16,
+  },
+  callButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  callButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  acceptButton: {
+    backgroundColor: "#10B981",
+  },
+  rejectButton: {
+    backgroundColor: "#EF4444",
+  },
+  endCallButton: {
+    backgroundColor: "#EF4444",
+    alignSelf: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+  },
+  callButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  activeCallContainer: {
+    backgroundColor: "#DBEAFE",
+    padding: 20,
+    borderRadius: 12,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: "#3B82F6",
+  },
+  activeCallTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#1E40AF",
+    marginBottom: 8,
+  },
+  callDuration: {
+    fontSize: 18,
+    color: "#1E40AF",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  instructionsContainer: {
+    backgroundColor: "#FFFFFF",
+    padding: 20,
+    borderRadius: 12,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  instructionsTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 12,
+  },
+  instructionsText: {
+    fontSize: 14,
+    color: "#6B7280",
+    marginBottom: 8,
+    lineHeight: 20,
+  },
   activityContainer: {
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     padding: 16,
+    marginBottom: 20,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -267,12 +497,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1F2937",
-    marginBottom: 16,
   },
   activityItem: {
     flexDirection: "row",

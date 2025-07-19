@@ -1,12 +1,15 @@
-import { Stack } from 'expo-router';
-import React from 'react';
+import { Stack } from "expo-router";
+import React from "react";
+import { TwilioVoiceProvider } from "../src/contexts/TwilioVoiceContext";
 
 export default function Layout() {
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    />
+    <TwilioVoiceProvider>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      />
+    </TwilioVoiceProvider>
   );
 }

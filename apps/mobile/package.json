@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "Main.tsx",
   "scripts": {
-    "start": "expo start --dev-client",
+    "start": "expo start --dev-client --lan",
     "dev:android": "expo start --android",
     "dev:ios": "expo start --ios",
     "web": "expo start --web",
@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
+    "@twilio/voice-sdk": "^2.14.0",
     "expo": "~53.0.0",
     "expo-constants": "~17.1.7",
     "expo-device": "^7.1.4",
