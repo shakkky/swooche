@@ -11,6 +11,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useTwilioVoice } from "../contexts/TwilioVoiceContext";
+import { useAuth } from "../contexts/AuthContext";
 
 // Mock data for recent activity
 const recentActivity = [
@@ -50,6 +51,7 @@ const recentActivity = [
 
 const Home = () => {
   const [activeTab, setActiveTab] = useState("home");
+  const { logout } = useAuth();
 
   const {
     started,
@@ -62,6 +64,7 @@ const Home = () => {
     acceptCall,
     rejectCall,
     endCall,
+    start: startTwilioVoice,
   } = useTwilioVoice();
 
   const formatDuration = (seconds: number) => {
@@ -82,6 +85,22 @@ const Home = () => {
     Alert.alert("End Call", "Are you sure you want to end the current call?", [
       { text: "Cancel", style: "cancel" },
       { text: "End Call", style: "destructive", onPress: endCall },
+    ]);
+  };
+
+  const handleConnect = async () => {
+    try {
+      await startTwilioVoice();
+      Alert.alert("Success", "Connected to Twilio Voice!");
+    } catch (error) {
+      Alert.alert("Connection Error", "Failed to connect. Please try again.");
+    }
+  };
+
+  const handleLogout = () => {
+    Alert.alert("Logout", "Are you sure you want to log out?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Logout", style: "destructive", onPress: logout },
     ]);
   };
 
@@ -119,6 +138,34 @@ const Home = () => {
     </View>
   );
 
+  const renderConnectionStatus = () => {
+    if (started && deviceState === "registered") {
+      return (
+        <View style={styles.statusContainer}>
+          <Text style={styles.sectionTitle}>Voice Device Status</Text>
+          <Text style={styles.statusText}>
+            Status: 🟢 Ready to receive calls
+          </Text>
+          {identity && <Text style={styles.statusText}>Agent: {identity}</Text>}
+          <Text style={styles.statusText}>Device: {deviceState}</Text>
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.connectionContainer}>
+          <Text style={styles.sectionTitle}>Voice Device Status</Text>
+          <Text style={styles.connectionText}>
+            Status: 🔴 Not ready to receive calls
+          </Text>
+          {error && <Text style={styles.errorText}>Error: {error}</Text>}
+          <Pressable style={styles.connectButton} onPress={handleConnect}>
+            <Text style={styles.connectButtonText}>Connect</Text>
+          </Pressable>
+        </View>
+      );
+    }
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case "home":
@@ -128,26 +175,14 @@ const Home = () => {
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.welcomeSection}>
-              <Text style={styles.welcomeTitle}>Welcome Shakeel</Text>
+              <Text style={styles.welcomeTitle}>Welcome {identity}</Text>
               <Text style={styles.welcomeSubtitle}>
                 Here's what's been happening lately
               </Text>
             </View>
 
-            {/* Voice Device Status */}
-            <View style={styles.statusContainer}>
-              <Text style={styles.sectionTitle}>Voice Device Status</Text>
-              <Text style={styles.statusText}>
-                Status: {started ? "🟢 Online" : "🔴 Offline"}
-              </Text>
-              {identity && (
-                <Text style={styles.statusText}>Agent: {identity}</Text>
-              )}
-              {deviceState && (
-                <Text style={styles.statusText}>Device: {deviceState}</Text>
-              )}
-              {error && <Text style={styles.errorText}>Error: {error}</Text>}
-            </View>
+            {/* Connection Status */}
+            {renderConnectionStatus()}
 
             {/* Incoming Call */}
             {incomingCall && (
@@ -193,7 +228,7 @@ const Home = () => {
             <View style={styles.instructionsContainer}>
               <Text style={styles.instructionsTitle}>How to use:</Text>
               <Text style={styles.instructionsText}>
-                1. Make sure the voice device is online (green status)
+                1. Make sure the voice device is connected (green status)
               </Text>
               <Text style={styles.instructionsText}>
                 2. When a call comes in, you'll see an alert and call controls
@@ -232,6 +267,9 @@ const Home = () => {
         return (
           <View style={styles.content}>
             <Text style={styles.placeholderText}>Settings</Text>
+            <Pressable style={styles.logoutButton} onPress={handleLogout}>
+              <Text style={styles.logoutButtonText}>Logout</Text>
+            </Pressable>
           </View>
         );
       default:
@@ -377,6 +415,14 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  connectionContainer: {
+    backgroundColor: "#FEF2F2",
+    padding: 20,
+    borderRadius: 12,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: "#FCA5A5",
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "600",
@@ -388,10 +434,28 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     marginBottom: 4,
   },
+  connectionText: {
+    fontSize: 16,
+    color: "#DC2626",
+    marginBottom: 12,
+    fontWeight: "500",
+  },
   errorText: {
     fontSize: 16,
     color: "#EF4444",
-    marginBottom: 4,
+    marginBottom: 12,
+  },
+  connectButton: {
+    backgroundColor: "#3B82F6",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignSelf: "flex-start",
+  },
+  connectButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
   },
   incomingCallContainer: {
     backgroundColor: "#FEF3C7",
@@ -530,6 +594,19 @@ const styles = StyleSheet.create({
   activityTime: {
     fontSize: 12,
     color: "#9CA3AF",
+  },
+  logoutButton: {
+    backgroundColor: "#EF4444",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignSelf: "center",
+    marginTop: 20,
+  },
+  logoutButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
   },
   bottomNavigation: {
     flexDirection: "row",

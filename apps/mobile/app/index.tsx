@@ -1,16 +1,25 @@
-import { Stack } from 'expo-router';
-import React from 'react';
-import { Welcome } from '@/templates/Welcome';
+import { useEffect } from "react";
+import { router } from "expo-router";
+import { useAuth } from "../src/contexts/AuthContext";
+import { View, ActivityIndicator } from "react-native";
 
-const Home = () => (
-  <>
-    <Stack.Screen
-      options={{
-        title: 'Steves home',
-      }}
-    />
-    <Welcome />
-  </>
-);
+export default function Index() {
+  const { isLoggedIn, isLoading } = useAuth();
 
-export default Home;
+  useEffect(() => {
+    if (!isLoading) {
+      if (isLoggedIn) {
+        router.replace("/home");
+      } else {
+        router.replace("/login");
+      }
+    }
+  }, [isLoggedIn, isLoading]);
+
+  // Show loading spinner while checking auth status
+  return (
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <ActivityIndicator size="large" color="#3B81F6" />
+    </View>
+  );
+}
