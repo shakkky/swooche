@@ -7,7 +7,7 @@ import * as Font from "expo-font";
 
 // Configure your server URL here
 const SERVER_URL = __DEV__
-  ? "https://0668e21072d9.ngrok-free.app"
+  ? "https://72c4978bd775.ngrok-free.app"
   : "https://router.swooche.com";
 
 const Welcome = () => {

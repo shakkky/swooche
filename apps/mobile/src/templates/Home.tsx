@@ -59,6 +59,8 @@ const Home = () => {
           onPress={() => {
             if (activity.type === "call") {
               router.push("/call-detail");
+            } else if (activity.type === "message") {
+              router.push("/message-thread");
             }
           }}
         >
