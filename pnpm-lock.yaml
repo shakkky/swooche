@@ -81,6 +81,9 @@ importers:
 
   apps/mobile:
     dependencies:
+      '@expo/vector-icons':
+        specifier: ^14.1.0
+        version: 14.1.0(expo-font@13.3.2(expo@53.0.19(@babel/core@7.28.0)(@expo/metro-runtime@5.0.4(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.8)(react@19.0.0)))(graphql@16.6.0)(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.8)(react@19.0.0))(react@19.0.0))(react@19.0.0))(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.8)(react@19.0.0))(react@19.0.0)
       expo:
         specifier: ~53.0.0
         version: 53.0.19(@babel/core@7.28.0)(@expo/metro-runtime@5.0.4(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.8)(react@19.0.0)))(graphql@16.6.0)(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.8)(react@19.0.0))(react@19.0.0)
@@ -90,6 +93,9 @@ importers:
       expo-device:
         specifier: ^7.1.4
         version: 7.1.4(expo@53.0.19(@babel/core@7.28.0)(@expo/metro-runtime@5.0.4(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.8)(react@19.0.0)))(graphql@16.6.0)(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.8)(react@19.0.0))(react@19.0.0))
+      expo-font:
+        specifier: ^13.3.2
+        version: 13.3.2(expo@53.0.19(@babel/core@7.28.0)(@expo/metro-runtime@5.0.4(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.8)(react@19.0.0)))(graphql@16.6.0)(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.8)(react@19.0.0))(react@19.0.0))(react@19.0.0)
       expo-linking:
         specifier: ~7.1.7
         version: 7.1.7(expo@53.0.19(@babel/core@7.28.0)(@expo/metro-runtime@5.0.4(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.8)(react@19.0.0)))(graphql@16.6.0)(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.8)(react@19.0.0))(react@19.0.0))(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.8)(react@19.0.0))(react@19.0.0)

@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 app.use(
   cors({
     // todo: add only localhost if running locally
-    origin: ["http://localhost:*", "https://*.swooche.com"],
+    origin: ["http://localhost:*", "https://*.swooche.com", "*"],
     methods: ["GET", "POST"],
     credentials: true,
   })

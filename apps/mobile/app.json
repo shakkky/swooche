@@ -13,6 +13,12 @@
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": ["**/*"],
+    "fonts": [
+      {
+        "asset": "./assets/fonts/Modak.ttf",
+        "family": "Modak"
+      }
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.swooche"

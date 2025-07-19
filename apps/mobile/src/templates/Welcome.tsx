@@ -1,25 +1,37 @@
 import React, { useEffect, useState } from "react";
-import { Alert, Button, Text, View, StyleSheet } from "react-native";
+import { Alert, Pressable, Text, View, StyleSheet } from "react-native";
+import { router } from "expo-router";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
+import * as Font from "expo-font";
 
 // Configure your server URL here
 const SERVER_URL = __DEV__
-  ? "https://de2aa73c296f.ngrok-free.app"
+  ? "https://0668e21072d9.ngrok-free.app"
   : "https://router.swooche.com";
 
 const Welcome = () => {
   const [token, setToken] = useState<string | null>(null);
   const [twilioToken, setTwilioToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
 
   useEffect(() => {
+    const loadFonts = async () => {
+      await Font.loadAsync({
+        Modak: require("../../assets/fonts/Modak.ttf"),
+      });
+      setFontsLoaded(true);
+    };
+
+    loadFonts();
     registerForPushNotificationsAsync().then(setToken);
   }, []);
 
   const fetchTwilioToken = async () => {
     setLoading(true);
     try {
+      console.log("Fetching Twilio token from:", SERVER_URL);
       const res = await fetch(`${SERVER_URL}/token`);
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -28,6 +40,10 @@ const Welcome = () => {
       console.log("Twilio Token:", json);
       setTwilioToken(json.token);
       Alert.alert("Success", "Twilio token fetched successfully!");
+      // Automatically navigate to home page after a short delay
+      setTimeout(() => {
+        router.push("/home");
+      }, 1500);
     } catch (error) {
       console.error("Error fetching Twilio token:", error);
       const errorMessage =
@@ -40,7 +56,9 @@ const Welcome = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Swooche</Text>
+      <Text style={[styles.title, fontsLoaded && { fontFamily: "Modak" }]}>
+        Swooche
+      </Text>
 
       <Text style={styles.label}>Expo Push Token:</Text>
       <Text style={styles.tokenText} selectable>
@@ -52,11 +70,15 @@ const Welcome = () => {
         {SERVER_URL}
       </Text>
 
-      <Button
-        title={loading ? "Loading..." : "Fetch Twilio Token"}
+      <Pressable
+        style={[styles.button, loading && styles.buttonDisabled]}
         onPress={fetchTwilioToken}
         disabled={loading}
-      />
+      >
+        <Text style={[styles.buttonText, loading && styles.buttonTextDisabled]}>
+          {loading ? "Loading..." : "Fetch Twilio Token"}
+        </Text>
+      </Pressable>
 
       {twilioToken && (
         <View style={styles.tokenContainer}>
@@ -80,10 +102,10 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "#BEDBFE",
-    fontSize: 56,
-    fontWeight: 900,
-    marginBottom: 16,
-    transform: [{ rotate: "-2deg" }],
+    fontSize: 72,
+    marginBottom: 4,
+    transform: [{ rotate: "-4deg" }],
+    textShadowRadius: 4,
   },
   label: {
     color: "#FFFFFF",
@@ -105,6 +127,36 @@ const styles = StyleSheet.create({
   tokenContainer: {
     marginTop: 16,
     width: "100%",
+  },
+  button: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 25,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    marginTop: 20,
+    minWidth: 200,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  buttonDisabled: {
+    backgroundColor: "#E5E7EB",
+    opacity: 0.6,
+  },
+  buttonText: {
+    color: "#3B81F6",
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  buttonTextDisabled: {
+    color: "#9CA3AF",
   },
 });
 
