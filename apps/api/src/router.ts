@@ -1,11 +1,10 @@
 import { initTRPC } from "@trpc/server";
 import { z } from "zod";
 import twilio from "twilio";
-import {
-  AgentStatusUpdateSchema,
-  NumberSchema,
-  TokenResponseSchema,
-} from "@swooche/schemas";
+import { AgentStatusUpdateSchema, TokenResponseSchema } from "@swooche/schemas";
+
+// the twilio config comes from env when deployed...
+// i wonder if i can get it to pull from aws when running locally
 
 const t = initTRPC.create();
 

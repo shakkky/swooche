@@ -5,6 +5,11 @@
 
 declare module "sst" {
   export interface Resource {
+    "ApiService": {
+      "service": string
+      "type": "sst.aws.Service"
+      "url": string
+    }
     "Vpc": {
       "type": "sst.aws.Vpc"
     }

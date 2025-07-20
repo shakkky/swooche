@@ -1,6 +1,6 @@
 import { getDomainName, getEcrServiceImageUrl } from "./deployment";
+import { vpc } from "./vpc";
 
-export const vpc = new sst.aws.Vpc("Vpc");
 export const cluster = new sst.aws.Cluster("WebsiteCluster", { vpc });
 
 export const website = new sst.aws.Service("WebsiteService", {
@@ -9,7 +9,7 @@ export const website = new sst.aws.Service("WebsiteService", {
   cluster,
   architecture: "arm64",
   loadBalancer: {
-    domain: getDomainName($app.stage),
+    domain: getDomainName($app.stage, "website"),
     ports: [
       { listen: "80/http", forward: "3000/http" },
       { listen: "443/https", forward: "3000/http" },
@@ -17,7 +17,7 @@ export const website = new sst.aws.Service("WebsiteService", {
   },
   containers: [
     {
-      image: getEcrServiceImageUrl(),
+      image: getEcrServiceImageUrl("website"),
       logging: {
         retention: "3 weeks",
       },
@@ -30,4 +30,6 @@ export const website = new sst.aws.Service("WebsiteService", {
     url: "http://localhost:3000",
   },
   wait: true,
+  // Add idempotency configuration to prevent creation conflicts
+  forceNewDeployment: true,
 });

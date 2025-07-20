@@ -12,7 +12,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "fonts": [
       {
         "asset": "./assets/fonts/Modak.ttf",
@@ -33,7 +35,13 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.anonymous.swooche",
-      "permissions": ["READ_CONTACTS", "RECORD_AUDIO", "MODIFY_AUDIO_SETTINGS"]
+      "permissions": [
+        "READ_CONTACTS",
+        "RECORD_AUDIO",
+        "MODIFY_AUDIO_SETTINGS",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -47,6 +55,12 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone for voice calls."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e1729697-cb18-4480-b119-37bdf440b739"
+      }
+    }
   }
 }
