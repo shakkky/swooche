@@ -1,10 +1,28 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { jwt } from "twilio";
 import cors from "cors";
+import * as trpcExpress from "@trpc/server/adapters/express";
+import { appRouter } from "./router";
 
 const app = express();
 const port = process.env.PORT || 3001;
+
+/**
+ * Each person is meant to get a single number.
+ * - if they want text capabilities, they will have two numbers.
+ *
+ * The user flow is:
+ * 1. They can sign up completely brand new through their device
+ * 2. They are then asked some general questions:
+ * - some questions are themselves questions
+ * -- "what is your name?"
+ * -- "what type of business are you running?"
+ * - some questions about their business
+ * -- "what is your business name?"
+ * -- "would you like to have a mobile number? This lets you send and receive texts."
+ * -- "do you want to have a landline number? This lets you share a professional number with your customers for calls."
+ *
+ **/
 
 app.use(
   cors({
@@ -15,70 +33,24 @@ app.use(
   })
 );
 
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-const { AccessToken } = jwt;
-const { VoiceGrant } = AccessToken;
+// tRPC middleware
+app.use(
+  "/trpc",
+  trpcExpress.createExpressMiddleware({
+    router: appRouter,
+  })
+);
 
-const AGENT_IDENTITY = "Shakeel"; // This might come from a model or something
-const numbers = [
-  {
-    id: "1",
-    number: "0483 943 524",
-    capabilities: ["calls", "texts"],
-  },
-  {
-    id: "2",
-    number: "1800 BITE ME",
-    capabilities: ["calls"],
-  },
-];
-
-/**
- * Each person is meant to get a single number.
- * - if they want text capabilities, they will have two numbers.
- */
-
-type AgentStatus = "ready" | "offline" | "in-call" | "error";
-
-// Temporary in-memory store. Swap with Redis or DB in production.
-const agentStatusMap = new Map<string, AgentStatus>();
-
-// ✅ STEP 5: Token for React app
-app.get("/token", (req, res) => {
-  const token = new AccessToken(
-    process.env.TWILIO_ACCOUNT_SID!,
-    process.env.TWILIO_API_KEY!,
-    process.env.TWILIO_API_SECRET!,
-    { identity: AGENT_IDENTITY.toString(), region: "au1" }
-  );
-
-  token.addGrant(
-    new VoiceGrant({
-      outgoingApplicationSid: process.env.TWIML_APP_SID!,
-      incomingAllow: true,
-    })
-  );
-
-  res.json({ token: token.toJwt(), identity: AGENT_IDENTITY, numbers });
-});
-
-app.post("/agent/status", (req, res) => {
-  console.log("📡 Agent status updated: ", req.body);
-  const { identity, status } = req.body;
-
-  if (
-    typeof identity !== "string" ||
-    !["ready", "offline", "in-call", "error"].includes(status)
-  ) {
-    return res.status(400).json({ error: "Invalid payload" });
-  }
-
-  agentStatusMap.set(identity, status);
-  console.log(`📡 Agent status updated: ${identity} → ${status}`);
-  res.sendStatus(200);
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`🚀 tRPC server running at http://localhost:${port}`);
+  console.log(`📡 tRPC endpoint: http://localhost:${port}/trpc`);
+  console.log(`🏥 Health check: http://localhost:${port}/health`);
 });

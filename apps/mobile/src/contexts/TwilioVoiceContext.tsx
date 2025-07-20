@@ -11,11 +11,8 @@ import { Audio } from "expo-av";
 
 // Import WebRTC polyfills for React Native
 import "../utils/webrtc-polyfill";
-
-// Configure your server URL here
-const SERVER_URL = __DEV__
-  ? "http://192.168.8.131:3001"
-  : "https://api.swooche.com";
+// Import tRPC client
+import { trpc } from "../utils/trpc";
 
 type IncomingCall = {
   from: string;
@@ -25,7 +22,7 @@ type IncomingCall = {
 type LinkedNumber = {
   id: string;
   number: string;
-  capabilities: string[];
+  capabilities: ("calls" | "texts")[];
 };
 
 type State = {
@@ -105,12 +102,7 @@ export const TwilioVoiceProvider = ({ children }: { children: ReactNode }) => {
         console.log("✅ Audio permissions granted and mode set");
       }
 
-      const res = await fetch(`${SERVER_URL}/token`);
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-
-      const { token, identity, numbers } = await res.json();
+      const { token, identity, numbers } = await trpc.getToken.query();
       console.log("Token response:", {
         token: token ? "exists" : "null",
         identity,
@@ -146,11 +138,7 @@ export const TwilioVoiceProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       console.log("📊 Reporting agent status:", status);
-      await fetch(`${SERVER_URL}/agent/status`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identity, status }),
-      });
+      await trpc.updateAgentStatus.mutate({ identity, status });
     } catch (err) {
       console.warn("⚠️ Failed to report agent status:", err);
     }
