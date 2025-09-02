@@ -10,9 +10,10 @@ const config = defineConfig({
       margin: 0,
       padding: 0,
     },
-    // body: {
-    //   bg: "brand.solid",
-    // },
+    body: {
+      bg: "base.bg",
+      color: "base.fg",
+    },
   },
   theme: {
     ...defaultConfig.theme,

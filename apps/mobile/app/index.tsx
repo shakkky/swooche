@@ -1,20 +1,20 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { router } from "expo-router";
 import { useAuth } from "../src/contexts/AuthContext";
 import { View, ActivityIndicator } from "react-native";
 
 export default function Index() {
-  const { isLoggedIn, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
     if (!isLoading) {
-      if (isLoggedIn) {
+      if (user) {
         router.replace("/home");
       } else {
         router.replace("/login");
       }
     }
-  }, [isLoggedIn, isLoading]);
+  }, [user, isLoading]);
 
   // Show loading spinner while checking auth status
   return (

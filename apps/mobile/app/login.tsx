@@ -6,7 +6,7 @@ import { useAuth } from "../src/contexts/AuthContext";
 
 const Login = () => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  const { login, isLoading } = useAuth();
+  const { signInWithGoogle, isLoading } = useAuth();
 
   React.useEffect(() => {
     const loadFonts = async () => {
@@ -19,13 +19,15 @@ const Login = () => {
     loadFonts();
   }, []);
 
-  const handleLogin = async () => {
+  const handleGoogleSignIn = async () => {
     try {
-      await login();
+      await signInWithGoogle();
       // Navigation will be handled by the auth context
-      router.replace("/home");
     } catch (error) {
-      Alert.alert("Login Error", "Failed to log in. Please try again.");
+      Alert.alert(
+        "Sign In Error",
+        "Failed to sign in with Google. Please try again."
+      );
     }
   };
 
@@ -36,28 +38,27 @@ const Login = () => {
       </Text>
 
       <Text style={styles.subtitle}>
-        Welcome back! Please log in to continue.
+        Welcome back! Please sign in to continue.
       </Text>
 
       <View style={styles.formContainer}>
         <Pressable
-          style={[styles.loginButton, isLoading && styles.buttonDisabled]}
-          onPress={handleLogin}
+          style={[styles.googleButton, isLoading && styles.buttonDisabled]}
+          onPress={handleGoogleSignIn}
           disabled={isLoading}
         >
           <Text
             style={[
-              styles.loginButtonText,
+              styles.googleButtonText,
               isLoading && styles.buttonTextDisabled,
             ]}
           >
-            {isLoading ? "Logging in..." : "Login"}
+            {isLoading ? "Signing in..." : "Continue with Google"}
           </Text>
         </Pressable>
 
         <Text style={styles.note}>
-          Note: This is a demo login. In production, you would enter your
-          credentials here.
+          Sign in with your Google account to access your Swooche dashboard.
         </Text>
       </View>
     </View>
@@ -90,7 +91,7 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 300,
   },
-  loginButton: {
+  googleButton: {
     backgroundColor: "#FFFFFF",
     borderRadius: 25,
     paddingVertical: 16,
@@ -111,7 +112,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#E5E7EB",
     opacity: 0.6,
   },
-  loginButtonText: {
+  googleButtonText: {
     color: "#3B81F6",
     fontSize: 18,
     fontWeight: "600",

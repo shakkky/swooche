@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { appRouter } from "./router";
+import { createContext } from "./context";
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -24,6 +25,39 @@ const port = process.env.PORT || 3001;
  *
  **/
 
+// STORY - I should be able to create a new account
+// this includes creating a new supabase user
+// creating a new account record
+// creating a new user record
+// create a new device record - just name them via UUID
+// creating a new twilioNumber record
+
+// we get the user's devices linked to that account
+// each user has an array of "devices"
+
+// STORY - I want to be able to play recordings of voice calls
+// An account is created for each user.
+// there may be multiple users per account.
+// each account has a name, phone number, and email address.
+// let's store the twilioNumber record in it's own table.
+// when a call comes in, we look up which account the number belongs to
+// we get user linked to that account
+// we get the user's devices linked to that account
+// each user has an array of "devices"
+// We the clientName of the user's device
+// connect the call using that clientName
+// store that call in the database, set a statusCallbackUrl
+// a "Call" model, which has an "accountId"
+// I need to store these calls somewhere
+// I want to be able to play recordings of voice calls
+
+// what can i hardcode for now?
+// lets create an empty account record just so we have an accountId
+// then also an empty user record just so we have a userId, devices and deviceIds
+// log the call under that deviceId, userId and accountId?
+
+// STORY - I want to be able to send and receive texts
+
 app.use(
   cors({
     // todo: add only localhost if running locally
@@ -34,23 +68,20 @@ app.use(
 );
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
 
-// tRPC middleware
+// tRPC middleware with authentication context
 app.use(
   "/trpc",
   trpcExpress.createExpressMiddleware({
     router: appRouter,
+    createContext,
   })
 );
 
-// Health check endpoint
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
+  res.json({ status: "ok" });
 });
 
 app.listen(port, () => {
-  console.log(`🚀 tRPC server running at http://localhost:${port}`);
-  console.log(`📡 tRPC endpoint: http://localhost:${port}/trpc`);
-  console.log(`🏥 Health check: http://localhost:${port}/health`);
+  console.log(`🚀 Server running on port ${port}`);
 });

@@ -1,0 +1,17 @@
+{
+  "name": "@swooche/models",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "tsup-node src/index.ts --watch --dts",
+    "build": "tsup-node src/index.ts --format esm --dts"
+  },
+  "dependencies": {
+    "@swooche/schemas": "workspace:^",
+    "@typegoose/typegoose": "^11.2.0",
+    "mongoose": "7.8.0",
+    "zod": "3.24.2"
+  }
+}

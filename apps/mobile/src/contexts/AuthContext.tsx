@@ -5,13 +5,16 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
+import { User, Session } from "@supabase/supabase-js";
 import { useTwilioVoice } from "./TwilioVoiceContext";
+import { supabase } from "../lib/supabase";
 
 type AuthState = {
-  isLoggedIn: boolean;
+  user: User | null;
+  session: Session | null;
   isLoading: boolean;
-  login: () => Promise<void>;
-  logout: () => void;
+  signInWithGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
@@ -23,31 +26,47 @@ export const useAuth = (): AuthState => {
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { start: startTwilioVoice, started, error } = useTwilioVoice();
 
-  // Check if user is already logged in (e.g., from storage)
+  // Check if user is already logged in
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        // In a real app, you'd check AsyncStorage or secure storage
-        // For now, we'll assume the user needs to log in
-        setIsLoggedIn(false);
+        // Get initial session
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        setSession(session);
+        setUser(session?.user ?? null);
       } catch (error) {
         console.error("Error checking auth status:", error);
-        setIsLoggedIn(false);
+        setUser(null);
+        setSession(null);
       } finally {
         setIsLoading(false);
       }
     };
 
     checkAuthStatus();
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   // Automatically start Twilio Voice when logged in
   useEffect(() => {
-    if (isLoggedIn && !started && !error) {
+    if (user && !started && !error) {
       const autoStartTwilio = async () => {
         try {
           console.log("🔄 Auto-starting Twilio Voice after login...");
@@ -59,37 +78,53 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       autoStartTwilio();
     }
-  }, [isLoggedIn, started, error, startTwilioVoice]);
+  }, [user, started, error, startTwilioVoice]);
 
-  const login = async () => {
-    setIsLoading(true);
+  const signInWithGoogle = async () => {
     try {
-      // Simulate login process
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setIsLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: "swooche://auth/callback",
+        },
+      });
 
-      // In a real app, you'd validate credentials and store auth tokens
-      setIsLoggedIn(true);
+      if (error) {
+        console.error("❌ Google sign-in error:", error);
+        throw error;
+      }
 
-      console.log("✅ User logged in successfully");
+      console.log("✅ Google sign-in initiated successfully");
     } catch (error) {
-      console.error("❌ Login failed:", error);
+      console.error("❌ Sign-in failed:", error);
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    setIsLoggedIn(false);
-    console.log("👋 User logged out");
+  const logout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("❌ Logout error:", error);
+        throw error;
+      }
+      console.log("👋 User logged out successfully");
+    } catch (error) {
+      console.error("❌ Logout failed:", error);
+      throw error;
+    }
   };
 
   return (
     <AuthContext.Provider
       value={{
-        isLoggedIn,
+        user,
+        session,
         isLoading,
-        login,
+        signInWithGoogle,
         logout,
       }}
     >

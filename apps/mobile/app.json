@@ -12,9 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "fonts": [
       {
         "asset": "./assets/fonts/Modak.ttf",
@@ -23,7 +21,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.swooche",
+      "bundleIdentifier": "com.anonymous.Swooche",
       "infoPlist": {
         "NSContactsUsageDescription": "This app needs access to your contacts to display them in the contacts tab.",
         "NSMicrophoneUsageDescription": "This app needs access to your microphone to make voice calls."
@@ -34,7 +32,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.swooche",
+      "package": "com.anonymous.Swooche",
       "permissions": [
         "READ_CONTACTS",
         "RECORD_AUDIO",
@@ -53,6 +51,12 @@
         "expo-av",
         {
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone for voice calls."
+        }
+      ],
+      [
+        "expo-auth-session",
+        {
+          "scheme": "swooche"
         }
       ]
     ],

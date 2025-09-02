@@ -158,12 +158,6 @@ const ContactsList = () => {
     </TouchableOpacity>
   );
 
-  const renderSectionHeader = ({ section }: { section: { title: string } }) => (
-    <View style={styles.sectionHeader}>
-      <Text style={styles.sectionTitle}>{section.title}</Text>
-    </View>
-  );
-
   if (loading) {
     return (
       <View style={styles.loadingContainer}>

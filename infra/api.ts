@@ -25,7 +25,7 @@ export const api = new sst.aws.Service("ApiService", {
       name: `api-${$app.stage}`,
       ports: [{ container: "3001/http" }],
       environment: {
-        ...config,
+        // ...config,
         NODE_ENV: "production",
       },
     },

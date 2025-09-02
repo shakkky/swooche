@@ -10,6 +10,7 @@
     "ecs-prepare": "../../scripts/ecs-prepare-website.sh"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^2.2.4",
     "@chakra-ui/react": "^3.21.1",
     "@emotion/react": "^11.14.0",
     "framer-motion": "^12.23.3",
