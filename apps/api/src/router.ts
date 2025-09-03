@@ -9,7 +9,6 @@ import {
   TokenResponseSchema,
   UserSignUpSchema,
 } from "@swooche/schemas";
-import twilio from "twilio";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 import {
@@ -18,12 +17,6 @@ import {
   tokenOnlyProcedure,
 } from "./procedures";
 import { router } from "./trpc";
-
-// the twilio config comes from env when deployed...
-// i wonder if i can get it to pull from aws when running locally
-
-const { AccessToken } = twilio.jwt;
-const { VoiceGrant } = AccessToken;
 
 const numbers = [
   {
@@ -47,28 +40,11 @@ export const appRouter = router({
     .query(async ({ ctx }) => {
       const { user } = ctx;
 
-      // grab the identity (deviceId) from somewhere.
-      // is user.devices[0].deviceId the right thing to do?
-      const device = await DeviceModel.findOne({ userId: user._id }).orFail();
-      const identity = device.token;
-
-      const token = new AccessToken(
-        "AC658c8196b697da2609b4165121d4c318",
-        "SK0f3cdc7a2060e50bec51a007848eadb1",
-        "5ghAM8WYGCn5jn0jcEiSWpFgTKQX1Anx",
-        { identity, region: "au1" }
-      );
-
-      token.addGrant(
-        new VoiceGrant({
-          outgoingApplicationSid: "AP0c53c3f6171c0f9effb11b63d0ff7b49",
-          incomingAllow: true,
-        })
-      );
+      console.log("👋 User: ", user);
 
       return {
-        token: token.toJwt(),
-        identity,
+        token: "foo",
+        identity: "bar",
         numbers,
       };
     }),
