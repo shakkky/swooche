@@ -410,60 +410,53 @@ export default function Home() {
 
         {/* Pricing Section */}
         <Box padding={{ base: 16, md: 24 }} bg="brand.muted">
-          <HStack maxWidth="1200px" margin="0 auto" gap={16}>
-            <VStack gap={6} alignItems="flex-start">
+          <VStack maxWidth="1200px" margin="0 auto" gap={16}>
+            <VStack textAlign="center" gap={6}>
               <Heading
                 fontSize={{ base: "4xl", md: "5xl" }}
                 fontWeight={800}
                 letterSpacing="-0.02em"
                 color="base.fg"
               >
-                Simple, flat pricing.
+                Pricing that grows with your agency.
               </Heading>
               <Text fontSize="xl" color="gray.600" maxWidth="600px">
-                Competitors: $25–$60 per user/month.
-                <br />
-                Us: $15 per user/month. Unlimited clients. Predictable billing.
+                Per-client portal pricing. No per-user fees. Scale as you grow.
               </Text>
             </VStack>
 
-            <Box
-              bg="white"
-              border="2px solid"
-              borderColor="brand.400"
-              boxShadow="xl"
-              borderRadius="xl"
-              p={8}
-              maxWidth="500px"
-              margin="0 auto"
-            >
-              <Box textAlign="center" pb={6}>
+            <SimpleGrid columns={{ base: 1, md: 3 }} gap={8} width="100%">
+              {/* Starter Plan */}
+              <Box
+                bg="white"
+                border="1px solid"
+                borderColor="gray.200"
+                boxShadow="lg"
+                borderRadius="xl"
+                p={8}
+                textAlign="center"
+                position="relative"
+              >
                 <Heading size="lg" color="base.fg" mb={4}>
-                  Simple Pricing
+                  Starter
                 </Heading>
                 <Text fontSize="4xl" fontWeight="bold" color="brand.600" mb={2}>
-                  $15
+                  $49
                   <span style={{ fontSize: "1.5rem", fontWeight: "normal" }}>
-                    /user/month
+                    /mo
                   </span>
                 </Text>
-                <Text color="gray.600" fontSize="lg">
-                  Pay only for what you use
+                <Text color="gray.600" fontSize="lg" mb={6}>
+                  5 portals
                 </Text>
-              </Box>
-              <Box borderTop="1px solid" borderColor="gray.200" pt={6}>
-                <VStack gap={4} alignItems="flex-start">
+                <VStack gap={4} alignItems="flex-start" textAlign="left">
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>Unlimited users</Text>
+                    <Text>5 client portals</Text>
                   </HStack>
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>Unlimited clients</Text>
-                  </HStack>
-                  <HStack gap={3}>
-                    <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>All integrations included</Text>
+                    <Text>Basic integrations</Text>
                   </HStack>
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
@@ -471,7 +464,65 @@ export default function Home() {
                   </HStack>
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>Custom branding</Text>
+                    <Text>Email support</Text>
+                  </HStack>
+                </VStack>
+              </Box>
+
+              {/* Growing Plan */}
+              <Box
+                bg="white"
+                border="2px solid"
+                borderColor="brand.400"
+                boxShadow="xl"
+                borderRadius="xl"
+                p={8}
+                textAlign="center"
+                position="relative"
+              >
+                <Box
+                  position="absolute"
+                  top={-3}
+                  left="50%"
+                  transform="translateX(-50%)"
+                  bg="brand.400"
+                  color="white"
+                  px={4}
+                  py={1}
+                  borderRadius="full"
+                  fontSize="sm"
+                  fontWeight="bold"
+                >
+                  Most Popular
+                </Box>
+                <Heading size="lg" color="base.fg" mb={4}>
+                  Growing
+                </Heading>
+                <Text fontSize="4xl" fontWeight="bold" color="brand.600" mb={2}>
+                  $99
+                  <span style={{ fontSize: "1.5rem", fontWeight: "normal" }}>
+                    /mo
+                  </span>
+                </Text>
+                <Text color="gray.600" fontSize="lg" mb={6}>
+                  20 portals + white-label + automations
+                </Text>
+                <VStack gap={4} alignItems="flex-start" textAlign="left">
+                  <HStack gap={3}>
+                    <Icon as={MdCheckCircle} color="green.500" />
+                    <Text>20 client portals</Text>
+                  </HStack>
+                  <HStack gap={3}>
+                    <Icon as={MdCheckCircle} color="green.500" />
+                    <Text>White-label branding</Text>
+                  </HStack>
+                  <HStack gap={3}>
+                    <Icon as={MdCheckCircle} color="green.500" />
+                    <Text>Automated reporting</Text>
+                  </HStack>
+                  <HStack gap={3}>
+                    <Icon as={MdCheckCircle} color="green.500" />
+                    <Text>Advanced integrations</Text>
                   </HStack>
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
@@ -479,8 +530,55 @@ export default function Home() {
                   </HStack>
                 </VStack>
               </Box>
-            </Box>
-          </HStack>
+
+              {/* Scaling Plan */}
+              <Box
+                bg="white"
+                border="1px solid"
+                borderColor="gray.200"
+                boxShadow="lg"
+                borderRadius="xl"
+                p={8}
+                textAlign="center"
+                position="relative"
+              >
+                <Heading size="lg" color="base.fg" mb={4}>
+                  Scaling
+                </Heading>
+                <Text fontSize="4xl" fontWeight="bold" color="brand.600" mb={2}>
+                  $199
+                  <span style={{ fontSize: "1.5rem", fontWeight: "normal" }}>
+                    /mo
+                  </span>
+                </Text>
+                <Text color="gray.600" fontSize="lg" mb={6}>
+                  Unlimited portals + custom domain + advanced reporting
+                </Text>
+                <VStack gap={4} alignItems="flex-start" textAlign="left">
+                  <HStack gap={3}>
+                    <Icon as={MdCheckCircle} color="green.500" />
+                    <Text>Unlimited client portals</Text>
+                  </HStack>
+                  <HStack gap={3}>
+                    <Icon as={MdCheckCircle} color="green.500" />
+                    <Text>Custom domain</Text>
+                  </HStack>
+                  <HStack gap={3}>
+                    <Icon as={MdCheckCircle} color="green.500" />
+                    <Text>Advanced reporting</Text>
+                  </HStack>
+                  <HStack gap={3}>
+                    <Icon as={MdCheckCircle} color="green.500" />
+                    <Text>API access</Text>
+                  </HStack>
+                  <HStack gap={3}>
+                    <Icon as={MdCheckCircle} color="green.500" />
+                    <Text>Dedicated support</Text>
+                  </HStack>
+                </VStack>
+              </Box>
+            </SimpleGrid>
+          </VStack>
         </Box>
 
         {/* Testimonials Section */}
