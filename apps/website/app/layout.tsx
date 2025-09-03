@@ -12,8 +12,10 @@ const yellowtail = Yellowtail({
 });
 
 export const metadata: Metadata = {
-  title: "Swooche",
-  description: "Big business phone power for one-person businesses",
+  title:
+    "Swooche - Share deliverables with your clients without paying for the things you don't need",
+  description:
+    "Share deliverables with your clients without paying for the things you don't need",
 };
 
 export default function RootLayout({

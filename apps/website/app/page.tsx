@@ -96,6 +96,7 @@ export default function Home() {
                 fontWeight={800}
                 letterSpacing="-0.02em"
                 color="base.fg"
+                lineHeight="1.1"
               >
                 The tools agencies use today don&apos;t work for them.
               </Heading>
@@ -295,6 +296,7 @@ export default function Home() {
                 fontWeight={800}
                 letterSpacing="-0.02em"
                 color="base.fg"
+                lineHeight="1.1"
               >
                 From promised → to delivered → to reported.
               </Heading>
@@ -395,15 +397,11 @@ export default function Home() {
             </SimpleGrid>
 
             <Button
+              bg="brand.contrast"
+              color="white"
+              _hover={{ bg: "onBrand.contrastEmphasized" }}
               size="lg"
-              bg="brand.solid"
-              color="onBrand.fg"
-              _hover={{ bg: "brand.emphasized" }}
-              px={8}
-              py={6}
-              fontSize="lg"
-              fontWeight="bold"
-              borderRadius="xl"
+              borderRadius="full"
             >
               Try it now <MdArrowForward />
             </Button>
@@ -546,15 +544,11 @@ export default function Home() {
                 Ready to streamline your agency?
               </Heading>
               <Button
+                bg="brand.contrast"
+                color="white"
+                _hover={{ bg: "onBrand.contrastEmphasized" }}
                 size="lg"
-                bg="brand.solid"
-                color="onBrand.fg"
-                _hover={{ bg: "brand.emphasized" }}
-                px={8}
-                py={6}
-                fontSize="lg"
-                fontWeight="bold"
-                borderRadius="xl"
+                borderRadius="full"
               >
                 Get Started Free <MdArrowForward />
               </Button>
