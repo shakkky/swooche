@@ -8,7 +8,6 @@ import {
   SimpleGrid,
   Text,
   VStack,
-  Badge,
 } from "@chakra-ui/react";
 import {
   MdCheckCircle,
@@ -40,23 +39,12 @@ export default function Home() {
           gap={12}
         >
           <VStack maxWidth="1200px" gap={8} alignItems="start">
-            <Badge
-              colorScheme="yellow"
-              variant="solid"
-              px={4}
-              py={2}
-              borderRadius="full"
-              fontSize="xs"
-              fontWeight="medium"
-            >
-              🚀 Now in Beta
-            </Badge>
             <Heading
               as="h1"
               fontSize={{ base: "5xl", md: "5xl" }}
               fontWeight={900}
               letterSpacing="-0.03em"
-              lineHeight="0.9"
+              lineHeight="1.2"
               color="onBrand.fg"
               width="full"
             >
@@ -209,6 +197,7 @@ export default function Home() {
                     fontSize={{ base: "4xl", md: "5xl" }}
                     fontWeight={800}
                     letterSpacing="-0.02em"
+                    lineHeight="1.1"
                     color="base.fg"
                   >
                     A lean, focused tool just for agencies.

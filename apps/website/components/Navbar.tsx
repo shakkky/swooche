@@ -7,6 +7,8 @@ import {
   Text,
   IconButton,
   VStack,
+  Link,
+  Icon,
 } from "@chakra-ui/react";
 import { MdMenu, MdClose } from "react-icons/md";
 
@@ -48,14 +50,29 @@ export default function Navbar() {
           display={{ base: "none", md: "flex" }}
         >
           {/* Logo */}
-          <Text
-            fontSize={{ base: "2xl", md: "3xl" }}
-            letterSpacing="-0.02em"
-            lineHeight="0.9"
-            fontFamily="modak"
-          >
-            Swooche
-          </Text>
+          <Link href="/" as={Box} display="flex" alignItems="center" gap={0}>
+            <Icon
+              as="svg"
+              width={10}
+              height={10}
+              viewBox="0 0 1110 942"
+              fill="currentColor"
+              stroke="currentColor"
+              color="onBrand.fg"
+            >
+              <use href="/swooche-icon.svg#icon" />
+            </Icon>
+            <Text
+              fontSize={{ base: "2xl", md: "3xl" }}
+              letterSpacing="-0.02em"
+              lineHeight="0.9"
+              fontFamily="yellowtail"
+              fontWeight={900}
+              color="onBrand.contrast"
+            >
+              Swooche
+            </Text>
+          </Link>
 
           {/* Navigation Buttons */}
           <HStack gap={4}>
@@ -88,14 +105,29 @@ export default function Navbar() {
           display={{ base: "flex", md: "none" }}
         >
           {/* Logo */}
-          <Text
-            fontSize="2xl"
-            letterSpacing="-0.02em"
-            lineHeight="0.9"
-            fontFamily="modak"
-          >
-            Swooche
-          </Text>
+          <Link href="/" as={Box} display="flex" alignItems="center" gap={0}>
+            <Icon
+              as="svg"
+              width={10}
+              height={10}
+              viewBox="0 0 1110 942"
+              fill="currentColor"
+              stroke="currentColor"
+              color="onBrand.fg"
+            >
+              <use href="/swooche-icon.svg#icon" />
+            </Icon>
+            <Text
+              fontSize="2xl"
+              letterSpacing="-0.02em"
+              lineHeight="0.9"
+              fontFamily="yellowtail"
+              fontWeight={900}
+              color="onBrand.contrast"
+            >
+              Swooche
+            </Text>
+          </Link>
 
           {/* Mobile Menu Button */}
           <IconButton

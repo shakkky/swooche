@@ -1,10 +1,11 @@
 import { Provider } from "@/components/ui/provider";
 import type { Metadata } from "next";
-import { Modak } from "next/font/google";
+import { Yellowtail } from "next/font/google";
 import { ReactNode } from "react";
+import "./globals.css";
 
-const modak = Modak({
-  variable: "--font-modak",
+const yellowtail = Yellowtail({
+  variable: "--font-yellowtail",
   subsets: ["latin"],
   display: "swap",
   weight: "400",
@@ -22,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={modak.variable}>
+      <body className={yellowtail.variable}>
         <Provider>{children}</Provider>
       </body>
     </html>

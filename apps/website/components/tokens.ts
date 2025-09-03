@@ -27,8 +27,8 @@ export const tokens = defineTokens({
     },
   },
   fonts: {
-    heading: { value: "var(--font-modak" },
-    body: { value: "var(--font-modak)" },
+    heading: { value: "var(--font-yellowtail)" },
+    body: { value: "var(--font-yellowtail)" },
   },
 });
 
