@@ -48,9 +48,9 @@ export default function Home() {
               color="onBrand.fg"
               width="full"
             >
-              Everything Productive does,
+              Professional client portals
               <br />
-              <span style={{ color: "#1a1a1a" }}>at half the cost.</span>
+              <span style={{ color: "#1a1a1a" }}>without ERP complexity.</span>
             </Heading>
 
             <Text
@@ -59,8 +59,8 @@ export default function Home() {
               color="onBrand.muted"
               lineHeight="1.4"
             >
-              Built for small marketing agencies who don&apos;t want ERP pricing
-              or bloated software.
+              Stop client status calls forever. White-label portals that make
+              you look professional while saving hours every week.
             </Text>
 
             <HStack gap={4} flexWrap="wrap" justifyContent="start">
@@ -98,7 +98,7 @@ export default function Home() {
                 color="base.fg"
                 lineHeight="1.1"
               >
-                The tools agencies use today don&apos;t work for them.
+                Client communication is killing your productivity.
               </Heading>
             </VStack>
 
@@ -117,9 +117,11 @@ export default function Home() {
               >
                 <Icon as={MdPeople} boxSize={12} color="red.500" mb={4} />
                 <Heading size="md" mb={4} color="red.600">
-                  ClickUp/Asana hacks
+                  Client status calls
                 </Heading>
-                <Text color="gray.600">Messy, clients won&apos;t log in.</Text>
+                <Text color="gray.600">
+                  "What are you working on?" calls waste hours every week.
+                </Text>
               </Box>
 
               <Box
@@ -132,9 +134,11 @@ export default function Home() {
               >
                 <Icon as={MdDashboard} boxSize={12} color="red.500" mb={4} />
                 <Heading size="md" mb={4} color="red.600">
-                  Spreadsheets & Google Drive
+                  Unprofessional client updates
                 </Heading>
-                <Text color="gray.600">Version control nightmares.</Text>
+                <Text color="gray.600">
+                  Spreadsheets and emails make you look amateur.
+                </Text>
               </Box>
 
               <Box
@@ -147,9 +151,11 @@ export default function Home() {
               >
                 <Icon as={MdTrendingUp} boxSize={12} color="red.500" mb={4} />
                 <Heading size="md" mb={4} color="red.600">
-                  Reporting dashboards
+                  Manual reporting
                 </Heading>
-                <Text color="gray.600">Show KPIs, not deliverables.</Text>
+                <Text color="gray.600">
+                  Hours spent creating status updates every week.
+                </Text>
               </Box>
 
               <Box
@@ -162,9 +168,11 @@ export default function Home() {
               >
                 <Icon as={MdSync} boxSize={12} color="red.500" mb={4} />
                 <Heading size="md" mb={4} color="red.600">
-                  Emails & Slack threads
+                  Lost client updates
                 </Heading>
-                <Text color="gray.600">Lost updates, no visibility.</Text>
+                <Text color="gray.600">
+                  Important updates buried in emails and Slack.
+                </Text>
               </Box>
 
               <Box
@@ -177,11 +185,11 @@ export default function Home() {
               >
                 <Icon as={MdPeople} boxSize={12} color="red.500" mb={4} />
                 <Heading size="md" mb={4} color="red.600">
-                  Scoro/Productive
+                  ERP-level complexity
                 </Heading>
                 <Text color="gray.600">
-                  Too expensive, too much training, teams only use 20% of
-                  features.
+                  Scoro/Productive are too bloated and expensive for what you
+                  actually need.
                 </Text>
               </Box>
             </SimpleGrid>
@@ -201,34 +209,34 @@ export default function Home() {
                     lineHeight="1.1"
                     color="base.fg"
                   >
-                    A lean, focused tool just for agencies.
+                    Connect → Tag → Share → Auto-update.
                   </Heading>
 
                   <VStack alignItems="flex-start" gap={6}>
                     <HStack gap={4}>
                       <Icon as={MdCheckCircle} boxSize={6} color="green.500" />
                       <Text fontSize="xl" color="base.fg">
-                        Track deliverables across all clients in one view.
+                        Pull deliverables from your existing tools (ClickUp,
+                        Asana, Drive).
                       </Text>
                     </HStack>
                     <HStack gap={4}>
                       <Icon as={MdCheckCircle} boxSize={6} color="green.500" />
                       <Text fontSize="xl" color="base.fg">
-                        Give clients a simple, branded dashboard — no login
-                        required.
+                        White-label client portals that look professional and
+                        branded.
                       </Text>
                     </HStack>
                     <HStack gap={4}>
                       <Icon as={MdCheckCircle} boxSize={6} color="green.500" />
                       <Text fontSize="xl" color="base.fg">
-                        Sync with the tools your team already uses (ClickUp,
-                        Asana, Slack, Google Drive).
+                        Automated weekly updates sent to clients automatically.
                       </Text>
                     </HStack>
                     <HStack gap={4}>
                       <Icon as={MdCheckCircle} boxSize={6} color="green.500" />
                       <Text fontSize="xl" color="base.fg">
-                        Affordable, transparent pricing.
+                        Stop client status calls forever.
                       </Text>
                     </HStack>
                   </VStack>
@@ -298,7 +306,7 @@ export default function Home() {
                 color="base.fg"
                 lineHeight="1.1"
               >
-                From promised → to delivered → to reported.
+                Four simple steps to professional client communication.
               </Heading>
             </VStack>
 
@@ -343,10 +351,10 @@ export default function Home() {
                 </Box>
                 <VStack gap={3}>
                   <Heading size="md" color="base.fg">
-                    Choose deliverables to track
+                    Tag client-facing deliverables
                   </Heading>
                   <Text color="gray.600">
-                    Select which projects to show clients.
+                    Mark which projects and tasks clients should see.
                   </Text>
                 </VStack>
               </VStack>
@@ -365,10 +373,10 @@ export default function Home() {
                 </Box>
                 <VStack gap={3}>
                   <Heading size="md" color="base.fg">
-                    Share the client portal link
+                    Share your white-label portal
                   </Heading>
                   <Text color="gray.600">
-                    Send clients a branded dashboard URL.
+                    Send clients a professional, branded dashboard URL.
                   </Text>
                 </VStack>
               </VStack>
@@ -387,10 +395,10 @@ export default function Home() {
                 </Box>
                 <VStack gap={3}>
                   <Heading size="md" color="base.fg">
-                    Automate weekly updates
+                    Automate client communication
                   </Heading>
                   <Text color="gray.600">
-                    Clients get progress reports automatically.
+                    Clients get weekly progress reports automatically.
                   </Text>
                 </VStack>
               </VStack>
@@ -609,7 +617,7 @@ export default function Home() {
                   ))}
                 </HStack>
                 <Text fontSize="lg" color="base.fg" mb={4} fontStyle="italic">
-                  &ldquo;Finally a tool my clients actually use.&rdquo;
+                  &ldquo;My clients stopped asking for status updates.&rdquo;
                 </Text>
                 <Text fontSize="sm" color="gray.600">
                   — Sarah Chen, Creative Director at Pixel & Co
@@ -629,7 +637,7 @@ export default function Home() {
                   ))}
                 </HStack>
                 <Text fontSize="lg" color="base.fg" mb={4} fontStyle="italic">
-                  &ldquo;We cut reporting time in half.&rdquo;
+                  &ldquo;We cut client reporting time in half.&rdquo;
                 </Text>
                 <Text fontSize="sm" color="gray.600">
                   — Mike Rodriguez, Founder at GrowthLab
@@ -639,7 +647,7 @@ export default function Home() {
 
             <VStack gap={6} textAlign="center">
               <Heading size="lg" color="base.fg">
-                Ready to streamline your agency?
+                Ready to stop client status calls forever?
               </Heading>
               <Button
                 bg="brand.contrast"
