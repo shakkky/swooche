@@ -1,7 +1,7 @@
 import { getDomainName, getEcrServiceImageUrl } from "./deployment";
 import { vpc } from "./vpc";
 
-export const cluster = new sst.aws.Cluster("WebsiteCluster", { vpc });
+export const cluster = new sst.aws.Cluster("Website", { vpc });
 
 export const website = new sst.aws.Service("WebsiteService", {
   path: "./apps/website",

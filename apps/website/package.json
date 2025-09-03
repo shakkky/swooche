@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.2.4",
-    "@chakra-ui/react": "^3.21.1",
+    "@chakra-ui/react": "^3.26.0",
     "@emotion/react": "^11.14.0",
     "framer-motion": "^12.23.3",
     "next": "15.3.3",

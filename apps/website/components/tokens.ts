@@ -8,6 +8,7 @@ import {
 export const tokens = defineTokens({
   ...defaultConfig.theme?.tokens,
   colors: {
+    ...defaultConfig.theme?.tokens?.colors,
     brand: {
       50: { value: "{colors.yellow.50}" },
       100: { value: "{colors.yellow.100}" },
@@ -35,7 +36,7 @@ export const semanticTokens = defineSemanticTokens({
   ...defaultConfig.theme?.semanticTokens,
   colors: {
     brand: {
-      solid: { value: "{colors.brand.200}" },
+      solid: { value: "{colors.brand.100}" },
       contrast: { value: "black" },
       fg: { value: "black" },
       muted: { value: "{colors.brand.100}" },
@@ -45,6 +46,7 @@ export const semanticTokens = defineSemanticTokens({
     onBrand: {
       solid: { value: "black" },
       contrast: { value: "{colors.brand.900}" },
+      contrastEmphasized: { value: "{colors.blackAlpha.800}" },
       fg: { value: "{colors.brand.500}" },
       muted: { value: "{colors.brand.900}" },
       subtle: { value: "{colors.brand.800}" },

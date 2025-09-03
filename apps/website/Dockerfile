@@ -2,7 +2,14 @@ FROM node:lts-alpine AS base
 
 WORKDIR /app
 ENV NODE_ENV=production
-COPY .next/standalone .
+
+# Copy the entire standalone directory structure
+COPY .next/standalone ./
+
+# Remove "type": "module" from package.json to fix ES module error
+RUN sed -i '/"type": "module"/d' package.json
 
 EXPOSE 3000
-CMD ["npm", "start", "--prefix", "apps/website"]
+
+# Run the server from the correct location with proper node_modules access
+CMD ["node", "apps/website/server.js"]

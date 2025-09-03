@@ -1,5 +1,5 @@
 "use client";
-import { Box, Flex, Heading, Text, VStack } from "@chakra-ui/react";
+import { Box, Flex, Text, VStack } from "@chakra-ui/react";
 import { useEffect, useState, useRef } from "react";
 
 const features = [
@@ -93,7 +93,7 @@ export default function SnapScrollPage() {
             {features.map((feature, index) => (
               <Box
                 key={index}
-                ref={(el) => (sectionRefs.current[index] = el)}
+                ref={(el: HTMLElement) => (sectionRefs.current[index] = el)}
                 height="100vh"
                 px={8}
                 py={16}

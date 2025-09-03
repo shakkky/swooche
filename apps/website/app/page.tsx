@@ -1,538 +1,581 @@
 "use client";
-import SnapScrollPage from "@/components/ui/SnapScrollPage";
 import {
   Box,
   Button,
-  Flex,
-  Group,
   Heading,
   HStack,
   Icon,
-  Image,
-  Input,
   SimpleGrid,
-  Table,
   Text,
   VStack,
+  Badge,
 } from "@chakra-ui/react";
-import { Md3dRotation } from "react-icons/md";
-
-const usps = [
-  // keep your personal number private
-
-  // mark callers as important, while automatically voicemailing others if calling outside of business hours
-  {
-    title: "Built for real estate agents",
-    subtitle:
-      "Know Swooche is built for real estate agents on-the-go, with a focus on speed, efficiency, and professionalism.",
-    // icon: <PhoneIcon />,
-  },
-
-  // CRM-powered caller ID
-  {
-    title: "Powerful CRM integration",
-    subtitle:
-      "Know who's calling, what you spoke about last time, and more before you pick up and greet them.",
-    // icon: <PhoneIcon />,
-  },
-
-  // auto-send brochures, Section 32s, or contracts after the call
-  {
-    title: "Auto-send documents after the call",
-    subtitle:
-      "Swooche will suggest documents to send after the call, and you can send them with a tap. No more forgetting to send them later.",
-    // icon: <PhoneIcon />,
-  },
-];
-
-const comparisonTable = [
-  {
-    feature: "Cost per month",
-    swooche: "$29–$149",
-    "second phone": "$80–$120",
-    "aircall / ringcentral": "$60–$200+/user",
-  },
-  {
-    feature: "CRM integration (e.g. VaultRE)",
-    swooche: "✅ Yes",
-    "second phone": "❌ None",
-    "aircall / ringcentral": "⚠️ Difficult/limited",
-  },
-  {
-    feature: "Smart caller ID",
-    swooche: "✅ Yes",
-    "second phone": "❌ No",
-    "aircall / ringcentral": "⚠️ With effort",
-  },
-  {
-    feature: "Auto-send docs after call",
-    swooche: "✅ Yes",
-    "second phone": "❌ No",
-    "aircall / ringcentral": "⚠️ Add-on/workaround",
-  },
-  {
-    feature: "Call transcripts + summaries",
-    swooche: "✅ Yes",
-    "second phone": "❌ No",
-    "aircall / ringcentral": "✅ Yes (higher plans)",
-  },
-  {
-    feature: "Setup time",
-    swooche: "Minutes",
-    "second phone": "Hours",
-    "aircall / ringcentral": "Hours/days",
-  },
-  {
-    feature: "Mobile-friendly",
-    swooche: "✅ Native",
-    "second phone": "✅ (but clunky)",
-    "aircall / ringcentral": "⚠️ Mostly desktop",
-  },
-  {
-    feature: "Designed for real estate",
-    swooche: "🎯 Yes",
-    "second phone": "❌ No",
-    "aircall / ringcentral": "❌ No",
-  },
-];
+import {
+  MdCheckCircle,
+  MdArrowForward,
+  MdStar,
+  MdTrendingUp,
+  MdPeople,
+  MdDashboard,
+  MdSync,
+  MdShare,
+} from "react-icons/md";
+import Navbar from "@/components/Navbar";
 
 export default function Home() {
   return (
     <div>
+      <Navbar />
+
       <main>
+        {/* Hero Section */}
         <Box
           bg="brand.solid"
-          padding={{ base: 8, md: 16 }}
-          minHeight="80vh"
-          minWidth="100vw"
+          padding={{ base: 8, md: 20 }}
+          minHeight="90vh"
           display="flex"
           flexDirection="column"
-          alignItems="center"
+          alignItems="start"
           justifyContent="center"
-          textAlign="center"
-          gap={8}
-          maxWidth="1400px"
+          gap={12}
         >
-          <Heading
-            as="h1"
-            color="onBrand.fg"
-            fontSize={{ base: "6xl", md: "8xl" }}
-            fontFamily="modak"
-            fontWeight="normal"
-            letterSpacing="-0.02em"
-            rotate={{ base: "-2deg", md: "-2deg" }}
-            marginTop={{ base: 16, md: 0 }}
-          >
-            Swooche
-          </Heading>
-
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            gap={8}
-            color="brand.fg"
-          >
-            <Text
-              fontSize={{ base: "4xl", md: "5xl" }}
-              fontWeight={700}
-              letterSpacing="-0.05em"
-              lineHeight="1.2"
+          <VStack maxWidth="1200px" gap={8} alignItems="start">
+            <Badge
+              colorScheme="yellow"
+              variant="solid"
+              px={4}
+              py={2}
+              borderRadius="full"
+              fontSize="xs"
+              fontWeight="medium"
             >
-              A powerful phone{" "}
-              <span style={{ position: "relative" }}>
-                app
-                <Image
-                  src="/handrawn-arrow.svg"
-                  alt="handrawn arrow"
-                  width="80px"
-                  height="80px"
-                  position="absolute"
-                  top={{ base: "20px", sm: "40px", md: "10px" }}
-                  transform="rotateX(180deg) rotate(-170deg)"
-                  zIndex={0}
-                  right={{ base: -20, sm: -10, md: -10 }}
-                  display={{ base: "none", md: "block" }}
-                />
-              </span>
+              🚀 Now in Beta
+            </Badge>
+            <Heading
+              as="h1"
+              fontSize={{ base: "5xl", md: "5xl" }}
+              fontWeight={900}
+              letterSpacing="-0.03em"
+              lineHeight="0.9"
+              color="onBrand.fg"
+              width="full"
+            >
+              Everything Productive does,
               <br />
-              built for real estate agents on-the-go
+              <span style={{ color: "#1a1a1a" }}>at half the cost.</span>
+            </Heading>
+
+            <Text
+              fontSize={{ base: "xl", md: "2xl" }}
+              maxWidth="800px"
+              color="onBrand.muted"
+              lineHeight="1.4"
+            >
+              Built for small marketing agencies who don&apos;t want ERP pricing
+              or bloated software.
             </Text>
 
-            <VStack maxWidth="1000px" gap={8}>
-              <Text fontSize="xl">
-                Welcome callers with your <b>own professional brand</b>, recieve
-                the calls and texts on <b>your phone</b> and have the{" "}
-                <b>power of your CRM</b> system while you&apos;re on-the-go.
-              </Text>
-
-              <Group attached w="full" maxW="2xl" borderRadius="full">
-                <Input
-                  flex="1"
-                  placeholder="Enter your email"
-                  borderRadius="full"
-                  borderColor="brand.fg"
-                  borderWidth={1}
-                  backgroundColor="white"
-                  size="lg"
-                />
-                <Button
-                  bg="bg.subtle"
-                  variant="outline"
-                  borderRadius="full"
-                  size="lg"
-                >
-                  Register for early access
-                </Button>
-              </Group>
-            </VStack>
-
-            <Text color="brand.fg">
-              Get a <b>free number</b> for 30 days for registering early.
-            </Text>
-          </Box>
+            <HStack gap={4} flexWrap="wrap" justifyContent="start">
+              <Button
+                bg="brand.contrast"
+                color="white"
+                _hover={{ bg: "onBrand.contrastEmphasized" }}
+                size="xl"
+                borderRadius="full"
+              >
+                Create a free account
+              </Button>
+              <Button
+                variant="outline"
+                bg="white"
+                borderColor="white"
+                color="onBrand.solid"
+                size="xl"
+                borderRadius="full"
+              >
+                Get a demo
+              </Button>
+            </HStack>
+          </VStack>
         </Box>
 
-        <VStack
-          padding={16}
-          maxWidth="1400px"
-          margin="0 auto"
-          textAlign="center"
-          gap={8}
-        >
-          <Heading
-            fontSize="5xl"
-            fontWeight={700}
-            letterSpacing="-0.05em"
-            lineHeight="normal"
-          >
-            Stop Missing Leads.
-            <br />
-            Stay on top of your business.
-          </Heading>
-
-          <Text fontSize="xl" maxWidth="800px" margin="0 auto">
-            Every call could be your next listing. But missed calls, lost
-            context, and slow follow-ups are costing you business. Swooche gives
-            you a dedicated business number with:
-          </Text>
-
-          <SimpleGrid
-            templateColumns="repeat(3, 1fr)"
-            gap={8}
-            maxWidth="1200px"
-            margin="0 auto"
-          >
-            {usps.map((usp, index) => (
-              <Flex
-                key={index}
-                flexDirection="column"
-                alignItems="center"
-                justifyContent="center"
-                borderRadius="md"
-                padding={4}
+        {/* Problem Section */}
+        <Box padding={{ base: 16, md: 24 }} bg="white">
+          <VStack maxWidth="1200px" margin="0 auto" gap={16}>
+            <VStack textAlign="center" gap={6}>
+              <Heading
+                fontSize={{ base: "4xl", md: "5xl" }}
+                fontWeight={800}
+                letterSpacing="-0.02em"
+                color="base.fg"
               >
-                <Icon size="lg" color="tomato">
-                  <Md3dRotation />
-                </Icon>
-                <Text fontSize="2xl" fontWeight={700} flex={1}>
-                  {usp.title}
-                </Text>
-                <Text>{usp.subtitle}</Text>
-              </Flex>
-            ))}
-          </SimpleGrid>
+                The tools agencies use today don&apos;t work for them.
+              </Heading>
+            </VStack>
 
-          <Text fontSize="xl">
-            Don&apos;t just answer calls. Win business with them.
-          </Text>
-        </VStack>
-
-        <HStack
-          padding={16}
-          gap={16}
-          alignItems="stretch"
-          maxWidth="1400px"
-          margin="0 auto"
-        >
-          <Box width="50%">
-            <Icon size="2xl" color="tomato">
-              <Md3dRotation />
-            </Icon>
-            <Heading
-              fontSize="5xl"
-              fontWeight={700}
-              letterSpacing="-0.05em"
-              lineHeight="normal"
-            >
-              Why not just keep using a personal number?
-            </Heading>
-
-            <Text fontSize="xl">
-              You can keep using your personal number, but you&apos;re missing
-              out on a lot. With Swooche installed as an app on your phone, you
-              can finally keep your personal and business calls separate.
-            </Text>
-
-            <Text fontSize="xl">
-              ✅ NO LOCK-IN CONTRACTS. Forget about paying over $80 a month for
-              a phone that does nothing besides ring.
-            </Text>
-
-            <Text fontSize="xl">
-              ✅ Get a dedicated, professional business number (no new SIM
-              needed)
-            </Text>
-
-            <Text fontSize="xl">
-              ✅ See who’s calling — with details from your CRM
-            </Text>
-
-            <Text fontSize="xl">
-              ✅ Auto-send brochures, Section 32s, or contracts after the call
-            </Text>
-
-            <Text fontSize="xl">
-              ✅ Get call summaries + next steps via email or SMS
-            </Text>
-
-            <Text fontSize="xl">
-              ✅ Route calls to your voice after hours while still being able to
-              allow important clients through
-            </Text>
-          </Box>
-
-          <Box flex={1} bg="brand.solid" borderRadius="md">
-            Mockup goes here
-            <Image
-              src="/mockup.png"
-              alt="Mockup"
+            <SimpleGrid
+              columns={{ base: 1, md: 2, lg: 3 }}
+              gap={8}
               width="100%"
-              height="100%"
-              objectFit="cover"
-            />
-          </Box>
-        </HStack>
-
-        <HStack
-          padding={16}
-          gap={16}
-          alignItems="stretch"
-          maxWidth="1400px"
-          margin="0 auto"
-        >
-          <Box bg="orange.400" borderRadius="md" flex={1}>
-            Mockup goes here
-            <Image
-              src="/mockup.png"
-              alt="Mockup"
-              width="100%"
-              height="100%"
-              objectFit="cover"
-            />
-          </Box>
-          <Box flex={1} width="50%">
-            <Icon size="2xl" color="tomato">
-              <Md3dRotation />
-            </Icon>
-            <Heading
-              fontSize="5xl"
-              fontWeight={700}
-              letterSpacing="-0.05em"
-              lineHeight="normal"
-            >
-              Show your callers the brand you&apos;ve built
-            </Heading>
-
-            <Text fontSize="xl">
-              With your own professional welcome message to callers, after-call
-              follow-up messages, and more, you can show your callers why you
-              stand out above the rest.
-            </Text>
-
-            <Text fontSize="xl">You don&apos;t know who it is,</Text>
-
-            <Text fontSize="xl">You don&apos;t answer in time,</Text>
-
-            <Text fontSize="xl">and you forget to follow up.</Text>
-
-            <Text fontSize="xl">
-              This time, your client won&apos;t feel ignored and lose interest.
-              Swooche will instantly text them back, and you don&apos;t have to
-              worry about missing out.
-            </Text>
-          </Box>
-        </HStack>
-
-        <HStack
-          padding={16}
-          gap={16}
-          alignItems="stretch"
-          maxWidth="1400px"
-          margin="0 auto"
-        >
-          <Box width="50%">
-            <Icon size="2xl" color="tomato">
-              <Md3dRotation />
-            </Icon>
-            <Heading
-              fontSize="5xl"
-              fontWeight={700}
-              letterSpacing="-0.05em"
-              lineHeight="normal"
-            >
-              Instantly text-back when you miss a call
-            </Heading>
-
-            <Text fontSize="xl">
-              You&apos;re running between open homes, chasing down paperwork,
-              juggling buyers and sellers, and then your phone rings...
-            </Text>
-
-            <Text fontSize="xl">You don&apos;t know who it is,</Text>
-
-            <Text fontSize="xl">You don&apos;t answer in time,</Text>
-
-            <Text fontSize="xl">and you forget to follow up.</Text>
-
-            <Text fontSize="xl">
-              This time, your client won&apos;t feel ignored and lose interest.
-              Swooche will instantly text them back, and you don&apos;t have to
-              worry about missing out.
-            </Text>
-          </Box>
-
-          <Box flex={1} bg="brand.solid" borderRadius="md">
-            <Flex
-              direction="column"
-              alignItems="center"
-              justifyContent="flex-end"
-              height="100%"
-              overflow="hidden"
             >
               <Box
-                bg="white"
-                borderTopRadius="md"
-                padding="1px 1px 0px 1px"
-                height="80%"
-                width="280px"
-                borderTopLeftRadius="40px"
-                borderTopRightRadius="40px"
-                borderWidth="8px 8px 0px 8px"
-                borderColor="#1a1a1a"
-                borderStyle="solid"
-                backgroundColor="#000"
-                boxShadow="0 20px 40px rgba(0,0,0,0.3)"
+                bg="gray.50"
+                border="1px solid"
+                borderColor="gray.200"
+                borderRadius="md"
+                p={8}
+                textAlign="center"
               >
-                {/* Screen content */}
-                <Box
-                  width="100%"
-                  height="100%"
-                  backgroundColor="#f8f9fa"
-                  display="flex"
-                  flexDirection="column"
-                  borderTopLeftRadius="32px"
-                  borderTopRightRadius="32px"
-                  overflow="hidden"
-                >
-                  <Flex
-                    height="80px"
-                    width="100%"
-                    direction="column"
-                    alignItems="center"
-                    justifyContent="center"
-                    borderBottomColor="gray.300"
-                    borderBottomWidth="1px"
-                    borderBottomStyle="solid"
+                <Icon as={MdPeople} boxSize={12} color="red.500" mb={4} />
+                <Heading size="md" mb={4} color="red.600">
+                  ClickUp/Asana hacks
+                </Heading>
+                <Text color="gray.600">Messy, clients won&apos;t log in.</Text>
+              </Box>
+
+              <Box
+                bg="gray.50"
+                border="1px solid"
+                borderColor="gray.200"
+                borderRadius="md"
+                p={8}
+                textAlign="center"
+              >
+                <Icon as={MdDashboard} boxSize={12} color="red.500" mb={4} />
+                <Heading size="md" mb={4} color="red.600">
+                  Spreadsheets & Google Drive
+                </Heading>
+                <Text color="gray.600">Version control nightmares.</Text>
+              </Box>
+
+              <Box
+                bg="gray.50"
+                border="1px solid"
+                borderColor="gray.200"
+                borderRadius="md"
+                p={8}
+                textAlign="center"
+              >
+                <Icon as={MdTrendingUp} boxSize={12} color="red.500" mb={4} />
+                <Heading size="md" mb={4} color="red.600">
+                  Reporting dashboards
+                </Heading>
+                <Text color="gray.600">Show KPIs, not deliverables.</Text>
+              </Box>
+
+              <Box
+                bg="gray.50"
+                border="1px solid"
+                borderColor="gray.200"
+                borderRadius="md"
+                p={8}
+                textAlign="center"
+              >
+                <Icon as={MdSync} boxSize={12} color="red.500" mb={4} />
+                <Heading size="md" mb={4} color="red.600">
+                  Emails & Slack threads
+                </Heading>
+                <Text color="gray.600">Lost updates, no visibility.</Text>
+              </Box>
+
+              <Box
+                bg="gray.50"
+                border="1px solid"
+                borderColor="gray.200"
+                borderRadius="md"
+                p={8}
+                textAlign="center"
+              >
+                <Icon as={MdPeople} boxSize={12} color="red.500" mb={4} />
+                <Heading size="md" mb={4} color="red.600">
+                  Scoro/Productive
+                </Heading>
+                <Text color="gray.600">
+                  Too expensive, too much training, teams only use 20% of
+                  features.
+                </Text>
+              </Box>
+            </SimpleGrid>
+          </VStack>
+        </Box>
+
+        {/* Solution Section */}
+        <Box padding={{ base: 16, md: 24 }} bg="brand.muted">
+          <VStack maxWidth="1200px" margin="0 auto" gap={16}>
+            <HStack gap={16} alignItems="center" width="100%">
+              <Box flex={1}>
+                <VStack alignItems="flex-start" gap={8} textAlign="left">
+                  <Heading
+                    fontSize={{ base: "4xl", md: "5xl" }}
+                    fontWeight={800}
+                    letterSpacing="-0.02em"
+                    color="base.fg"
                   >
-                    <Box
-                      width="40px"
-                      height="40px"
-                      bg="gray.200"
-                      borderRadius="full"
-                      marginBottom={1}
-                    />
-                    <Text fontSize="10px" fontWeight={400}>
-                      Brenda
-                    </Text>
-                  </Flex>
-                  <Box
-                    width="80%"
-                    background="blue.500"
-                    color="white"
-                    marginTop={4}
-                    marginLeft={2}
-                    borderRadius={8}
-                    padding={2}
-                    fontSize="xs"
-                  >
-                    <Text>
-                      Hey Brenda, I&apos;m showing an open house at the moment.
-                      How can I help you?
+                    A lean, focused tool just for agencies.
+                  </Heading>
+
+                  <VStack alignItems="flex-start" gap={6}>
+                    <HStack gap={4}>
+                      <Icon as={MdCheckCircle} boxSize={6} color="green.500" />
+                      <Text fontSize="xl" color="base.fg">
+                        Track deliverables across all clients in one view.
+                      </Text>
+                    </HStack>
+                    <HStack gap={4}>
+                      <Icon as={MdCheckCircle} boxSize={6} color="green.500" />
+                      <Text fontSize="xl" color="base.fg">
+                        Give clients a simple, branded dashboard — no login
+                        required.
+                      </Text>
+                    </HStack>
+                    <HStack gap={4}>
+                      <Icon as={MdCheckCircle} boxSize={6} color="green.500" />
+                      <Text fontSize="xl" color="base.fg">
+                        Sync with the tools your team already uses (ClickUp,
+                        Asana, Slack, Google Drive).
+                      </Text>
+                    </HStack>
+                    <HStack gap={4}>
+                      <Icon as={MdCheckCircle} boxSize={6} color="green.500" />
+                      <Text fontSize="xl" color="base.fg">
+                        Affordable, transparent pricing.
+                      </Text>
+                    </HStack>
+                  </VStack>
+                </VStack>
+              </Box>
+
+              <Box flex={1} bg="white" borderRadius="xl" p={8} boxShadow="xl">
+                <VStack gap={4} alignItems="stretch">
+                  <Box bg="gray.100" p={4} borderRadius="lg">
+                    <Text fontSize="sm" color="gray.600" fontWeight="medium">
+                      Client Dashboard
                     </Text>
                   </Box>
-                </Box>
+                  <VStack gap={3} alignItems="stretch">
+                    <Box
+                      bg="green.100"
+                      p={3}
+                      borderRadius="md"
+                      borderLeft="4px solid"
+                      borderColor="green.500"
+                    >
+                      <Text fontSize="sm" fontWeight="medium" color="green.800">
+                        ✅ Website Redesign - Done
+                      </Text>
+                    </Box>
+                    <Box
+                      bg="yellow.100"
+                      p={3}
+                      borderRadius="md"
+                      borderLeft="4px solid"
+                      borderColor="yellow.500"
+                    >
+                      <Text
+                        fontSize="sm"
+                        fontWeight="medium"
+                        color="yellow.800"
+                      >
+                        ⏳ Social Media Campaign - Pending
+                      </Text>
+                    </Box>
+                    <Box
+                      bg="blue.100"
+                      p={3}
+                      borderRadius="md"
+                      borderLeft="4px solid"
+                      borderColor="blue.500"
+                    >
+                      <Text fontSize="sm" fontWeight="medium" color="blue.800">
+                        📋 Content Calendar - In Progress
+                      </Text>
+                    </Box>
+                  </VStack>
+                </VStack>
               </Box>
-            </Flex>
-          </Box>
-        </HStack>
+            </HStack>
+          </VStack>
+        </Box>
 
-        <SnapScrollPage />
+        {/* How It Works Section */}
+        <Box padding={{ base: 16, md: 24 }} bg="white">
+          <VStack maxWidth="1200px" margin="0 auto" gap={16}>
+            <VStack textAlign="center" gap={6}>
+              <Heading
+                fontSize={{ base: "4xl", md: "5xl" }}
+                fontWeight={800}
+                letterSpacing="-0.02em"
+                color="base.fg"
+              >
+                From promised → to delivered → to reported.
+              </Heading>
+            </VStack>
 
-        <Box bg="brand.solid">
-          <VStack
-            padding={16}
-            maxWidth="1400px"
-            margin="0 auto"
-            textAlign="center"
-            gap={8}
-          >
-            <Icon size="2xl" color="tomato">
-              <Md3dRotation />
-            </Icon>
-            <Heading
-              fontSize="5xl"
-              fontWeight={700}
-              letterSpacing="-0.05em"
-              lineHeight="normal"
+            <SimpleGrid
+              columns={{ base: 1, md: 2, lg: 4 }}
+              gap={8}
+              width="100%"
             >
-              Lets compare the options
-            </Heading>
+              <VStack gap={6} textAlign="center">
+                <Box
+                  bg="brand.solid"
+                  borderRadius="full"
+                  p={6}
+                  boxSize="80px"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Icon as={MdSync} boxSize={10} color="onBrand.fg" />
+                </Box>
+                <VStack gap={3}>
+                  <Heading size="md" color="base.fg">
+                    Connect your project tool
+                  </Heading>
+                  <Text color="gray.600">
+                    Link ClickUp, Asana, or any tool your team uses.
+                  </Text>
+                </VStack>
+              </VStack>
 
-            <Table.Root
-              size="sm"
-              variant="outline"
-              maxWidth="1000px"
+              <VStack gap={6} textAlign="center">
+                <Box
+                  bg="brand.solid"
+                  borderRadius="full"
+                  p={6}
+                  boxSize="80px"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Icon as={MdDashboard} boxSize={10} color="onBrand.fg" />
+                </Box>
+                <VStack gap={3}>
+                  <Heading size="md" color="base.fg">
+                    Choose deliverables to track
+                  </Heading>
+                  <Text color="gray.600">
+                    Select which projects to show clients.
+                  </Text>
+                </VStack>
+              </VStack>
+
+              <VStack gap={6} textAlign="center">
+                <Box
+                  bg="brand.solid"
+                  borderRadius="full"
+                  p={6}
+                  boxSize="80px"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Icon as={MdShare} boxSize={10} color="onBrand.fg" />
+                </Box>
+                <VStack gap={3}>
+                  <Heading size="md" color="base.fg">
+                    Share the client portal link
+                  </Heading>
+                  <Text color="gray.600">
+                    Send clients a branded dashboard URL.
+                  </Text>
+                </VStack>
+              </VStack>
+
+              <VStack gap={6} textAlign="center">
+                <Box
+                  bg="brand.solid"
+                  borderRadius="full"
+                  p={6}
+                  boxSize="80px"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Icon as={MdTrendingUp} boxSize={10} color="onBrand.fg" />
+                </Box>
+                <VStack gap={3}>
+                  <Heading size="md" color="base.fg">
+                    Automate weekly updates
+                  </Heading>
+                  <Text color="gray.600">
+                    Clients get progress reports automatically.
+                  </Text>
+                </VStack>
+              </VStack>
+            </SimpleGrid>
+
+            <Button
+              size="lg"
+              bg="brand.solid"
+              color="onBrand.fg"
+              _hover={{ bg: "brand.emphasized" }}
+              px={8}
+              py={6}
+              fontSize="lg"
+              fontWeight="bold"
+              borderRadius="xl"
+            >
+              Try it now <MdArrowForward />
+            </Button>
+          </VStack>
+        </Box>
+
+        {/* Pricing Section */}
+        <Box padding={{ base: 16, md: 24 }} bg="brand.muted">
+          <HStack maxWidth="1200px" margin="0 auto" gap={16}>
+            <VStack gap={6} alignItems="flex-start">
+              <Heading
+                fontSize={{ base: "4xl", md: "5xl" }}
+                fontWeight={800}
+                letterSpacing="-0.02em"
+                color="base.fg"
+              >
+                Simple, flat pricing.
+              </Heading>
+              <Text fontSize="xl" color="gray.600" maxWidth="600px">
+                Competitors: $25–$60 per user/month.
+                <br />
+                Us: $15 per user/month. Unlimited clients. Predictable billing.
+              </Text>
+            </VStack>
+
+            <Box
+              bg="white"
+              border="2px solid"
+              borderColor="brand.400"
+              boxShadow="xl"
+              borderRadius="xl"
+              p={8}
+              maxWidth="500px"
               margin="0 auto"
-              background="white"
-              borderRadius="md"
-              fontSize="md"
             >
-              <Table.Header>
-                <Table.Row>
-                  <Table.ColumnHeader>Feature</Table.ColumnHeader>
-                  <Table.ColumnHeader>Swooche</Table.ColumnHeader>
-                  <Table.ColumnHeader>Second Phone</Table.ColumnHeader>
-                  <Table.ColumnHeader>Aircall / RingCentral</Table.ColumnHeader>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {comparisonTable.map((row, index) => (
-                  <Table.Row key={index}>
-                    <Table.Cell>{row.feature}</Table.Cell>
-                    <Table.Cell>{row.swooche}</Table.Cell>
-                    <Table.Cell>{row["second phone"]}</Table.Cell>
-                    <Table.Cell>{row["aircall / ringcentral"]}</Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table.Root>
+              <Box textAlign="center" pb={6}>
+                <Heading size="lg" color="base.fg" mb={4}>
+                  Simple Pricing
+                </Heading>
+                <Text fontSize="4xl" fontWeight="bold" color="brand.600" mb={2}>
+                  $15
+                  <span style={{ fontSize: "1.5rem", fontWeight: "normal" }}>
+                    /user/month
+                  </span>
+                </Text>
+                <Text color="gray.600" fontSize="lg">
+                  Pay only for what you use
+                </Text>
+              </Box>
+              <Box borderTop="1px solid" borderColor="gray.200" pt={6}>
+                <VStack gap={4} alignItems="flex-start">
+                  <HStack gap={3}>
+                    <Icon as={MdCheckCircle} color="green.500" />
+                    <Text>Unlimited users</Text>
+                  </HStack>
+                  <HStack gap={3}>
+                    <Icon as={MdCheckCircle} color="green.500" />
+                    <Text>Unlimited clients</Text>
+                  </HStack>
+                  <HStack gap={3}>
+                    <Icon as={MdCheckCircle} color="green.500" />
+                    <Text>All integrations included</Text>
+                  </HStack>
+                  <HStack gap={3}>
+                    <Icon as={MdCheckCircle} color="green.500" />
+                    <Text>Client dashboard</Text>
+                  </HStack>
+                  <HStack gap={3}>
+                    <Icon as={MdCheckCircle} color="green.500" />
+                    <Text>Custom branding</Text>
+                  </HStack>
+                  <HStack gap={3}>
+                    <Icon as={MdCheckCircle} color="green.500" />
+                    <Text>Priority support</Text>
+                  </HStack>
+                </VStack>
+              </Box>
+            </Box>
+          </HStack>
+        </Box>
+
+        {/* Testimonials Section */}
+        <Box padding={{ base: 16, md: 24 }} bg="white">
+          <VStack maxWidth="1200px" margin="0 auto" gap={16}>
+            <VStack textAlign="center" gap={6}>
+              <Heading
+                fontSize={{ base: "4xl", md: "5xl" }}
+                fontWeight={800}
+                letterSpacing="-0.02em"
+                color="base.fg"
+              >
+                What agencies are saying
+              </Heading>
+            </VStack>
+
+            <SimpleGrid columns={{ base: 1, md: 2 }} gap={8} width="100%">
+              <Box
+                bg="gray.50"
+                border="1px solid"
+                borderColor="gray.200"
+                borderRadius="md"
+                p={8}
+              >
+                <HStack mb={4}>
+                  {[...Array(5)].map((_, i) => (
+                    <Icon key={i} as={MdStar} color="yellow.400" />
+                  ))}
+                </HStack>
+                <Text fontSize="lg" color="base.fg" mb={4} fontStyle="italic">
+                  &ldquo;Finally a tool my clients actually use.&rdquo;
+                </Text>
+                <Text fontSize="sm" color="gray.600">
+                  — Sarah Chen, Creative Director at Pixel & Co
+                </Text>
+              </Box>
+
+              <Box
+                bg="gray.50"
+                border="1px solid"
+                borderColor="gray.200"
+                borderRadius="md"
+                p={8}
+              >
+                <HStack mb={4}>
+                  {[...Array(5)].map((_, i) => (
+                    <Icon key={i} as={MdStar} color="yellow.400" />
+                  ))}
+                </HStack>
+                <Text fontSize="lg" color="base.fg" mb={4} fontStyle="italic">
+                  &ldquo;We cut reporting time in half.&rdquo;
+                </Text>
+                <Text fontSize="sm" color="gray.600">
+                  — Mike Rodriguez, Founder at GrowthLab
+                </Text>
+              </Box>
+            </SimpleGrid>
+
+            <VStack gap={6} textAlign="center">
+              <Heading size="lg" color="base.fg">
+                Ready to streamline your agency?
+              </Heading>
+              <Button
+                size="lg"
+                bg="brand.solid"
+                color="onBrand.fg"
+                _hover={{ bg: "brand.emphasized" }}
+                px={8}
+                py={6}
+                fontSize="lg"
+                fontWeight="bold"
+                borderRadius="xl"
+              >
+                Get Started Free <MdArrowForward />
+              </Button>
+              <Text fontSize="sm" color="gray.500">
+                No credit card required • 14-day free trial
+              </Text>
+            </VStack>
           </VStack>
         </Box>
       </main>
     </div>
   );
 }
-
-// Beats going to Telstra for another phone, where you can't even know
-//       whos calling, and you're locked in for 24 months.

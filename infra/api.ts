@@ -1,8 +1,8 @@
 import { getDomainName, getEcrServiceImageUrl } from "./deployment";
 import { vpc } from "./vpc";
-import { config } from "./config";
+// import { config } from "./config";
 
-export const cluster = new sst.aws.Cluster("ApiCluster", { vpc });
+export const cluster = new sst.aws.Cluster("Api", { vpc });
 
 export const api = new sst.aws.Service("ApiService", {
   path: "./apps/api",
