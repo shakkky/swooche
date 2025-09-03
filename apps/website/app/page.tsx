@@ -87,6 +87,249 @@ export default function Home() {
           </VStack>
         </Box>
 
+        {/* Client Portal Mockup Section */}
+        <Box padding={{ base: 16, md: 24 }} bg="white">
+          <VStack maxWidth="1200px" margin="0 auto" gap={12}>
+            <VStack textAlign="center" gap={6}>
+              <Heading
+                fontSize={{ base: "3xl", md: "4xl" }}
+                fontWeight={800}
+                letterSpacing="-0.02em"
+                color="base.fg"
+                lineHeight="1.1"
+              >
+                This is what your clients see
+              </Heading>
+              <Text fontSize="lg" color="gray.600" maxWidth="600px">
+                A professional, branded portal that updates automatically. No
+                more status calls.
+              </Text>
+            </VStack>
+
+            {/* Client Portal Mockup */}
+            <Box
+              bg="white"
+              border="1px solid"
+              borderColor="gray.200"
+              borderRadius="2xl"
+              boxShadow="2xl"
+              overflow="hidden"
+              maxWidth="1000px"
+              width="100%"
+            >
+              {/* Portal Header */}
+              <Box
+                bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                p={6}
+                color="white"
+              >
+                <HStack justifyContent="space-between" alignItems="center">
+                  <HStack gap={3}>
+                    <Box
+                      bg="white"
+                      borderRadius="full"
+                      p={2}
+                      boxSize="40px"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Text fontSize="lg" fontWeight="bold" color="gray.700">
+                        S
+                      </Text>
+                    </Box>
+                    <VStack alignItems="start" gap={0}>
+                      <Text fontSize="lg" fontWeight="bold">
+                        ACME Inc. Campaign Portal
+                      </Text>
+                      <Text fontSize="sm" opacity={0.9}>
+                        Q4 Marketing Campaign Dashboard
+                      </Text>
+                    </VStack>
+                  </HStack>
+                  <Text fontSize="sm" opacity={0.8}>
+                    Last updated: 2 hours ago
+                  </Text>
+                </HStack>
+              </Box>
+
+              {/* Portal Content */}
+              <Box p={8}>
+                {/* Project Overview */}
+                <VStack gap={6} alignItems="stretch">
+                  <Box>
+                    <Heading size="md" color="base.fg" mb={4}>
+                      Q4 Holiday Marketing Campaign
+                    </Heading>
+                    <Text color="gray.600" mb={4}>
+                      Multi-channel campaign to boost holiday sales and brand
+                      awareness for ACME Inc.
+                    </Text>
+                    <Box
+                      bg="green.50"
+                      border="1px solid"
+                      borderColor="green.200"
+                      borderRadius="lg"
+                      p={4}
+                    >
+                      <HStack gap={3}>
+                        <Box bg="green.500" borderRadius="full" boxSize="3" />
+                        <Text
+                          fontSize="sm"
+                          fontWeight="medium"
+                          color="green.700"
+                        >
+                          On Track • 65% Complete
+                        </Text>
+                      </HStack>
+                    </Box>
+                  </Box>
+
+                  {/* Deliverables Grid */}
+                  <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+                    {/* Completed Deliverable */}
+                    <Box
+                      bg="green.50"
+                      border="1px solid"
+                      borderColor="green.200"
+                      borderRadius="lg"
+                      p={4}
+                    >
+                      <HStack gap={3} mb={3}>
+                        <Icon as={MdCheckCircle} color="green.500" />
+                        <Text fontWeight="medium" color="green.700">
+                          Campaign Strategy & Creative
+                        </Text>
+                      </HStack>
+                      <Text fontSize="sm" color="green.600">
+                        ✅ Completed 3 days ago
+                      </Text>
+                      <Text fontSize="sm" color="gray.600" mt={2}>
+                        Campaign concept, messaging, and visual assets approved
+                        by ACME team
+                      </Text>
+                    </Box>
+
+                    {/* In Progress Deliverable */}
+                    <Box
+                      bg="blue.50"
+                      border="1px solid"
+                      borderColor="blue.200"
+                      borderRadius="lg"
+                      p={4}
+                    >
+                      <HStack gap={3} mb={3}>
+                        <Icon as={MdSync} color="blue.500" />
+                        <Text fontWeight="medium" color="blue.700">
+                          Social Media & PPC Launch
+                        </Text>
+                      </HStack>
+                      <Text fontSize="sm" color="blue.600">
+                        ⏳ In Progress • Due in 2 days
+                      </Text>
+                      <Text fontSize="sm" color="gray.600" mt={2}>
+                        Facebook, Instagram, and Google Ads campaigns are live
+                        and optimizing
+                      </Text>
+                    </Box>
+
+                    {/* Pending Deliverable */}
+                    <Box
+                      bg="yellow.50"
+                      border="1px solid"
+                      borderColor="yellow.200"
+                      borderRadius="lg"
+                      p={4}
+                    >
+                      <HStack gap={3} mb={3}>
+                        <Icon as={MdTrendingUp} color="yellow.500" />
+                        <Text fontWeight="medium" color="yellow.700">
+                          Email Marketing Series
+                        </Text>
+                      </HStack>
+                      <Text fontSize="sm" color="yellow.600">
+                        �� Pending • Due in 8 days
+                      </Text>
+                      <Text fontSize="sm" color="gray.600" mt={2}>
+                        Holiday email sequences and automation workflows being
+                        built
+                      </Text>
+                    </Box>
+
+                    {/* Upcoming Deliverable */}
+                    <Box
+                      bg="gray.50"
+                      border="1px solid"
+                      borderColor="gray.200"
+                      borderRadius="lg"
+                      p={4}
+                    >
+                      <HStack gap={3} mb={3}>
+                        <Icon as={MdPeople} color="gray.500" />
+                        <Text fontWeight="medium" color="gray.700">
+                          Campaign Performance & Optimization
+                        </Text>
+                      </HStack>
+                      <Text fontSize="sm" color="gray.600">
+                        �� Upcoming • Due in 12 days
+                      </Text>
+                      <Text fontSize="sm" color="gray.600" mt={2}>
+                        A/B testing, performance analysis, and campaign
+                        optimization
+                      </Text>
+                    </Box>
+                  </SimpleGrid>
+
+                  {/* Recent Activity */}
+                  <Box>
+                    <Heading size="sm" color="base.fg" mb={4}>
+                      Recent Activity
+                    </Heading>
+                    <VStack gap={3} alignItems="stretch">
+                      <HStack gap={3} p={3} bg="gray.50" borderRadius="md">
+                        <Box bg="green.500" borderRadius="full" boxSize="2" />
+                        <Text fontSize="sm" color="gray.600">
+                          <strong>Campaign Strategy & Creative</strong>{" "}
+                          completed and approved by ACME team
+                        </Text>
+                        <Text fontSize="xs" color="gray.500" ml="auto">
+                          2 days ago
+                        </Text>
+                      </HStack>
+                      <HStack gap={3} p={3} bg="gray.50" borderRadius="md">
+                        <Box bg="blue.500" borderRadius="full" boxSize="2" />
+                        <Text fontSize="sm" color="gray.600">
+                          <strong>Social Media & PPC</strong> campaigns launched
+                          and optimizing
+                        </Text>
+                        <Text fontSize="xs" color="gray.500" ml="auto">
+                          1 day ago
+                        </Text>
+                      </HStack>
+                      <HStack gap={3} p={3} bg="gray.50" borderRadius="md">
+                        <Box bg="yellow.500" borderRadius="full" boxSize="2" />
+                        <Text fontSize="sm" color="gray.600">
+                          <strong>Email Marketing Series</strong> scheduled to
+                          begin next week
+                        </Text>
+                        <Text fontSize="xs" color="gray.500" ml="auto">
+                          3 days ago
+                        </Text>
+                      </HStack>
+                    </VStack>
+                  </Box>
+                </VStack>
+              </Box>
+            </Box>
+
+            <VStack gap={4} textAlign="center">
+              <Text fontSize="lg" color="gray.600">
+                This portal updates automatically from your project tools
+              </Text>
+            </VStack>
+          </VStack>
+        </Box>
+
         {/* Problem Section */}
         <Box padding={{ base: 16, md: 24 }} bg="white">
           <VStack maxWidth="1200px" margin="0 auto" gap={16}>
