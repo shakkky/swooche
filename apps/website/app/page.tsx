@@ -363,7 +363,8 @@ export default function Home() {
                   Client status calls
                 </Heading>
                 <Text color="gray.600">
-                  "What are you working on?" calls waste hours every week.
+                  &quot;What are you working on?&quot; calls waste hours every
+                  week.
                 </Text>
               </Box>
 
