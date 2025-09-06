@@ -1,123 +1,10 @@
-import {
-  AccountModel,
-  DeviceModel,
-  PhoneNumberModel,
-  UserModel,
-} from "@swooche/models";
-import {
-  AgentStatusUpdateSchema,
-  TokenResponseSchema,
-  UserSignUpSchema,
-} from "@swooche/schemas";
-import { v4 as uuidv4 } from "uuid";
+import { AccountModel, UserModel } from "@swooche/models";
+// import { UserSignUpSchema } from "@swooche/schemas";
 import { z } from "zod";
-import {
-  publicProcedure,
-  protectedProcedure,
-  tokenOnlyProcedure,
-} from "./procedures";
+import { protectedProcedure, tokenOnlyProcedure } from "./procedures";
 import { router } from "./trpc";
 
-const numbers = [
-  {
-    id: "1",
-    number: "0483 943 524",
-    capabilities: ["calls", "texts"] as ("calls" | "texts")[],
-  },
-  {
-    id: "2",
-    number: "1800 BITE ME",
-    capabilities: ["calls"] as ("calls" | "texts")[],
-  },
-];
-
-// Temporary in-memory store. Swap with Redis or DB in production.
-const agentStatusMap = new Map<string, string>();
-
 export const appRouter = router({
-  getToken: protectedProcedure
-    .output(TokenResponseSchema)
-    .query(async ({ ctx }) => {
-      const { user } = ctx;
-
-      console.log("👋 User: ", user);
-
-      return {
-        token: "foo",
-        identity: "bar",
-        numbers,
-      };
-    }),
-
-  updateAgentStatus: protectedProcedure
-    .input(AgentStatusUpdateSchema)
-    .mutation(({ input }) => {
-      console.log("📡 Agent status updated: ", input);
-      const { identity, status } = input;
-
-      agentStatusMap.set(identity, status);
-      console.log(`📡 Agent status updated: ${identity} → ${status}`);
-
-      return { success: true };
-    }),
-
-  getAgentStatus: publicProcedure
-    .input(z.object({ identity: z.string() }))
-    .query(({ input }) => {
-      return agentStatusMap.get(input.identity) || "offline";
-    }),
-
-  getAllAgentStatuses: publicProcedure.query(() => {
-    return Object.fromEntries(agentStatusMap);
-  }),
-
-  userSignUp: tokenOnlyProcedure
-    .input(UserSignUpSchema)
-    .mutation(async ({ input }) => {
-      const { firstName, lastName, name, email, supabaseUserId } = input;
-
-      const account = await AccountModel.create({
-        name: "Placeholder company",
-      });
-
-      const user = await UserModel.create({
-        firstName,
-        lastName,
-        name,
-        email,
-        supabaseUserId,
-        accountId: account._id,
-      });
-
-      console.log("👋 User created: ", user);
-
-      const device = new DeviceModel({
-        accountId: account._id,
-        userId: user._id,
-        name: "My business phone",
-        token: uuidv4(), // when calls come through, we use this to connect the call to the device
-        capabilities: ["calls", "texts"],
-        type: "phone",
-      });
-
-      // TODO: send a welcome email to the user
-
-      // the welcome email will have a link to the console
-      // where the user will add a device ?
-
-      console.log("📱 Device created: ", device);
-
-      const phoneNumber = await PhoneNumberModel.create({
-        accountId: account._id,
-        e164: "+61483943524",
-        sid: "PN0c53c3f6171c0f9effb11b63d0ff7b49",
-        capabilities: ["calls", "texts"],
-      });
-      console.log("📞 Phone number created: ", phoneNumber);
-
-      return { success: true };
-    }),
-
   me: protectedProcedure.query(({ ctx }) => {
     return {
       id: ctx.user.id,
@@ -135,6 +22,109 @@ export const appRouter = router({
       email: ctx.user?.email,
     };
   }),
+
+  // Handle user sign-in - uses insert with conflict handling to detect new users
+  onUserSignIn: tokenOnlyProcedure
+    .input(
+      z.object({
+        userMetadata: z.record(z.any()).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { userMetadata } = input;
+
+      console.log("🔐 User signing in:", userMetadata);
+
+      try {
+        // Extract user data from metadata
+        const userData = {
+          firstName:
+            userMetadata?.given_name || userMetadata?.name?.split(" ")[0] || "",
+          lastName:
+            userMetadata?.family_name ||
+            userMetadata?.name?.split(" ").slice(1).join(" ") ||
+            "",
+          name:
+            userMetadata?.name ||
+            userMetadata?.full_name ||
+            ctx.user?.email ||
+            "",
+          email: userMetadata?.email || "",
+          supabaseUserId: ctx.supabaseUserId,
+        };
+
+        // Try to find existing user first
+        const existingUser = await UserModel.findOne({
+          supabaseUserId: ctx.supabaseUserId,
+        });
+
+        if (existingUser) {
+          console.log("👤 Existing user signing in:", existingUser._id);
+          return {
+            isNewUser: false,
+            userId: existingUser._id,
+            message: "Existing user signed in",
+          };
+        }
+
+        // User doesn't exist - this is a new signup!
+        console.log("🎉 New user detected - creating account");
+
+        // Create account
+        const account = await AccountModel.create({
+          name: `${userData.firstName} - Default Company`,
+        });
+
+        // Create user (this will succeed since we checked they don't exist)
+        const user = await UserModel.create({
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          name: userData.name,
+          email: userData.email,
+          supabaseUserId: userData.supabaseUserId,
+          accountId: account._id,
+        });
+
+        console.log("✅ New user created in database:", user._id);
+
+        // Trigger new user signup events
+        console.log("🎉 NEW USER SIGNUP EVENT TRIGGERED!");
+        console.log("📊 Analytics: New user signup logged", {
+          userId: ctx.supabaseUserId,
+          email: userData.email,
+          timestamp: new Date().toISOString(),
+          source: "google_oauth",
+        });
+
+        // Here you can add any custom signup logic:
+        // - Send welcome emails
+        // - Create analytics events
+        // - Set up user preferences
+        // - Trigger onboarding workflows
+        // - Send notifications to admin
+        // - Initialize user-specific data
+
+        // send webhook contain user details
+        await fetch(
+          "https://hook.us1.make.com/8qi25etam4r04tmpyzgqt24kljgk1msy",
+          {
+            method: "POST",
+            body: JSON.stringify({
+              user: user.toJSON(),
+            }),
+          }
+        );
+
+        return {
+          isNewUser: true,
+          userId: user._id,
+          message: "New user signup processed successfully",
+        };
+      } catch (error) {
+        console.error("❌ Error processing user sign-in:", error);
+        throw error;
+      }
+    }),
 });
 
 export type AppRouter = typeof appRouter;

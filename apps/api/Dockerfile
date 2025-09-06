@@ -4,5 +4,5 @@ WORKDIR /app
 ENV NODE_ENV=production
 COPY dist .
 
-EXPOSE 3001
+EXPOSE 3002
 CMD ["npm", "start"]

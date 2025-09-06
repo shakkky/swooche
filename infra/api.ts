@@ -12,8 +12,8 @@ export const api = new sst.aws.Service("ApiService", {
   loadBalancer: {
     domain: getDomainName($app.stage, "api"),
     ports: [
-      { listen: "80/http", forward: "3001/http" },
-      { listen: "443/https", forward: "3001/http" },
+      { listen: "80/http", forward: "3002/http" },
+      { listen: "443/https", forward: "3002/http" },
     ],
   },
   containers: [
@@ -23,16 +23,17 @@ export const api = new sst.aws.Service("ApiService", {
         retention: "3 weeks",
       },
       name: `api-${$app.stage}`,
-      ports: [{ container: "3001/http" }],
+      ports: [{ container: "3002/http" }],
       environment: {
         // ...config,
         NODE_ENV: "production",
+        MONGODB_URI: process.env.MONGODB_URI,
       },
     },
   ],
   dev: {
     command: "pnpm dev",
-    url: "http://localhost:3001",
+    url: "http://localhost:3002",
   },
   wait: true,
   // Add idempotency configuration to prevent creation conflicts

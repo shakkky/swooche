@@ -1,12 +1,13 @@
+import { Session, User } from "@supabase/supabase-js";
 import {
   createContext,
+  ReactNode,
   useContext,
   useEffect,
   useState,
-  ReactNode,
 } from "react";
-import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
+import { trpc } from "../lib/trpc";
 
 interface AuthContextType {
   user: User | null;
@@ -23,6 +24,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // tRPC mutations
+  const onUserSignInMutation = trpc.onUserSignIn.useMutation();
+
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -34,14 +38,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      // Handle user signup - check if this is a new user
+      if (event === "SIGNED_IN" && session?.user) {
+        console.log("🔐 User signed in:", session.user);
+        console.log("📊 Auth event:", event);
+        console.log("📊 User created at:", session.user.created_at);
+        console.log("📊 Last sign in:", session.user.last_sign_in_at);
+
+        try {
+          // Always call onUserSignIn - it will detect if this is a new user or existing user
+          const result = await onUserSignInMutation.mutateAsync({
+            userMetadata: session.user.user_metadata,
+          });
+
+          if (result.isNewUser) {
+            console.log("🎉 New user signup processed successfully:", result);
+          } else {
+            console.log("👤 Existing user signed in:", result.message);
+          }
+        } catch (error) {
+          console.error("❌ Error processing user sign-in:", error);
+        }
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [onUserSignInMutation]);
 
   const signInWithGoogle = async () => {
     try {
