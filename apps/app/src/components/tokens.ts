@@ -58,8 +58,8 @@ export const semanticTokens = defineSemanticTokens({
       emphasized: { value: "{colors.brand.700}" },
     },
     base: {
-      bg: { value: "{colors.brand.50}" },
-      fg: { value: "{colors.brand.900}" },
+      bg: { value: "white" },
+      fg: { value: "black" },
     },
   },
 });

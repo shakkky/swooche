@@ -7,8 +7,11 @@ import {
 import { ChakraProvider } from "@chakra-ui/react";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AppLayout } from "./components/AppLayout";
 import { SignIn } from "./pages/SignIn";
-import { Home } from "./pages/Home";
+import { AppHome } from "./pages/AppHome";
+import { Clients } from "./pages/Clients";
+import { Tasks } from "./pages/Tasks";
 import { system } from "./components/theme";
 
 const App = () => {
@@ -20,18 +23,25 @@ const App = () => {
             {/* Public routes */}
             <Route path="/signin" element={<SignIn />} />
 
-            {/* Protected routes */}
+            {/* Protected app routes with sidebar layout */}
             <Route
-              path="/"
+              path="/app"
               element={
                 <ProtectedRoute>
-                  <Home />
+                  <AppLayout />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route index element={<AppHome />} />
+              <Route path="clients" element={<Clients />} />
+              <Route path="tasks" element={<Tasks />} />
+            </Route>
 
-            {/* Redirect to home if accessing unknown routes */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            {/* Redirect root to app */}
+            <Route path="/" element={<Navigate to="/app" replace />} />
+
+            {/* Redirect to app if accessing unknown routes */}
+            <Route path="*" element={<Navigate to="/app" replace />} />
           </Routes>
         </Router>
       </AuthProvider>

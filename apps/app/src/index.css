@@ -3,6 +3,37 @@
   --font-yellowtail: "Yellowtail", cursive;
 }
 
+/* Reset scroll behavior to default */
+html {
+  scroll-behavior: auto !important;
+  color: black !important;
+}
+
+body {
+  scroll-behavior: auto !important;
+}
+
+/* Ensure proper overflow behavior */
+* {
+  scroll-behavior: auto !important;
+}
+
+/* Reset any custom scroll snap behaviors */
+.scroll-snap-container {
+  scroll-snap-type: none !important;
+}
+
+/* Reset text selection to default browser blue */
+::selection {
+  background-color: #0066cc !important;
+  color: white !important;
+}
+
+::-moz-selection {
+  background-color: #0066cc !important;
+  color: white !important;
+}
+
 /* Reset link styles to use default browser behavior */
 a {
   color: #0066cc !important;
