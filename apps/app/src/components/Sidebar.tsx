@@ -21,16 +21,16 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
+const menuItems = [
+  { id: "Home", label: "Home", icon: MdHome, path: "/app" },
+  { id: "Clients", label: "Clients", icon: MdPeople, path: "/app/clients" },
+  { id: "Tasks", label: "Tasks", icon: MdAssignment, path: "/app/tasks" },
+];
+
 // Sidebar content component that can be reused in both desktop and mobile
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const { signOut, user } = useAuth();
   const location = useLocation();
-
-  const menuItems = [
-    { id: "Home", label: "Home", icon: MdHome, path: "/app" },
-    { id: "Clients", label: "Clients", icon: MdPeople, path: "/app/clients" },
-    { id: "Tasks", label: "Tasks", icon: MdAssignment, path: "/app/tasks" },
-  ];
 
   return (
     <VStack align="stretch" height="100%" gap={0}>
@@ -38,7 +38,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       <Box p={6}>
         <HStack gap={3}>
           <Box
-            bg="brand.solid"
+            bg="brand.emphasized"
             borderRadius="lg"
             p={2}
             boxSize="40px"
@@ -137,13 +137,13 @@ export function Sidebar() {
       <Box
         width="280px"
         height="100vh"
-        bg="white"
         borderRight="1px solid"
         borderColor="gray.200"
         position="fixed"
         left={0}
         top={0}
         zIndex={10}
+        bg="gray.50"
       >
         <SidebarContent />
       </Box>
@@ -192,7 +192,7 @@ export function Sidebar() {
         position="fixed"
         top="64px"
         left={0}
-        width="280px"
+        width="75%"
         height="calc(100vh - 64px)"
         bg="white"
         borderRight="1px solid"

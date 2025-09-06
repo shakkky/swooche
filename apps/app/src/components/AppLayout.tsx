@@ -6,7 +6,7 @@ export function AppLayout() {
   const isMobile = useBreakpointValue({ base: true, lg: false });
 
   return (
-    <Box display="flex" minHeight="100vh" bg="gray.50">
+    <Box display="flex" minHeight="100vh">
       <Sidebar />
 
       {/* Main Content Area */}
