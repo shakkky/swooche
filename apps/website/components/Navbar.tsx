@@ -86,15 +86,17 @@ export default function Navbar() {
             >
               Get a demo
             </Button>
-            <Button
-              bg="brand.contrast"
-              color="white"
-              _hover={{ bg: "onBrand.contrastEmphasized" }}
-              size="md"
-              borderRadius="full"
-            >
-              Create a free account
-            </Button>
+            <Link href={`${process.env.APP_URL}/signin`}>
+              <Button
+                bg="brand.contrast"
+                color="white"
+                _hover={{ bg: "onBrand.contrastEmphasized" }}
+                size="md"
+                borderRadius="full"
+              >
+                Create a free account
+              </Button>
+            </Link>
           </HStack>
         </HStack>
 
@@ -173,15 +175,17 @@ export default function Navbar() {
             >
               Get a demo
             </Button>
-            <Button
-              bg="brand.contrast"
-              color="white"
-              size="md"
-              width="full"
-              borderRadius="full"
-            >
-              Create a free account
-            </Button>
+            <Link href={`${process.env.APP_URL}/signin`}>
+              <Button
+                bg="brand.contrast"
+                color="white"
+                size="md"
+                width="full"
+                borderRadius="full"
+              >
+                Create a free account
+              </Button>
+            </Link>
           </VStack>
         </Box>
       </Box>

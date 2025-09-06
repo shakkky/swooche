@@ -10,7 +10,7 @@ const config = defineConfig({
       padding: 0,
     },
     body: {
-      bg: "black",
+      bg: "base.bg",
     },
   },
   theme: {

@@ -1,4 +1,5 @@
 "use client";
+import Navbar from "@/components/Navbar";
 import {
   Box,
   Button,
@@ -9,17 +10,17 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
+import Link from "next/link";
 import {
-  MdCheckCircle,
   MdArrowForward,
-  MdStar,
-  MdTrendingUp,
-  MdPeople,
+  MdCheckCircle,
   MdDashboard,
-  MdSync,
+  MdPeople,
   MdShare,
+  MdStar,
+  MdSync,
+  MdTrendingUp,
 } from "react-icons/md";
-import Navbar from "@/components/Navbar";
 
 export default function Home() {
   return (
@@ -64,15 +65,17 @@ export default function Home() {
             </Text>
 
             <HStack gap={4} flexWrap="wrap" justifyContent="start">
-              <Button
-                bg="brand.contrast"
-                color="white"
-                _hover={{ bg: "onBrand.contrastEmphasized" }}
-                size="xl"
-                borderRadius="full"
-              >
-                Create a free account
-              </Button>
+              <Link href={`${process.env.APP_URL}/signin`}>
+                <Button
+                  bg="brand.contrast"
+                  color="white"
+                  _hover={{ bg: "onBrand.contrastEmphasized" }}
+                  size="xl"
+                  borderRadius="full"
+                >
+                  Create a free account
+                </Button>
+              </Link>
               <Button
                 variant="outline"
                 bg="white"
@@ -648,15 +651,17 @@ export default function Home() {
               </VStack>
             </SimpleGrid>
 
-            <Button
-              bg="brand.contrast"
-              color="white"
-              _hover={{ bg: "onBrand.contrastEmphasized" }}
-              size="lg"
-              borderRadius="full"
-            >
-              Try it now <MdArrowForward />
-            </Button>
+            <Link href={`${process.env.APP_URL}/signin`}>
+              <Button
+                bg="brand.contrast"
+                color="white"
+                _hover={{ bg: "onBrand.contrastEmphasized" }}
+                size="lg"
+                borderRadius="full"
+              >
+                Try it now <MdArrowForward />
+              </Button>
+            </Link>
           </VStack>
         </Box>
 
@@ -893,15 +898,17 @@ export default function Home() {
               <Heading size="lg" color="base.fg">
                 Ready to stop client status calls forever?
               </Heading>
-              <Button
-                bg="brand.contrast"
-                color="white"
-                _hover={{ bg: "onBrand.contrastEmphasized" }}
-                size="lg"
-                borderRadius="full"
-              >
-                Get Started Free <MdArrowForward />
-              </Button>
+              <Link href={`${process.env.APP_URL}/signin`}>
+                <Button
+                  bg="brand.contrast"
+                  color="white"
+                  _hover={{ bg: "onBrand.contrastEmphasized" }}
+                  size="lg"
+                  borderRadius="full"
+                >
+                  Get Started Free <MdArrowForward />
+                </Button>
+              </Link>
               <Text fontSize="sm" color="gray.500">
                 No credit card required • 14-day free trial
               </Text>

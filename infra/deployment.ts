@@ -24,7 +24,10 @@ export const getEcrServiceImageUrl = async (appName: "website" | "api") => {
   return `${awsAccountId}.dkr.ecr.ap-southeast-2.amazonaws.com/services@${digest}`;
 };
 
-export const getDomainName = (stage: string, appName: "website" | "api") => {
+export const getDomainName = (
+  stage: string,
+  appName: "website" | "api" | "app"
+) => {
   if (!stage) {
     throw new Error("Stage is not defined");
   }

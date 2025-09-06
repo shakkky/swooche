@@ -100,7 +100,7 @@ importers:
         specifier: ^5.3.3
         version: 5.9.2
 
-  apps/console:
+  apps/app:
     dependencies:
       '@chakra-ui/react':
         specifier: ^3.26.0

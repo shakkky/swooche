@@ -23,6 +23,9 @@ export const website = new sst.aws.Service("WebsiteService", {
       },
       name: `website-${$app.stage}`,
       ports: [{ container: "3000/http" }],
+      environment: {
+        APP_URL: getDomainName($app.stage, "app"),
+      },
     },
   ],
   dev: {

@@ -8,21 +8,32 @@ export const tokens = defineTokens({
   ...defaultConfig.theme?.tokens,
   colors: {
     brand: {
-      50: { value: "{colors.blue.50}" },
-      100: { value: "{colors.blue.100}" },
-      200: { value: "{colors.blue.200}" },
-      300: { value: "{colors.blue.300}" },
-      400: { value: "{colors.blue.400}" },
-      500: { value: "{colors.blue.500}" },
-      600: { value: "{colors.blue.600}" },
-      700: { value: "{colors.blue.700}" },
-      800: { value: "{colors.blue.800}" },
-      900: { value: "{colors.blue.900}" },
+      50: { value: "{colors.yellow.50}" },
+      100: { value: "{colors.yellow.100}" },
+      200: { value: "{colors.yellow.200}" },
+      300: { value: "{colors.yellow.300}" },
+      400: { value: "{colors.yellow.400}" },
+      500: { value: "{colors.yellow.500}" },
+      600: { value: "{colors.yellow.600}" },
+      700: { value: "{colors.yellow.700}" },
+      800: { value: "{colors.yellow.800}" },
+      900: { value: "{colors.yellow.900}" },
+    },
+    base: {
+      bg: { value: "{colors.brand.50}" },
+      fg: { value: "black" },
     },
   },
   fonts: {
-    heading: { value: "var(--font-modak" },
-    body: { value: "var(--font-modak)" },
+    heading: {
+      value:
+        "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    },
+    body: {
+      value:
+        "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    },
+    yellowtail: { value: "var(--font-yellowtail)" },
   },
 });
 
@@ -30,20 +41,25 @@ export const semanticTokens = defineSemanticTokens({
   ...defaultConfig.theme?.semanticTokens,
   colors: {
     brand: {
-      solid: { value: "{colors.brand.500}" },
+      solid: { value: "{colors.brand.100}" },
       contrast: { value: "black" },
-      fg: { value: "white" },
+      fg: { value: "black" },
       muted: { value: "{colors.brand.100}" },
       subtle: { value: "{colors.brand.200}" },
       emphasized: { value: "{colors.brand.300}" },
     },
     onBrand: {
-      solid: { value: "white" },
+      solid: { value: "black" },
       contrast: { value: "{colors.brand.900}" },
-      fg: { value: "{colors.brand.200}" },
+      contrastEmphasized: { value: "{colors.blackAlpha.800}" },
+      fg: { value: "{colors.brand.500}" },
       muted: { value: "{colors.brand.900}" },
       subtle: { value: "{colors.brand.800}" },
       emphasized: { value: "{colors.brand.700}" },
+    },
+    base: {
+      bg: { value: "{colors.brand.50}" },
+      fg: { value: "{colors.brand.900}" },
     },
   },
 });

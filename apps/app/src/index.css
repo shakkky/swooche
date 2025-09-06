@@ -1,0 +1,35 @@
+/* Font variables - only define, don't apply globally */
+:root {
+  --font-yellowtail: "Yellowtail", cursive;
+}
+
+/* Reset link styles to use default browser behavior */
+a {
+  color: #0066cc !important;
+  text-decoration: underline !important;
+}
+
+a:hover {
+  color: #004499 !important;
+  text-decoration: underline !important;
+}
+
+a:visited {
+  color: #800080 !important;
+}
+
+a:focus {
+  color: #0066cc !important;
+  text-decoration: underline !important;
+}
+
+/* Ensure Chakra UI Link components use default browser styling */
+[data-chakra-component="Link"] {
+  color: #0066cc !important;
+  text-decoration: underline !important;
+}
+
+[data-chakra-component="Link"]:hover {
+  color: #004499 !important;
+  text-decoration: underline !important;
+}
