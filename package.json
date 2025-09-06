@@ -6,10 +6,10 @@
   "type": "module",
   "packageManager": "pnpm@10.3.0",
   "scripts": {
-    "dev": "AWS_PROFILE=swooche sst dev",
+    "dev": "cp .env.local apps/website/.env && AWS_PROFILE=swooche sst dev",
     "publish:website": "pnpm run build && pnpm --filter website ecs-prepare && pnpm run deploy",
     "publish:api": "pnpm run build && pnpm --filter api ecs-prepare && pnpm run deploy",
-    "publish": "pnpm run build && turbo run ecs-prepare && pnpm run deploy",
+    "publish": "cp .env.production apps/website/.env && pnpm run build && turbo run ecs-prepare && pnpm run deploy",
     "deploy": "AWS_PROFILE=swooche sst deploy --stage production",
     "remove": "AWS_PROFILE=swooche sst remove --stage production",
     "build": "turbo run build",

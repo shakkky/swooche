@@ -10,6 +10,10 @@ declare module "sst" {
       "type": "sst.aws.Service"
       "url": string
     }
+    "AppService": {
+      "type": "sst.aws.StaticSite"
+      "url": string
+    }
     "Vpc": {
       "type": "sst.aws.Vpc"
     }

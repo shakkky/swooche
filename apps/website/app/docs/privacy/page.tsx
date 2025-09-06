@@ -65,8 +65,8 @@ export default function PrivacyPolicy() {
                 and conducting our business
                 <br />
                 • When we believe release is appropriate to comply with the law,
-                enforce our site policies, or protect ours or others' rights,
-                property, or safety
+                enforce our site policies, or protect ours or others&apos;
+                rights, property, or safety
                 <br />• In connection with a merger, acquisition, or sale of all
                 or a portion of our assets
               </Text>
@@ -146,7 +146,7 @@ export default function PrivacyPolicy() {
 
             <Box>
               <Heading as="h2" size="lg" mb={4} color="base.fg">
-                9. Children's Privacy
+                9. Children&apos;s Privacy
               </Heading>
               <Text color="base.muted" lineHeight="1.6">
                 Our service is not intended for children under 13 years of age.
@@ -175,8 +175,9 @@ export default function PrivacyPolicy() {
               <Text color="base.muted" lineHeight="1.6">
                 We may update this Privacy Policy from time to time. We will
                 notify you of any changes by posting the new Privacy Policy on
-                this page and updating the "Last updated" date. You are advised
-                to review this Privacy Policy periodically for any changes.
+                this page and updating the &quot;Last updated&quot; date. You
+                are advised to review this Privacy Policy periodically for any
+                changes.
               </Text>
             </Box>
 
