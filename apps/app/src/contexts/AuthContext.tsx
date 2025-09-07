@@ -60,15 +60,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         try {
           // Always call onUserSignIn - it will detect if this is a new user or existing user
-          const result = await onUserSignInMutation.mutateAsync({
-            userMetadata: session.user.user_metadata,
-          });
-
-          if (result.isNewUser) {
-            console.log("🎉 New user signup processed successfully:", result);
-          } else {
-            console.log("👤 Existing user signed in:", result.message);
-          }
+          onUserSignInMutation
+            .mutateAsync({
+              userMetadata: session.user.user_metadata,
+            })
+            .then((result) => {
+              if (result.isNewUser) {
+                console.log(
+                  "🎉 New user signup processed successfully:",
+                  result
+                );
+              } else {
+                console.log("👤 Existing user signed in:", result.message);
+              }
+            });
         } catch (error) {
           console.error("❌ Error processing user sign-in:", error);
         }
@@ -93,34 +98,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    // all of the below is super janky. supabase.auth.signOut() should do this for us, but it hangs indefinitely.
-    try {
-      localStorage.removeItem("sb-bvyvuajzkofjrzxnoowq-auth-token");
-      Object.keys(localStorage).forEach((key) => {
-        if (key.startsWith("sb-")) {
-          localStorage.removeItem(key);
-        }
-      });
-    } catch (error) {
-      console.error("❌ Error clearing localStorage:", error);
-    }
-
     setUser(null);
     setSession(null);
+    await supabase.auth.signOut();
     navigate("/signin");
-
-    supabase.auth
-      .signOut()
-      .then(({ error }) => {
-        if (error) {
-          console.error("❌ Background Supabase signout error:", error);
-        } else {
-          console.log("✅ Background Supabase signout successful");
-        }
-      })
-      .catch((error) => {
-        console.error("❌ Background Supabase signout failed:", error);
-      });
   };
 
   const value = {

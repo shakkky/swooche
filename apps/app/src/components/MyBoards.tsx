@@ -1,19 +1,23 @@
+import { trpc } from "@/lib/trpc";
 import {
-  Heading,
-  Text,
-  VStack,
   Box,
   Button,
+  Heading,
   HStack,
   SimpleGrid,
+  Text,
+  VStack,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { trpc } from "../lib/trpc";
+import { useAuthenticatedTrpcQuery } from "../hooks/useAuthenticatedQuery";
 
 export function MyBoards() {
   const navigate = useNavigate();
 
-  const { data: boardsData, isLoading } = trpc.getBoards.useQuery();
+  const { data: boardsData, isLoading } = useAuthenticatedTrpcQuery(
+    trpc.getBoards.useQuery,
+    undefined
+  );
 
   const handleCreateBoard = () => {
     navigate("/app/create-board");
@@ -64,7 +68,8 @@ export function MyBoards() {
               borderColor="gray.200"
               borderRadius="lg"
               bg="white"
-              _hover={{ shadow: "md" }}
+              cursor="pointer"
+              _hover={{ boxShadow: "1px 1px 10px 2px rgba(0, 0, 0, 0.1)" }}
             >
               <VStack align="start" gap={3}>
                 <Box>
