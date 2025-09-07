@@ -13,6 +13,7 @@ import { SignIn } from "./pages/SignIn";
 import { AppHome } from "./pages/AppHome";
 import { Clients } from "./pages/Clients";
 import { Tasks } from "./pages/Tasks";
+import { CreateBoard } from "./pages/CreateBoard";
 import { system } from "./components/theme";
 
 const App = () => {
@@ -37,6 +38,7 @@ const App = () => {
                 <Route index element={<AppHome />} />
                 <Route path="clients" element={<Clients />} />
                 <Route path="tasks" element={<Tasks />} />
+                <Route path="create-board" element={<CreateBoard />} />
               </Route>
 
               {/* Redirect root to app - with auth check */}

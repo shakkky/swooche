@@ -74,7 +74,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
                 px={4}
                 width="full"
                 bg={isActive ? "blackAlpha.100" : "transparent"}
-                color={isActive ? "blackAlpha.800" : "blackAlpha.400"}
+                color={isActive ? "blackAlpha.800" : "blackAlpha.600"}
                 fontWeight={isActive ? "semibold" : "normal"}
                 _hover={{
                   bg: isActive ? "blackAlpha.200" : "blackAlpha.50",

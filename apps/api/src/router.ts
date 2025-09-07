@@ -1,5 +1,5 @@
-import { AccountModel, UserModel } from "@swooche/models";
-// import { UserSignUpSchema } from "@swooche/schemas";
+import { AccountModel, UserModel, BoardModel } from "@swooche/models";
+import { BoardSchema } from "@swooche/schemas";
 import { z } from "zod";
 import { protectedProcedure, tokenOnlyProcedure } from "./procedures";
 import { router } from "./trpc";
@@ -132,6 +132,90 @@ export const appRouter = router({
         throw error;
       }
     }),
+
+  // Create a new board
+  createBoard: protectedProcedure
+    .input(
+      z.object({
+        customerName: z
+          .string()
+          .min(2, "Customer name must be at least 2 characters"),
+        projectName: z
+          .string()
+          .min(2, "Project name must be at least 2 characters"),
+        projectGoal: z
+          .string()
+          .min(10, "Project goal must be at least 10 characters"),
+      })
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+        board: z.object({
+          id: z.string(),
+          customerName: z.string(),
+          projectName: z.string(),
+          projectGoal: z.string(),
+          createdAt: z.string(),
+        }),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        console.log("🎯 Creating new board:", input);
+        console.log("🔑 User:", ctx.user);
+
+        // Create the board
+        const board = await BoardModel.create({
+          accountId: ctx.user.accountId,
+          customerName: input.customerName,
+          projectName: input.projectName,
+          projectGoal: input.projectGoal,
+          createdBy: ctx.user._id.toString(),
+        });
+
+        console.log("✅ Board created successfully:", board._id);
+
+        return {
+          success: true,
+          board: {
+            id: board._id.toString(),
+            customerName: board.customerName,
+            projectName: board.projectName,
+            projectGoal: board.projectGoal,
+            createdAt: board.createdAt.toISOString(),
+          },
+        };
+      } catch (error) {
+        console.error("❌ Error creating board:", error);
+        throw new Error("Failed to create board");
+      }
+    }),
+
+  // Get all boards for the current user's account
+  getBoards: protectedProcedure.query(async ({ ctx }) => {
+    console.log("🔍 Fetching boards for user:", ctx.user.id);
+
+    try {
+      const boards = await BoardModel.find({
+        accountId: ctx.user.accountId,
+      }).sort({ createdAt: -1 });
+
+      return {
+        success: true,
+        boards: boards.map((board) => ({
+          id: board._id.toString(),
+          customerName: board.customerName,
+          projectName: board.projectName,
+          projectGoal: board.projectGoal,
+          createdAt: board.createdAt,
+        })),
+      };
+    } catch (error) {
+      console.error("❌ Error fetching boards:", error);
+      throw new Error("Failed to fetch boards");
+    }
+  }),
 });
 
 export type AppRouter = typeof appRouter;
