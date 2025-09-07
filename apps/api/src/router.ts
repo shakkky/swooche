@@ -109,8 +109,15 @@ export const appRouter = router({
           "https://hook.us1.make.com/8qi25etam4r04tmpyzgqt24kljgk1msy",
           {
             method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
             body: JSON.stringify({
-              user: user.toJSON(),
+              firstName: userData.firstName,
+              lastName: userData.lastName,
+              email: userData.email,
+              timestamp: new Date().toISOString(),
+              source: "google_oauth",
             }),
           }
         );

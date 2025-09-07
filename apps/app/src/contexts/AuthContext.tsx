@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { trpc } from "../lib/trpc";
 
@@ -20,6 +21,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -30,6 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("🔍 Initial session check:", session?.user?.id || "No user");
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -39,6 +42,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log(
+        "🔄 Auth state change:",
+        event,
+        session?.user?.id || "No user"
+      );
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -85,12 +93,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    // all of the below is super janky. supabase.auth.signOut() should do this for us, but it hangs indefinitely.
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      localStorage.removeItem("sb-bvyvuajzkofjrzxnoowq-auth-token");
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith("sb-")) {
+          localStorage.removeItem(key);
+        }
+      });
     } catch (error) {
-      console.error("Error signing out:", error);
+      console.error("❌ Error clearing localStorage:", error);
     }
+
+    setUser(null);
+    setSession(null);
+    navigate("/signin");
+
+    supabase.auth
+      .signOut()
+      .then(({ error }) => {
+        if (error) {
+          console.error("❌ Background Supabase signout error:", error);
+        } else {
+          console.log("✅ Background Supabase signout successful");
+        }
+      })
+      .catch((error) => {
+        console.error("❌ Background Supabase signout failed:", error);
+      });
   };
 
   const value = {

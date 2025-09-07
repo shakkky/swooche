@@ -19,8 +19,8 @@ const App = () => {
   return (
     <ChakraProvider value={system}>
       <TRPCProvider>
-        <AuthProvider>
-          <Router>
+        <Router>
+          <AuthProvider>
             <Routes>
               {/* Public routes */}
               <Route path="/signin" element={<SignIn />} />
@@ -39,14 +39,20 @@ const App = () => {
                 <Route path="tasks" element={<Tasks />} />
               </Route>
 
-              {/* Redirect root to app */}
-              <Route path="/" element={<Navigate to="/app" replace />} />
+              {/* Redirect root to app - with auth check */}
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Navigate to="/app" replace />
+                  </ProtectedRoute>
+                }
+              />
 
-              {/* Redirect to app if accessing unknown routes */}
-              <Route path="*" element={<Navigate to="/app" replace />} />
+              <Route path="*" element={<Navigate to="/signin" replace />} />
             </Routes>
-          </Router>
-        </AuthProvider>
+          </AuthProvider>
+        </Router>
       </TRPCProvider>
     </ChakraProvider>
   );
