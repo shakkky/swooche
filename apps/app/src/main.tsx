@@ -3,11 +3,14 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
+import { LightMode } from "./components/ui/color-mode";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider>
-      <App />
+      <LightMode>
+        <App />
+      </LightMode>
     </Provider>
   </StrictMode>
 );

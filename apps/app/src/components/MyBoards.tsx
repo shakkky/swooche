@@ -70,6 +70,7 @@ export function MyBoards() {
               bg="white"
               cursor="pointer"
               _hover={{ boxShadow: "1px 1px 10px 2px rgba(0, 0, 0, 0.1)" }}
+              onClick={() => navigate(`/app/boards/${board._id}`)}
             >
               <VStack align="start" gap={3}>
                 <Box>

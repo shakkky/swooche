@@ -3,10 +3,7 @@ import { httpBatchLink } from "@trpc/client";
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
 import { trpc } from "../lib/trpc";
-
-const getBaseUrl = () => {
-  return `${import.meta.env.VITE_API_URL || "http://localhost:3002"}`;
-};
+import { getBaseApiUrl } from "../config";
 
 export function TRPCProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
@@ -15,7 +12,7 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
     trpc.createClient({
       links: [
         httpBatchLink({
-          url: `${getBaseUrl()}/trpc`,
+          url: `${getBaseApiUrl()}/trpc`,
           headers: async () => {
             const {
               data: { session },

@@ -5,6 +5,7 @@ import {
   Button,
   HStack,
   Icon,
+  Image,
   Separator,
   Text,
   VStack,
@@ -20,6 +21,7 @@ import {
 } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import swoocheLogo from "../assets/logos/swooche.png";
 
 const menuItems = [
   { id: "Home", label: "Home", icon: MdHome, path: "/app" },
@@ -37,18 +39,14 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       {/* Logo/Brand Section */}
       <Box p={6}>
         <HStack gap={3}>
-          <Box
-            bg="brand.emphasized"
-            borderRadius="lg"
-            p={2}
-            boxSize="40px"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Text fontSize="lg" fontWeight="bold" color="white">
-              S
-            </Text>
+          <Box w={10} h={10} objectFit="contain">
+            <Image
+              src={swoocheLogo}
+              alt="Swooche Logo"
+              w={10}
+              h={10}
+              borderRadius="md"
+            />
           </Box>
           <Text fontWeight="bold" color="gray.800">
             Swooche

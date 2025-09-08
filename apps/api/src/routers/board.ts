@@ -69,6 +69,48 @@ export const boardRouter = router({
       }
     }),
 
+  // Get a single board by ID
+  getBoard: protectedProcedure
+    .input(z.object({ boardId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      console.log("🔍 Fetching board:", input.boardId);
+
+      try {
+        const board = await BoardModel.findOne({
+          _id: input.boardId,
+          accountId: ctx.user.accountId,
+        });
+
+        if (!board) {
+          throw new Error("Board not found");
+        }
+
+        const client = await ClientModel.findOne({
+          _id: board.clientId,
+          accountId: ctx.user.accountId,
+        });
+
+        if (!client) {
+          throw new Error("Client not found");
+        }
+
+        return {
+          success: true,
+          board: {
+            _id: board._id.toString(),
+            clientId: board.clientId,
+            clientName: client.name,
+            projectName: board.projectName,
+            projectGoal: board.projectGoal,
+            createdAt: board.createdAt,
+          },
+        };
+      } catch (error) {
+        console.error("❌ Error fetching board:", error);
+        throw new Error("Failed to fetch board");
+      }
+    }),
+
   // Get all boards for the current user's account
   getBoards: protectedProcedure.query(async ({ ctx }) => {
     console.log("🔍 Fetching boards for user:", ctx.user.id);

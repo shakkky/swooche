@@ -14,6 +14,8 @@ import { AppHome } from "./pages/AppHome";
 import { Clients } from "./pages/Clients";
 import { Tasks } from "./pages/Tasks";
 import { CreateBoard } from "./pages/CreateBoard";
+import { BoardDetail } from "./pages/BoardDetail";
+import { Connect } from "./pages/Connect";
 import { system } from "./components/theme";
 
 const App = () => {
@@ -39,6 +41,8 @@ const App = () => {
                 <Route path="clients" element={<Clients />} />
                 <Route path="tasks" element={<Tasks />} />
                 <Route path="create-board" element={<CreateBoard />} />
+                <Route path="boards/:boardId" element={<BoardDetail />} />
+                <Route path="connect" element={<Connect />} />
               </Route>
 
               {/* Redirect root to app - with auth check */}
