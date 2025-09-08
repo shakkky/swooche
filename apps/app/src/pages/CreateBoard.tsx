@@ -1,4 +1,3 @@
-import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { trpc } from "../lib/trpc";
@@ -39,7 +38,7 @@ export function CreateBoard() {
 
   const selectedClientId = watch("clientId");
 
-  const createBoardMutation = trpc.createBoard.useMutation({
+  const createBoardMutation = trpc.board.createBoard.useMutation({
     onSuccess: () => {
       navigate("/app");
     },

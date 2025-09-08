@@ -15,7 +15,7 @@ export function MyBoards() {
   const navigate = useNavigate();
 
   const { data: boardsData, isLoading } = useAuthenticatedTrpcQuery(
-    trpc.getBoards.useQuery,
+    trpc.board.getBoards.useQuery,
     undefined
   );
 
