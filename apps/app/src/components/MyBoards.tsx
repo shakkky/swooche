@@ -62,7 +62,7 @@ export function MyBoards() {
         <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
           {boards.map((board) => (
             <Box
-              key={board.id}
+              key={board._id}
               p={4}
               border="1px solid"
               borderColor="gray.200"
@@ -74,7 +74,7 @@ export function MyBoards() {
               <VStack align="start" gap={3}>
                 <Box>
                   <Text fontSize="sm" color="gray.500" mb={1}>
-                    {board.customerName}
+                    {board.clientName}
                   </Text>
                   <Heading size="sm" color="gray.800">
                     {board.projectName}

@@ -32,7 +32,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log("🔍 Initial session check:", session?.user?.id || "No user");
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -42,22 +41,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log(
-        "🔄 Auth state change:",
-        event,
-        session?.user?.id || "No user"
-      );
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
 
       // Handle user signup - check if this is a new user
       if (event === "SIGNED_IN" && session?.user) {
-        console.log("🔐 User signed in:", session.user);
-        console.log("📊 Auth event:", event);
-        console.log("📊 User created at:", session.user.created_at);
-        console.log("📊 Last sign in:", session.user.last_sign_in_at);
-
         try {
           // Always call onUserSignIn - it will detect if this is a new user or existing user
           onUserSignInMutation

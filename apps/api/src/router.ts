@@ -1,5 +1,10 @@
-import { AccountModel, UserModel, BoardModel } from "@swooche/models";
-import { BoardSchema } from "@swooche/schemas";
+import {
+  AccountModel,
+  UserModel,
+  BoardModel,
+  ClientModel,
+} from "@swooche/models";
+import { BoardSchema, ClientSchema } from "@swooche/schemas";
 import { z } from "zod";
 import { protectedProcedure, tokenOnlyProcedure } from "./procedures";
 import { router } from "./trpc";
@@ -137,9 +142,7 @@ export const appRouter = router({
   createBoard: protectedProcedure
     .input(
       z.object({
-        customerName: z
-          .string()
-          .min(2, "Customer name must be at least 2 characters"),
+        clientId: z.string(),
         projectName: z
           .string()
           .min(2, "Project name must be at least 2 characters"),
@@ -152,8 +155,8 @@ export const appRouter = router({
       z.object({
         success: z.boolean(),
         board: z.object({
-          id: z.string(),
-          customerName: z.string(),
+          _id: z.string(),
+          clientId: z.string(),
           projectName: z.string(),
           projectGoal: z.string(),
           createdAt: z.string(),
@@ -165,10 +168,20 @@ export const appRouter = router({
         console.log("🎯 Creating new board:", input);
         console.log("🔑 User:", ctx.user);
 
+        // Verify the client exists and belongs to the user's account
+        const client = await ClientModel.findOne({
+          _id: input.clientId,
+          accountId: ctx.user.accountId,
+        });
+
+        if (!client) {
+          throw new Error("Client not found");
+        }
+
         // Create the board
         const board = await BoardModel.create({
           accountId: ctx.user.accountId,
-          customerName: input.customerName,
+          clientId: input.clientId,
           projectName: input.projectName,
           projectGoal: input.projectGoal,
           createdBy: ctx.user._id.toString(),
@@ -179,8 +192,8 @@ export const appRouter = router({
         return {
           success: true,
           board: {
-            id: board._id.toString(),
-            customerName: board.customerName,
+            _id: board._id.toString(),
+            clientId: board.clientId,
             projectName: board.projectName,
             projectGoal: board.projectGoal,
             createdAt: board.createdAt.toISOString(),
@@ -201,21 +214,105 @@ export const appRouter = router({
         accountId: ctx.user.accountId,
       }).sort({ createdAt: -1 });
 
-      return {
-        success: true,
-        boards: boards.map((board) => ({
-          id: board._id.toString(),
-          customerName: board.customerName,
+      const clientIds = boards.map((board) => board.clientId);
+      const clients = await ClientModel.find({
+        _id: { $in: clientIds },
+        accountId: ctx.user.accountId,
+      });
+
+      const mapped = boards.map((board) => {
+        const client = clients.find(
+          (client) => client._id.toString() === board.clientId
+        );
+
+        if (!client) {
+          return null;
+        }
+
+        return {
+          _id: board._id.toString(),
+          clientId: board.clientId,
+          clientName: client.name,
           projectName: board.projectName,
           projectGoal: board.projectGoal,
           createdAt: board.createdAt,
-        })),
+        };
+      });
+
+      return {
+        success: true,
+        boards: mapped.filter((board) => board !== null),
       };
     } catch (error) {
       console.error("❌ Error fetching boards:", error);
       throw new Error("Failed to fetch boards");
     }
   }),
+
+  // Client management routes
+  getClients: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      const clients = await ClientModel.find({
+        accountId: ctx.user.accountId,
+      }).sort({ name: 1 });
+
+      return {
+        success: true,
+        clients: clients.map((client) => ({
+          _id: client._id.toString(),
+          name: client.name,
+          email: client.email,
+          phone: client.phone,
+          company: client.company,
+          createdAt: client.createdAt,
+        })),
+      };
+    } catch (error) {
+      console.error("❌ Error fetching clients:", error);
+      throw new Error("Failed to fetch clients");
+    }
+  }),
+
+  createAClient: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().min(2, "Client name must be at least 2 characters"),
+        email: z.string().email().optional(),
+        phone: z.string().optional(),
+        company: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        console.log("👤 Creating new client:", input);
+
+        const client = await ClientModel.create({
+          accountId: ctx.user.accountId,
+          name: input.name,
+          email: input.email,
+          phone: input.phone,
+          company: input.company,
+          createdBy: ctx.user._id.toString(),
+        });
+
+        console.log("✅ Client created successfully:", client._id);
+
+        return {
+          success: true,
+          client: {
+            _id: client._id.toString(),
+            name: client.name,
+            email: client.email,
+            phone: client.phone,
+            company: client.company,
+            createdAt: client.createdAt,
+          },
+        };
+      } catch (error) {
+        console.error("❌ Error creating client:", error);
+        throw new Error("Failed to create client");
+      }
+    }),
 });
 
 export type AppRouter = typeof appRouter;

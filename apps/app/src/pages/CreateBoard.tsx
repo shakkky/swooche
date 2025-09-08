@@ -1,3 +1,4 @@
+import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { trpc } from "../lib/trpc";
@@ -12,9 +13,10 @@ import {
   HStack,
   Text,
 } from "@chakra-ui/react";
+import { ClientSelect } from "../components/ClientSelect";
 
 interface CreateBoardForm {
-  customerName: string;
+  clientId: string;
   projectName: string;
   projectGoal: string;
 }
@@ -26,7 +28,17 @@ export function CreateBoard() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<CreateBoardForm>();
+    watch,
+  } = useForm<CreateBoardForm>({
+    defaultValues: {
+      clientId: "",
+      projectName: "",
+      projectGoal: "",
+    },
+  });
+
+  const selectedClientId = watch("clientId");
+  console.log("selectedClientId: ", selectedClientId);
 
   const createBoardMutation = trpc.createBoard.useMutation({
     onSuccess: () => {
@@ -59,38 +71,21 @@ export function CreateBoard() {
 
         <Box as="form" onSubmit={handleSubmit(onSubmit)} w="full">
           <VStack align="stretch" gap={6}>
-            <Field.Root invalid={!!errors.customerName}>
-              <Field.Label htmlFor="customerName" color="gray.700">
-                Customer Name *
-              </Field.Label>
-              <Input
-                id="customerName"
-                placeholder="Enter customer name"
-                {...register("customerName", {
-                  required: "Customer name is required",
-                  minLength: {
-                    value: 2,
-                    message: "Customer name must be at least 2 characters",
-                  },
-                })}
-                bg="white"
-                borderColor="gray.300"
-                _hover={{ borderColor: "gray.400" }}
-                _focus={{
-                  borderColor: "blue.500",
-                  boxShadow: "0 0 0 1px var(--chakra-colors-blue-500)",
-                }}
-              />
-              <Field.ErrorText>{errors.customerName?.message}</Field.ErrorText>
-            </Field.Root>
+            <ClientSelect
+              register={register("clientId", {
+                required: "Please select or create a client",
+              })}
+              value={selectedClientId}
+              error={errors.clientId?.message}
+            />
 
             <Field.Root invalid={!!errors.projectName}>
               <Field.Label htmlFor="projectName" color="gray.700">
-                Project Name *
+                Project Name*
               </Field.Label>
               <Input
                 id="projectName"
-                placeholder="Enter project name"
+                placeholder="What's the name of this project? E.g. Marketing Campaign for 2025"
                 {...register("projectName", {
                   required: "Project name is required",
                   minLength: {
@@ -111,17 +106,16 @@ export function CreateBoard() {
 
             <Field.Root invalid={!!errors.projectGoal}>
               <Field.Label htmlFor="projectGoal" color="gray.700">
-                Project Goal *
+                Project Goal*
               </Field.Label>
               <Textarea
                 id="projectGoal"
                 placeholder="Describe the main goal and objectives of this project"
                 rows={4}
                 {...register("projectGoal", {
-                  required: "Project goal is required",
                   minLength: {
                     value: 10,
-                    message: "Project goal must be at least 10 characters",
+                    message: "Isn't your project goal a bit more specific?",
                   },
                 })}
                 bg="white"

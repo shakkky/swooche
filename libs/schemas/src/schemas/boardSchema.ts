@@ -3,9 +3,7 @@ import { BaseSchema } from "./baseSchema";
 
 export const BoardSchema = BaseSchema.extend({
   accountId: z.string(),
-  customerName: z
-    .string()
-    .min(2, "Customer name must be at least 2 characters"),
+  clientId: z.string(), // Reference to the client
   projectName: z.string().min(2, "Project name must be at least 2 characters"),
   projectGoal: z
     .string()
