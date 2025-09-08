@@ -5,8 +5,7 @@ import { zodToMongoose } from "../utils/zodToMongoose";
 const AccountMongooseSchema = new mongoose.Schema(
   zodToMongoose(
     AccountSchema.omit({ _id: true, createdAt: true, updatedAt: true })
-  ).obj,
-  { timestamps: true }
+  )
 );
 
 AccountMongooseSchema.set("toJSON", {

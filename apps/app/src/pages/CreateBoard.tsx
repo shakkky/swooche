@@ -38,7 +38,6 @@ export function CreateBoard() {
   });
 
   const selectedClientId = watch("clientId");
-  console.log("selectedClientId: ", selectedClientId);
 
   const createBoardMutation = trpc.createBoard.useMutation({
     onSuccess: () => {
@@ -106,7 +105,7 @@ export function CreateBoard() {
 
             <Field.Root invalid={!!errors.projectGoal}>
               <Field.Label htmlFor="projectGoal" color="gray.700">
-                Project Goal*
+                Project Goal
               </Field.Label>
               <Textarea
                 id="projectGoal"

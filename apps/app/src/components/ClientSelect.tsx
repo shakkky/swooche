@@ -12,22 +12,32 @@ interface ClientSelectProps {
 export function ClientSelect({ register, value, error }: ClientSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [newlyCreatedClient, setNewlyCreatedClient] = useState<{
+    _id: string;
+    name: string;
+  } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { onChange: registerOnChange } = register;
 
   // Fetch existing clients
-  const { data: clientsData, isLoading } = useAuthenticatedTrpcQuery(
-    trpc.getClients.useQuery,
-    undefined
-  );
+  const {
+    data: clientsData,
+    isLoading,
+    refetch,
+  } = useAuthenticatedTrpcQuery(trpc.getClients.useQuery, undefined);
 
   // Create new client mutation
   const createClientMutation = trpc.createAClient.useMutation({
     onSuccess: (data) => {
-      registerOnChange({ target: { value: data.client._id } });
-      setSearchTerm(data.client.name);
+      registerOnChange({
+        target: { name: register.name, value: data.client._id },
+      });
+      setNewlyCreatedClient({ _id: data.client._id, name: data.client.name });
+      setSearchTerm(""); // Clear search term when client is created
       setIsOpen(false);
+      // Refetch in background to update the list for future use
+      refetch();
     },
     onError: (error) => {
       console.error("Error creating client:", error);
@@ -36,6 +46,12 @@ export function ClientSelect({ register, value, error }: ClientSelectProps) {
 
   const clients = clientsData?.clients || [];
   const selectedClient = clients.find((client) => client._id === value);
+
+  // Use newly created client if it matches the current value
+  const displayClient =
+    newlyCreatedClient && newlyCreatedClient._id === value
+      ? newlyCreatedClient
+      : selectedClient;
 
   // Filter clients based on search term
   const filteredClients = clients.filter((client) =>
@@ -72,7 +88,7 @@ export function ClientSelect({ register, value, error }: ClientSelectProps) {
 
   const handleSelectClient = (client: any) => {
     registerOnChange({ target: { name: register.name, value: client._id } });
-    setSearchTerm(client.name);
+    setSearchTerm(""); // Clear search term when client is selected
     setIsOpen(false);
   };
 
@@ -87,10 +103,11 @@ export function ClientSelect({ register, value, error }: ClientSelectProps) {
           {...register}
           autoComplete="off"
           placeholder="Search or create a new client..."
-          value={isOpen ? searchTerm : selectedClient?.name || ""}
+          value={isOpen ? searchTerm : displayClient?.name || ""}
           onChange={(e) => {
             setSearchTerm(e.target.value);
             setIsOpen(true);
+            setNewlyCreatedClient(null); // Clear newly created client when user types
           }}
           onFocus={() => setIsOpen(true)}
           bg="white"

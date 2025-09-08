@@ -146,9 +146,7 @@ export const appRouter = router({
         projectName: z
           .string()
           .min(2, "Project name must be at least 2 characters"),
-        projectGoal: z
-          .string()
-          .min(10, "Project goal must be at least 10 characters"),
+        projectGoal: z.string().optional(),
       })
     )
     .output(
@@ -158,7 +156,7 @@ export const appRouter = router({
           _id: z.string(),
           clientId: z.string(),
           projectName: z.string(),
-          projectGoal: z.string(),
+          projectGoal: z.string().optional(),
           createdAt: z.string(),
         }),
       })
@@ -184,7 +182,7 @@ export const appRouter = router({
           clientId: input.clientId,
           projectName: input.projectName,
           projectGoal: input.projectGoal,
-          createdBy: ctx.user._id.toString(),
+          createdBy: ctx.user._id,
         });
 
         console.log("✅ Board created successfully:", board._id);
@@ -193,7 +191,7 @@ export const appRouter = router({
           success: true,
           board: {
             _id: board._id.toString(),
-            clientId: board.clientId,
+            clientId: board.clientId.toString(),
             projectName: board.projectName,
             projectGoal: board.projectGoal,
             createdAt: board.createdAt.toISOString(),
@@ -222,7 +220,7 @@ export const appRouter = router({
 
       const mapped = boards.map((board) => {
         const client = clients.find(
-          (client) => client._id.toString() === board.clientId
+          (client) => client._id.toString() === board.clientId.toString()
         );
 
         if (!client) {
@@ -292,7 +290,7 @@ export const appRouter = router({
           email: input.email,
           phone: input.phone,
           company: input.company,
-          createdBy: ctx.user._id.toString(),
+          createdBy: ctx.user._id,
         });
 
         console.log("✅ Client created successfully:", client._id);

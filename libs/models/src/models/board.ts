@@ -5,8 +5,7 @@ import { zodToMongoose } from "../utils/zodToMongoose";
 const BoardMongooseSchema = new mongoose.Schema(
   zodToMongoose(
     BoardSchema.omit({ _id: true, createdAt: true, updatedAt: true })
-  ).obj,
-  { timestamps: true }
+  )
 );
 
 BoardMongooseSchema.set("toJSON", {

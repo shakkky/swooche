@@ -42,7 +42,13 @@ function unwrapZodType(zodType: ZodTypeAny): {
  * Converts a Zod schema into a Mongoose Schema.
  */
 export function zodToMongoose<T extends ZodTypeAny>(zodSchema: T): Schema {
-  if (!(zodSchema instanceof ZodObject)) {
+  // Handle ZodEffects (like .omit(), .pick(), etc.) by unwrapping them
+  let unwrappedSchema = zodSchema;
+  while (unwrappedSchema instanceof ZodEffects) {
+    unwrappedSchema = unwrappedSchema._def.schema;
+  }
+
+  if (!(unwrappedSchema instanceof ZodObject)) {
     throw new Error(
       "zodToMongoose only supports ZodObject schemas at the top level"
     );
@@ -50,7 +56,7 @@ export function zodToMongoose<T extends ZodTypeAny>(zodSchema: T): Schema {
 
   const mongooseSchemaDefinition: Record<string, any> = {};
 
-  for (const [key, rawField] of Object.entries(zodSchema.shape)) {
+  for (const [key, rawField] of Object.entries(unwrappedSchema.shape)) {
     const {
       type: zodField,
       defaultValue,
@@ -77,6 +83,24 @@ export function zodToMongoose<T extends ZodTypeAny>(zodSchema: T): Schema {
       fieldDef.enum = zodField.options;
     } else if (zodField instanceof z.ZodObject) {
       fieldDef = new Schema(zodToMongoose(zodField));
+    } else if (zodField instanceof z.ZodArray) {
+      // Handle array elements - they might be primitive types or objects
+      const elementType = zodField.element;
+      if (elementType instanceof z.ZodString) {
+        fieldDef.type = [String];
+      } else if (elementType instanceof z.ZodNumber) {
+        fieldDef.type = [Number];
+      } else if (elementType instanceof z.ZodBoolean) {
+        fieldDef.type = [Boolean];
+      } else if (elementType instanceof z.ZodDate) {
+        fieldDef.type = [Date];
+      } else if (elementType instanceof z.ZodObject) {
+        fieldDef.type = zodToMongoose(elementType);
+      } else {
+        throw new Error(
+          `Unsupported Zod array element type for field '${key}': ${elementType.constructor.name}`
+        );
+      }
     } else {
       throw new Error(
         `Unsupported Zod type for field '${key}': ${zodField.constructor.name}`
