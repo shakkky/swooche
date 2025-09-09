@@ -1,18 +1,20 @@
 import { trpc } from "@/lib/trpc";
 import {
-  Badge,
   Box,
   Button,
   Center,
   Dialog,
   Heading,
   HStack,
+  Icon,
   Image,
   Spinner,
   Text,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
+import { FC, useState } from "react";
+import { MdAdd } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import clickupLogo from "../assets/logos/clickup.png";
 import swoocheLogo from "../assets/logos/swooche.png";
@@ -163,11 +165,117 @@ const SetupConnectionsPrompt = () => {
   );
 };
 
-const ExampleBoard = () => {
-  const { data: connectionsData, isLoading } = useAuthenticatedTrpcQuery(
-    trpc.connection.getConnections.useQuery,
-    undefined
+const SwimLane: FC<{ children: React.ReactNode; title: string }> = ({
+  children,
+  title,
+}) => {
+  return (
+    <Box width="full" bg="gray.100" borderRadius="md">
+      {/* Header */}
+      <Box p={4} pb={4}>
+        <HStack justify="space-between" align="center">
+          <Text fontWeight="600" color="gray.600" fontSize="sm">
+            {title}
+          </Text>
+        </HStack>
+      </Box>
+
+      {/* Content */}
+      <Box px={2} pb={8}>
+        <VStack gap={2}>
+          {/* Render all tasks that have a "todo" status */}
+          {children}
+        </VStack>
+      </Box>
+    </Box>
   );
+};
+
+const TaskCard: FC<{ task: any }> = ({ task }) => {
+  return (
+    <VStack
+      gap={2}
+      alignItems="start"
+      p={4}
+      bg="white"
+      borderRadius="md"
+      w="full"
+    >
+      <Text fontSize="sm" color="gray.800" fontWeight="semibold">
+        {task.name}
+      </Text>
+      <Text
+        fontSize="xs"
+        color="gray.500"
+        overflow="hidden"
+        textOverflow="ellipsis"
+        display="-webkit-box"
+        style={{
+          WebkitLineClamp: 3,
+          WebkitBoxOrient: "vertical",
+        }}
+      >
+        {task.description}
+      </Text>
+    </VStack>
+  );
+};
+
+const Board: FC<{ isConnected: boolean; tasks: any[] }> = ({
+  isConnected,
+  tasks,
+}) => {
+  const inProgressTasks = tasks.filter(
+    (task) => task.status?.status === "in progress"
+  );
+  const reviewTasks = tasks.filter((task) => task.status?.status === "review");
+  const doneTasks = tasks.filter((task) => task.status?.status === "done");
+  const todoTasks = tasks.filter((task) => task.status?.status === "to do");
+
+  return (
+    <Box minH="600px" overflowX="auto">
+      <HStack gap={2} align="start" width="full">
+        <SwimLane title="To Do">
+          {todoTasks.map((task) => (
+            <TaskCard key={task.id} task={task} />
+          ))}
+        </SwimLane>
+
+        <SwimLane title="In Progress">
+          {inProgressTasks.map((task) => (
+            <TaskCard key={task.id} task={task} />
+          ))}
+        </SwimLane>
+
+        <SwimLane title="Review">
+          {reviewTasks.map((task) => (
+            <TaskCard key={task.id} task={task} />
+          ))}
+        </SwimLane>
+
+        <SwimLane title="Done">
+          {doneTasks.map((task) => (
+            <TaskCard key={task.id} task={task} />
+          ))}
+        </SwimLane>
+      </HStack>
+
+      {/* Connection Overlay */}
+      {!isConnected ? <SetupConnectionsPrompt /> : null}
+    </Box>
+  );
+};
+
+export function BoardDetail() {
+  const { boardId } = useParams<{ boardId: string }>();
+  const navigate = useNavigate();
+  const [selectedTasks, setSelectedTasks] = useState<any[]>([]);
+
+  const { data: connectionsData, isLoading: isConnectionsLoading } =
+    useAuthenticatedTrpcQuery(
+      trpc.connection.getConnections.useQuery,
+      undefined
+    );
   const { connections } = connectionsData ?? {};
 
   const isConnected = connections?.some(
@@ -184,120 +292,12 @@ const ExampleBoard = () => {
     console.log("Selected tasks:", tasks);
     // TODO: Implement task import logic
     onTaskModalClose();
+    setSelectedTasks(tasks);
   };
-
-  return (
-    <>
-      <Box position="relative">
-        {/* Import Tasks Button */}
-        {isConnected && (
-          <HStack justify="flex-end" mb={4}>
-            <Button
-              onClick={onTaskModalOpen}
-              colorScheme="blue"
-              variant="outline"
-            >
-              <HStack gap={2}>
-                <Image src={clickupLogo} alt="ClickUp" w={4} h={4} />
-                <Text>Import Tasks from ClickUp</Text>
-              </HStack>
-            </Button>
-          </HStack>
-        )}
-
-        {/* Swimlanes Container */}
-        <Box
-          position="relative"
-          minH="600px"
-          p={4}
-          bg="gray.50"
-          borderRadius="lg"
-          border="1px solid"
-          borderColor="gray.200"
-        >
-          {/* Swimlanes */}
-          <VStack gap={4} align="stretch">
-            {/* Sample Swimlanes */}
-            <Box
-              p={4}
-              bg="white"
-              borderRadius="md"
-              border="1px solid"
-              borderColor="gray.200"
-            >
-              <Text fontWeight="semibold" mb={2}>
-                To Do
-              </Text>
-              <Text color="gray.500" fontSize="sm">
-                No tasks yet
-              </Text>
-            </Box>
-            <Box
-              p={4}
-              bg="white"
-              borderRadius="md"
-              border="1px solid"
-              borderColor="gray.200"
-            >
-              <Text fontWeight="semibold" mb={2}>
-                In Progress
-              </Text>
-              <Text color="gray.500" fontSize="sm">
-                No tasks yet
-              </Text>
-            </Box>
-            <Box
-              p={4}
-              bg="white"
-              borderRadius="md"
-              border="1px solid"
-              borderColor="gray.200"
-            >
-              <Text fontWeight="semibold" mb={2}>
-                Review
-              </Text>
-              <Text color="gray.500" fontSize="sm">
-                No tasks yet
-              </Text>
-            </Box>
-            <Box
-              p={4}
-              bg="white"
-              borderRadius="md"
-              border="1px solid"
-              borderColor="gray.200"
-            >
-              <Text fontWeight="semibold" mb={2}>
-                Done
-              </Text>
-              <Text color="gray.500" fontSize="sm">
-                No tasks yet
-              </Text>
-            </Box>
-          </VStack>
-
-          {/* Connection Overlay */}
-          {!isConnected && !isLoading ? <SetupConnectionsPrompt /> : null}
-        </Box>
-      </Box>
-
-      {/* Task Selection Modal */}
-      <TaskSelectionModal
-        isOpen={isTaskModalOpen}
-        onClose={onTaskModalClose}
-        onTasksSelected={handleTasksSelected}
-      />
-    </>
-  );
-};
-
-export function BoardDetail() {
-  const { boardId } = useParams<{ boardId: string }>();
-  const navigate = useNavigate();
 
   const {
     data: boardData,
-    isLoading,
+    isLoading: isBoardLoading,
     error,
   } = useAuthenticatedTrpcQuery(
     trpc.board.getBoard.useQuery,
@@ -306,7 +306,7 @@ export function BoardDetail() {
 
   const { board } = boardData ?? {};
 
-  if (isLoading) {
+  if (isConnectionsLoading || isBoardLoading) {
     return (
       <Center h="400px">
         <VStack>
@@ -343,9 +343,22 @@ export function BoardDetail() {
               {board.projectName}
             </Heading>
           </VStack>
-          <Badge colorScheme="blue" px={3} py={1} borderRadius="full">
-            Board
-          </Badge>
+
+          {/* Import Tasks Button */}
+          {isConnected && (
+            <HStack justify="flex-end" mb={4}>
+              <Button
+                onClick={onTaskModalOpen}
+                variant="solid"
+                color="white"
+                bg="black"
+                _hover={{ bg: "gray.800" }}
+              >
+                <Icon as={MdAdd} boxSize={5} size="sm" />
+                <Text>Import Tasks from ClickUp</Text>
+              </Button>
+            </HStack>
+          )}
         </HStack>
         {board.projectGoal && (
           <Text color="gray.600" fontSize="sm">
@@ -354,7 +367,82 @@ export function BoardDetail() {
         )}
       </VStack>
 
-      <ExampleBoard />
+      {!isConnected ? (
+        <Board
+          isConnected={isConnected}
+          tasks={[
+            {
+              id: "1",
+              name: "Task 1",
+              description: "Task 1 description",
+              status: {
+                status: "to do",
+              },
+            },
+            {
+              id: "2",
+              name: "Task 2",
+              description: "Task 2 description",
+              status: {
+                status: "in progress",
+              },
+            },
+          ]}
+        />
+      ) : null}
+
+      {isConnected && selectedTasks.length > 0 ? (
+        <Board isConnected={isConnected} tasks={selectedTasks} />
+      ) : (
+        <Board
+          isConnected={isConnected}
+          tasks={[
+            {
+              id: "1",
+              name: "Campaign Performance & Optimization (Example Task)",
+              description:
+                "A/B testing, performance analysis, and campaign optimization",
+              status: {
+                status: "to do",
+              },
+            },
+            {
+              id: "2",
+              name: "Social Media & PPC Launch (Example Task)",
+              description:
+                "Facebook, Instagram, and Google Ads campaigns are live and optimizing",
+              status: {
+                status: "in progress",
+              },
+            },
+            {
+              id: "3",
+              name: "Email Marketing Series (Example Task)",
+              description:
+                "Holiday email sequences and automation workflows being built",
+              status: {
+                status: "review",
+              },
+            },
+            {
+              id: "4",
+              name: "Campaign Strategy & Creative (Example Task)",
+              description:
+                "Campaign concept, messaging, and visual assets approved by ACME team",
+              status: {
+                status: "done",
+              },
+            },
+          ]}
+        />
+      )}
+
+      {/* Task Selection Modal */}
+      <TaskSelectionModal
+        isOpen={isTaskModalOpen}
+        onClose={onTaskModalClose}
+        onTasksSelected={handleTasksSelected}
+      />
     </Box>
   );
 }
