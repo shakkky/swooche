@@ -8,7 +8,7 @@ import {
   HStack,
   Icon,
   Image,
-  Spinner,
+  Skeleton,
   Text,
   useDisclosure,
   VStack,
@@ -221,10 +221,31 @@ const TaskCard: FC<{ task: any }> = ({ task }) => {
   );
 };
 
-const Board: FC<{ isConnected: boolean; tasks: any[] }> = ({
-  isConnected,
-  tasks,
-}) => {
+const SkeletonTaskCard: FC = () => {
+  return (
+    <VStack
+      gap={2}
+      alignItems="start"
+      p={4}
+      bg="white"
+      borderRadius="md"
+      w="full"
+    >
+      <Skeleton height="16px" width="80%" />
+      <VStack gap={1} align="start" w="full">
+        <Skeleton height="12px" width="100%" />
+        <Skeleton height="12px" width="90%" />
+        <Skeleton height="12px" width="75%" />
+      </VStack>
+    </VStack>
+  );
+};
+
+const Board: FC<{
+  isConnected: boolean;
+  tasks: any[];
+  isLoading?: boolean;
+}> = ({ isConnected, tasks, isLoading = false }) => {
   const inProgressTasks = tasks.filter(
     (task) => task.status?.status === "in progress"
   );
@@ -236,27 +257,47 @@ const Board: FC<{ isConnected: boolean; tasks: any[] }> = ({
     <Box minH="600px" overflowX="auto">
       <HStack gap={2} align="start" width="full">
         <SwimLane title="To Do">
-          {todoTasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
-          ))}
+          {isLoading ? (
+            <>
+              <SkeletonTaskCard />
+              <SkeletonTaskCard />
+            </>
+          ) : (
+            todoTasks.map((task) => <TaskCard key={task.id} task={task} />)
+          )}
         </SwimLane>
 
         <SwimLane title="In Progress">
-          {inProgressTasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
-          ))}
+          {isLoading ? (
+            <>
+              <SkeletonTaskCard />
+            </>
+          ) : (
+            inProgressTasks.map((task) => (
+              <TaskCard key={task.id} task={task} />
+            ))
+          )}
         </SwimLane>
 
         <SwimLane title="Review">
-          {reviewTasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
-          ))}
+          {isLoading ? (
+            <>
+              <SkeletonTaskCard />
+              <SkeletonTaskCard />
+            </>
+          ) : (
+            reviewTasks.map((task) => <TaskCard key={task.id} task={task} />)
+          )}
         </SwimLane>
 
         <SwimLane title="Done">
-          {doneTasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
-          ))}
+          {isLoading ? (
+            <>
+              <SkeletonTaskCard />
+            </>
+          ) : (
+            doneTasks.map((task) => <TaskCard key={task.id} task={task} />)
+          )}
         </SwimLane>
       </HStack>
 
@@ -308,12 +349,22 @@ export function BoardDetail() {
 
   if (isConnectionsLoading || isBoardLoading) {
     return (
-      <Center h="400px">
-        <VStack>
-          <Spinner size="lg" />
-          <Text color="gray.500">Loading board...</Text>
+      <Box w="full" h="full" position="relative">
+        {/* Header Skeleton */}
+        <VStack align="start" mb={6} gap={2}>
+          <HStack justify="space-between" w="full" align="center">
+            <VStack align="start" gap={1}>
+              <Skeleton height="16px" width="120px" />
+              <Skeleton height="32px" width="200px" />
+            </VStack>
+            <Skeleton height="24px" width="60px" borderRadius="full" />
+          </HStack>
+          <Skeleton height="16px" width="300px" />
         </VStack>
-      </Center>
+
+        {/* Board Skeleton */}
+        <Board isConnected tasks={[]} isLoading={true} />
+      </Box>
     );
   }
 
