@@ -890,7 +890,10 @@ export const TaskSelectionModal = ({
     <Dialog.Root open={isOpen} onOpenChange={handleClose}>
       <Dialog.Backdrop />
       <Dialog.Positioner>
-        <Dialog.Content maxW="8xl" maxH="90vh">
+        <Dialog.Content
+          maxW={selectionState.step === "tasks" ? "6xl" : "2xl"}
+          maxH="90vh"
+        >
           <Dialog.Header>
             <HStack gap={3}>
               <Image src={clickupLogo} alt="ClickUp" w={6} h={6} />
