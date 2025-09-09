@@ -28,7 +28,7 @@ export function ClientSelect({ register, value, error }: ClientSelectProps) {
   } = useAuthenticatedTrpcQuery(trpc.client.getClients.useQuery, undefined);
 
   // Create new client mutation
-  const createClientMutation = trpc.client.createClient.useMutation({
+  const createClientMutation = trpc.client.createAClient.useMutation({
     onSuccess: (data) => {
       registerOnChange({
         target: { name: register.name, value: data.client._id },

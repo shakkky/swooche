@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   // tRPC mutations
-  const onUserSignInMutation = trpc.onUserSignIn.useMutation();
+  const onUserSignInMutation = trpc.user.onUserSignIn.useMutation();
 
   useEffect(() => {
     // Get initial session

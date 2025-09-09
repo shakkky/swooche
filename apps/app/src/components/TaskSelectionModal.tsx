@@ -9,16 +9,125 @@ import {
   Spinner,
   Text,
   VStack,
+  Heading,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import clickupLogo from "../assets/logos/clickup.png";
 import { useAuthenticatedTrpcQuery } from "../hooks/useAuthenticatedQuery";
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  useDroppable,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface TaskSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onTasksSelected: (tasks: any[]) => void;
 }
+
+interface TaskItemProps {
+  task: any;
+  isSelected?: boolean;
+}
+
+const TaskItem = ({ task, isSelected = false }: TaskItemProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: task.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <Box
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      p={2}
+      bg={isSelected ? "blue.50" : "white"}
+      border="1px solid"
+      borderColor={isSelected ? "blue.200" : "gray.200"}
+      borderRadius="md"
+      cursor="grab"
+      _hover={{ bg: isSelected ? "blue.100" : "gray.50" }}
+      _active={{ cursor: "grabbing" }}
+    >
+      <VStack align="start" gap={1}>
+        <HStack justify="space-between" w="full">
+          <Text fontWeight="semibold" fontSize="xs">
+            {task.name}
+          </Text>
+          <Badge
+            colorScheme={
+              task.status?.color === "#f50000" || task.status?.color === "red"
+                ? "red"
+                : task.status?.color === "#ffcc00" ||
+                  task.status?.color === "yellow"
+                ? "yellow"
+                : "blue"
+            }
+            size="xs"
+          >
+            {task.status?.status}
+          </Badge>
+        </HStack>
+        {task.description && (
+          <Text color="gray.600" fontSize="xs">
+            {task.description}
+          </Text>
+        )}
+        <HStack gap={1} flexWrap="wrap">
+          {task.tags &&
+            task.tags.length > 0 &&
+            task.tags.slice(0, 2).map((tag: any, index: number) => (
+              <Badge key={index} size="xs" variant="subtle">
+                {typeof tag === "string"
+                  ? tag
+                  : tag.name || tag.tag_fg || "tag"}
+              </Badge>
+            ))}
+          {task.priority && (
+            <Badge
+              size="xs"
+              colorScheme={
+                task.priority?.color === "#f50000" ||
+                task.priority?.color === "red"
+                  ? "red"
+                  : task.priority?.color === "#ffcc00" ||
+                    task.priority?.color === "yellow"
+                  ? "yellow"
+                  : "blue"
+              }
+            >
+              {task.priority?.priority}
+            </Badge>
+          )}
+        </HStack>
+      </VStack>
+    </Box>
+  );
+};
 
 type SelectionStep = "workspace" | "space" | "list" | "tasks";
 
@@ -28,6 +137,38 @@ interface SelectionState {
   selectedSpace: { id: string; name: string } | null;
   selectedList: { id: string; name: string } | null;
 }
+
+const DroppableArea = ({
+  id,
+  children,
+  bg,
+  borderColor,
+}: {
+  id: string;
+  children: React.ReactNode;
+  bg: string;
+  borderColor: string;
+}) => {
+  const { setNodeRef, isOver } = useDroppable({ id });
+
+  return (
+    <Box
+      ref={setNodeRef}
+      bg={isOver ? `${bg}.100` : bg}
+      borderColor={isOver ? `${borderColor}.400` : `${borderColor}`}
+      borderWidth="1px"
+      borderStyle="solid"
+      borderRadius="md"
+      p={2}
+      minH="100px"
+      flex={1}
+      overflowY="auto"
+      transition="all 0.2s"
+    >
+      {children}
+    </Box>
+  );
+};
 
 export const TaskSelectionModal = ({
   isOpen,
@@ -40,6 +181,18 @@ export const TaskSelectionModal = ({
     selectedSpace: null,
     selectedList: null,
   });
+
+  const [availableTasks, setAvailableTasks] = useState<any[]>([]);
+  const [selectedTasks, setSelectedTasks] = useState<any[]>([]);
+  const [activeTask, setActiveTask] = useState<any | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
 
   // Fetch workspaces
   const {
@@ -131,9 +284,43 @@ export const TaskSelectionModal = ({
   };
 
   const handleTasksConfirm = () => {
-    if (tasksData?.tasks) {
-      onTasksSelected(tasksData.tasks);
+    if (selectedTasks.length > 0) {
+      onTasksSelected(selectedTasks);
       onClose();
+    }
+  };
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const task = [...availableTasks, ...selectedTasks].find(
+      (t) => t.id === active.id
+    );
+    setActiveTask(task || null);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveTask(null);
+
+    if (!over) return;
+
+    const task = [...availableTasks, ...selectedTasks].find(
+      (t) => t.id === active.id
+    );
+    if (!task) return;
+
+    // Determine which array the task is currently in
+    const isCurrentlyInAvailable = availableTasks.some((t) => t.id === task.id);
+    const isCurrentlyInSelected = selectedTasks.some((t) => t.id === task.id);
+
+    if (over.id === "available-tasks" && isCurrentlyInSelected) {
+      // Moving from selected to available
+      setSelectedTasks((prev) => prev.filter((t) => t.id !== task.id));
+      setAvailableTasks((prev) => [...prev, task]);
+    } else if (over.id === "selected-tasks" && isCurrentlyInAvailable) {
+      // Moving from available to selected
+      setAvailableTasks((prev) => prev.filter((t) => t.id !== task.id));
+      setSelectedTasks((prev) => [...prev, task]);
     }
   };
 
@@ -159,6 +346,9 @@ export const TaskSelectionModal = ({
       selectedSpace: null,
       selectedList: null,
     });
+    setAvailableTasks([]);
+    setSelectedTasks([]);
+    setActiveTask(null);
     onClose();
   };
 
@@ -370,91 +560,115 @@ export const TaskSelectionModal = ({
           );
         }
 
-        const tasks = tasksData.tasks;
+        // Initialize available tasks when data is loaded
+        if (availableTasks.length === 0 && tasksData.tasks.length > 0) {
+          setAvailableTasks(tasksData.tasks);
+        }
 
         return (
-          <VStack gap={4} align="stretch">
+          <VStack gap={4} align="stretch" h="500px" maxH="500px">
             <Text color="gray.600" fontSize="sm">
-              Found <strong>{tasks.length}</strong> tasks in{" "}
-              <strong>{selectionState.selectedList?.name}</strong>:
+              Drag tasks from ClickUp to your board:
             </Text>
-            <Box
-              maxH="400px"
-              overflowY="auto"
-              border="1px solid"
-              borderColor="gray.200"
-              borderRadius="md"
+
+            <DndContext
+              sensors={sensors}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
             >
-              {tasks.map((task) => (
+              <HStack gap={4} flex={1} align="stretch" minH={0}>
+                {/* Available Tasks Section */}
                 <Box
-                  key={task.id}
-                  p={4}
-                  borderBottom="1px solid"
-                  borderColor="gray.100"
-                  _last={{ borderBottom: "none" }}
+                  border="1px solid"
+                  borderColor="gray.200"
+                  borderRadius="md"
+                  p={3}
+                  flex={1}
+                  display="flex"
+                  flexDirection="column"
                 >
-                  <VStack align="start" gap={2}>
-                    <HStack justify="space-between" w="full">
-                      <Text fontWeight="semibold" fontSize="sm">
-                        {task.name}
-                      </Text>
-                      <Badge
-                        colorScheme={
-                          task.status?.color === "#f50000" ||
-                          task.status?.color === "red"
-                            ? "red"
-                            : task.status?.color === "#ffcc00" ||
-                              task.status?.color === "yellow"
-                            ? "yellow"
-                            : "blue"
-                        }
-                        size="sm"
-                      >
-                        {task.status?.status}
-                      </Badge>
-                    </HStack>
-                    {task.description && (
-                      <Text color="gray.600" fontSize="xs">
-                        {task.description}
-                      </Text>
-                    )}
-                    <HStack gap={2} flexWrap="wrap">
-                      {task.tags &&
-                        task.tags.length > 0 &&
-                        task.tags.map((tag: any, index: number) => (
-                          <Badge key={index} size="sm" variant="subtle">
-                            {typeof tag === "string"
-                              ? tag
-                              : tag.name || tag.tag_fg || "tag"}
-                          </Badge>
+                  <Heading size="sm" color="gray.700" mb={2}>
+                    Available Tasks ({availableTasks.length})
+                  </Heading>
+                  <DroppableArea
+                    id="available-tasks"
+                    bg="gray.50"
+                    borderColor="gray.200"
+                  >
+                    <SortableContext
+                      items={availableTasks.map((task) => task.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <VStack gap={2} align="stretch">
+                        {availableTasks.map((task) => (
+                          <TaskItem key={task.id} task={task} />
                         ))}
-                      {task.priority && (
-                        <Badge
-                          size="sm"
-                          colorScheme={
-                            task.priority?.color === "#f50000" ||
-                            task.priority?.color === "red"
-                              ? "red"
-                              : task.priority?.color === "#ffcc00" ||
-                                task.priority?.color === "yellow"
-                              ? "yellow"
-                              : "blue"
-                          }
-                        >
-                          {task.priority?.priority}
-                        </Badge>
-                      )}
-                    </HStack>
-                  </VStack>
+                      </VStack>
+                    </SortableContext>
+                  </DroppableArea>
                 </Box>
-              ))}
-            </Box>
+
+                {/* Selected Tasks Section */}
+                <Box
+                  border="1px solid"
+                  borderColor="blue.200"
+                  borderRadius="md"
+                  p={3}
+                  flex={1}
+                  display="flex"
+                  flexDirection="column"
+                >
+                  <Heading size="sm" color="blue.700" mb={2}>
+                    Board Tasks ({selectedTasks.length})
+                  </Heading>
+                  <DroppableArea
+                    id="selected-tasks"
+                    bg="blue.50"
+                    borderColor="blue.200"
+                  >
+                    <SortableContext
+                      items={selectedTasks.map((task) => task.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <VStack gap={2} align="stretch">
+                        {selectedTasks.map((task) => (
+                          <TaskItem key={task.id} task={task} isSelected />
+                        ))}
+                        {selectedTasks.length === 0 && (
+                          <Box
+                            p={6}
+                            textAlign="center"
+                            color="gray.500"
+                            border="2px dashed"
+                            borderColor="blue.300"
+                            borderRadius="md"
+                          >
+                            <Text fontSize="sm">
+                              Drop tasks here to add them to your board
+                            </Text>
+                          </Box>
+                        )}
+                      </VStack>
+                    </SortableContext>
+                  </DroppableArea>
+                </Box>
+              </HStack>
+
+              <DragOverlay>
+                {activeTask ? <TaskItem task={activeTask} /> : null}
+              </DragOverlay>
+            </DndContext>
+
             <HStack justify="space-between">
               <Button onClick={handleBack} variant="outline">
                 Back
               </Button>
-              <Button onClick={handleTasksConfirm} colorScheme="blue">
-                Import {tasks.length} Tasks
+              <Button
+                onClick={handleTasksConfirm}
+                colorScheme="blue"
+                disabled={selectedTasks.length === 0}
+              >
+                Import {selectedTasks.length} Tasks
               </Button>
             </HStack>
           </VStack>
@@ -484,7 +698,7 @@ export const TaskSelectionModal = ({
     <Dialog.Root open={isOpen} onOpenChange={handleClose}>
       <Dialog.Backdrop />
       <Dialog.Positioner>
-        <Dialog.Content maxW="2xl" maxH="90vh">
+        <Dialog.Content maxW="8xl" maxH="90vh">
           <Dialog.Header>
             <HStack gap={3}>
               <Image src={clickupLogo} alt="ClickUp" w={6} h={6} />
