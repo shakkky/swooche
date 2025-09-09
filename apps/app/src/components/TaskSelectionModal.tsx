@@ -11,7 +11,7 @@ import {
   VStack,
   Heading,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import clickupLogo from "../assets/logos/clickup.png";
 import { useAuthenticatedTrpcQuery } from "../hooks/useAuthenticatedQuery";
 import {
@@ -50,12 +50,16 @@ const TaskItem = ({ task, isSelected = false }: TaskItemProps) => {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id });
+  } = useSortable({
+    id: task.id,
+    data: { type: "task", task },
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.3 : 1,
+    zIndex: isDragging ? 1000 : 1,
   };
 
   return (
@@ -64,14 +68,29 @@ const TaskItem = ({ task, isSelected = false }: TaskItemProps) => {
       style={style}
       {...attributes}
       {...listeners}
-      p={2}
+      p={3}
       bg={isSelected ? "blue.50" : "white"}
       border="1px solid"
-      borderColor={isSelected ? "blue.200" : "gray.200"}
+      borderColor={isSelected ? "blue.300" : "gray.300"}
       borderRadius="md"
       cursor="grab"
-      _hover={{ bg: isSelected ? "blue.100" : "gray.50" }}
-      _active={{ cursor: "grabbing" }}
+      _hover={{
+        bg: isSelected ? "blue.100" : "gray.50",
+        borderColor: isSelected ? "blue.400" : "gray.400",
+        transform: "translateY(-1px)",
+        boxShadow: "md",
+      }}
+      _active={{
+        cursor: "grabbing",
+        transform: "scale(1.02)",
+        boxShadow: "lg",
+      }}
+      transition="all 0.2s"
+      position="relative"
+      // Don't interfere with drop zone detection
+      pointerEvents="auto"
+      // Add a data attribute to identify this as a task
+      data-task-id={task.id}
     >
       <VStack align="start" gap={1}>
         <HStack justify="space-between" w="full">
@@ -149,7 +168,10 @@ const DroppableArea = ({
   bg: string;
   borderColor: string;
 }) => {
-  const { setNodeRef, isOver } = useDroppable({ id });
+  const { setNodeRef, isOver } = useDroppable({
+    id,
+    data: { type: "task-drop-zone" },
+  });
 
   return (
     <Box
@@ -157,15 +179,44 @@ const DroppableArea = ({
       bg={isOver ? `${bg}.100` : bg}
       borderColor={isOver ? `${borderColor}.400` : `${borderColor}`}
       borderWidth="1px"
-      borderStyle="solid"
+      borderStyle={isOver ? "dashed" : "solid"}
       borderRadius="md"
-      p={2}
-      minH="100px"
+      p={4}
+      minH="200px"
       flex={1}
       overflowY="auto"
       transition="all 0.2s"
+      position="relative"
+      _hover={{
+        borderColor: `${borderColor}.300`,
+        bg: `${bg}.75`,
+      }}
+      // Make the drop zone capture all pointer events
+      pointerEvents="auto"
+      // Ensure this element is always the drop target
+      data-drop-zone={id}
     >
       {children}
+      {isOver && (
+        <Box
+          position="absolute"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+          bg="white"
+          p={3}
+          borderRadius="md"
+          boxShadow="lg"
+          border="2px dashed"
+          borderColor="blue.400"
+          pointerEvents="none"
+          zIndex={10}
+        >
+          <Text fontSize="sm" color="blue.600" fontWeight="semibold">
+            Drop here
+          </Text>
+        </Box>
+      )}
     </Box>
   );
 };
@@ -185,11 +236,28 @@ export const TaskSelectionModal = ({
   const [availableTasks, setAvailableTasks] = useState<any[]>([]);
   const [selectedTasks, setSelectedTasks] = useState<any[]>([]);
   const [activeTask, setActiveTask] = useState<any | null>(null);
+  const [tasksInitialized, setTasksInitialized] = useState(false);
+
+  // Reset state when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setSelectionState({
+        step: "workspace",
+        selectedWorkspace: null,
+        selectedSpace: null,
+        selectedList: null,
+      });
+      setAvailableTasks([]);
+      setSelectedTasks([]);
+      setActiveTask(null);
+      setTasksInitialized(false);
+    }
+  }, [isOpen]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 5,
       },
     })
   );
@@ -302,25 +370,68 @@ export const TaskSelectionModal = ({
     const { active, over } = event;
     setActiveTask(null);
 
-    if (!over) return;
+    if (!over) {
+      console.log("No drop target found");
+      return;
+    }
 
     const task = [...availableTasks, ...selectedTasks].find(
       (t) => t.id === active.id
     );
-    if (!task) return;
+    if (!task) {
+      console.log("Task not found:", active.id);
+      return;
+    }
+
+    console.log("Drag end:", { taskId: task.id, overId: over.id });
 
     // Determine which array the task is currently in
     const isCurrentlyInAvailable = availableTasks.some((t) => t.id === task.id);
     const isCurrentlyInSelected = selectedTasks.some((t) => t.id === task.id);
 
-    if (over.id === "available-tasks" && isCurrentlyInSelected) {
+    console.log("Current state:", {
+      isCurrentlyInAvailable,
+      isCurrentlyInSelected,
+    });
+
+    // Determine the target drop zone
+    let targetDropZone = over.id;
+
+    // If we dropped on a task, find which drop zone it belongs to
+    if (over.data?.current?.type === "task") {
+      const droppedOnTask = over.data.current.task;
+      const isDroppedTaskInAvailable = availableTasks.some(
+        (t) => t.id === droppedOnTask.id
+      );
+      const isDroppedTaskInSelected = selectedTasks.some(
+        (t) => t.id === droppedOnTask.id
+      );
+
+      if (isDroppedTaskInAvailable) {
+        targetDropZone = "available-tasks";
+      } else if (isDroppedTaskInSelected) {
+        targetDropZone = "selected-tasks";
+      }
+
+      console.log("Dropped on task, determined target zone:", targetDropZone);
+    }
+
+    if (targetDropZone === "available-tasks" && isCurrentlyInSelected) {
       // Moving from selected to available
+      console.log("Moving from selected to available");
       setSelectedTasks((prev) => prev.filter((t) => t.id !== task.id));
       setAvailableTasks((prev) => [...prev, task]);
-    } else if (over.id === "selected-tasks" && isCurrentlyInAvailable) {
+    } else if (targetDropZone === "selected-tasks" && isCurrentlyInAvailable) {
       // Moving from available to selected
+      console.log("Moving from available to selected");
       setAvailableTasks((prev) => prev.filter((t) => t.id !== task.id));
       setSelectedTasks((prev) => [...prev, task]);
+    } else {
+      console.log("No valid move detected", {
+        targetDropZone,
+        isCurrentlyInAvailable,
+        isCurrentlyInSelected,
+      });
     }
   };
 
@@ -332,6 +443,10 @@ export const TaskSelectionModal = ({
         case "list":
           return { ...prev, step: "space", selectedSpace: null };
         case "tasks":
+          // Reset tasks when going back from tasks step
+          setAvailableTasks([]);
+          setSelectedTasks([]);
+          setTasksInitialized(false);
           return { ...prev, step: "list", selectedList: null };
         default:
           return prev;
@@ -339,7 +454,39 @@ export const TaskSelectionModal = ({
     });
   };
 
+  const getBackButtonProps = () => {
+    // If we're on the tasks step, check if there were multiple options at each step
+    if (selectionState.step === "tasks") {
+      const hadMultipleWorkspaces =
+        workspacesData?.teams && workspacesData.teams.length > 1;
+      const hadMultipleSpaces =
+        spacesData?.spaces && spacesData.spaces.length > 1;
+      const hadMultipleLists = listsData?.lists && listsData.lists.length > 1;
+
+      // If there were multiple options at any step, show "Back"
+      if (hadMultipleWorkspaces || hadMultipleSpaces || hadMultipleLists) {
+        return {
+          onClick: handleBack,
+          children: "Back",
+        };
+      } else {
+        // If all steps had only one option, show "Cancel"
+        return {
+          onClick: handleClose,
+          children: "Cancel",
+        };
+      }
+    }
+
+    // For other steps, always show "Back"
+    return {
+      onClick: handleBack,
+      children: "Back",
+    };
+  };
+
   const handleClose = () => {
+    // Full reset of all state
     setSelectionState({
       step: "workspace",
       selectedWorkspace: null,
@@ -349,6 +496,7 @@ export const TaskSelectionModal = ({
     setAvailableTasks([]);
     setSelectedTasks([]);
     setActiveTask(null);
+    setTasksInitialized(false);
     onClose();
   };
 
@@ -560,9 +708,10 @@ export const TaskSelectionModal = ({
           );
         }
 
-        // Initialize available tasks when data is loaded
-        if (availableTasks.length === 0 && tasksData.tasks.length > 0) {
+        // Initialize available tasks when data is loaded (only once)
+        if (!tasksInitialized && tasksData.tasks.length > 0) {
           setAvailableTasks(tasksData.tasks);
+          setTasksInitialized(true);
         }
 
         return (
@@ -655,14 +804,57 @@ export const TaskSelectionModal = ({
               </HStack>
 
               <DragOverlay>
-                {activeTask ? <TaskItem task={activeTask} /> : null}
+                {activeTask ? (
+                  <Box
+                    p={3}
+                    bg="white"
+                    border="2px solid"
+                    borderColor="blue.400"
+                    borderRadius="md"
+                    boxShadow="xl"
+                    transform="rotate(2deg)"
+                    opacity={0.9}
+                  >
+                    <VStack align="start" gap={1}>
+                      <HStack justify="space-between" w="full">
+                        <Text fontWeight="semibold" fontSize="xs">
+                          {activeTask.name}
+                        </Text>
+                        <Badge
+                          colorScheme={
+                            activeTask.status?.color === "#f50000" ||
+                            activeTask.status?.color === "red"
+                              ? "red"
+                              : activeTask.status?.color === "#ffcc00" ||
+                                activeTask.status?.color === "yellow"
+                              ? "yellow"
+                              : "blue"
+                          }
+                          size="xs"
+                        >
+                          {activeTask.status?.status}
+                        </Badge>
+                      </HStack>
+                      {activeTask.description && (
+                        <Text color="gray.600" fontSize="xs">
+                          {activeTask.description}
+                        </Text>
+                      )}
+                    </VStack>
+                  </Box>
+                ) : null}
               </DragOverlay>
             </DndContext>
 
             <HStack justify="space-between">
-              <Button onClick={handleBack} variant="outline">
-                Back
-              </Button>
+              {(() => {
+                const backButtonProps = getBackButtonProps();
+                return (
+                  <Button {...backButtonProps} variant="outline">
+                    {backButtonProps.children}
+                  </Button>
+                );
+              })()}
               <Button
                 onClick={handleTasksConfirm}
                 colorScheme="blue"
