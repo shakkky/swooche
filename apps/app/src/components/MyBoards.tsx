@@ -6,12 +6,51 @@ import {
   HStack,
   Icon,
   SimpleGrid,
+  Skeleton,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import { MdAdd } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useAuthenticatedTrpcQuery } from "../hooks/useAuthenticatedQuery";
+
+// Skeleton component for board cards
+const BoardCardSkeleton = () => {
+  return (
+    <Box
+      p={4}
+      border="1px solid"
+      borderColor="gray.200"
+      borderRadius="lg"
+      bg="white"
+    >
+      <VStack align="start" gap={3}>
+        <Box w="full">
+          <Skeleton height="16px" width="60%" mb={1} />
+          <Skeleton height="20px" width="80%" />
+        </Box>
+
+        <VStack align="start" gap={1} w="full">
+          <Skeleton height="16px" width="100%" />
+          <Skeleton height="16px" width="95%" />
+          <Skeleton height="16px" width="85%" />
+        </VStack>
+
+        <Skeleton height="12px" width="40%" />
+      </VStack>
+    </Box>
+  );
+};
+
+// Skeleton component for the page header
+const PageHeaderSkeleton = () => {
+  return (
+    <HStack justify="space-between" align="center" mb={4}>
+      <Skeleton height="32px" width="150px" />
+      <Skeleton height="40px" width="180px" borderRadius="md" />
+    </HStack>
+  );
+};
 
 export function MyBoards() {
   const navigate = useNavigate();
@@ -26,6 +65,23 @@ export function MyBoards() {
   };
 
   const { boards } = boardsData ?? {};
+
+  // Show full page skeleton on initial load
+  if (isLoading && !boardsData) {
+    return (
+      <Box w="full">
+        <PageHeaderSkeleton />
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
+          <BoardCardSkeleton />
+          <BoardCardSkeleton />
+          <BoardCardSkeleton />
+          <BoardCardSkeleton />
+          <BoardCardSkeleton />
+          <BoardCardSkeleton />
+        </SimpleGrid>
+      </Box>
+    );
+  }
 
   return (
     <Box w="full">
@@ -48,20 +104,20 @@ export function MyBoards() {
         </Button>
       </HStack>
 
-      {isLoading ? (
-        <Box
-          p={6}
-          border="1px solid"
-          borderColor="gray.200"
-          borderRadius="lg"
-          bg="gray.50"
-          textAlign="center"
-        >
-          <Text color="gray.500" fontSize="sm">
-            Loading boards...
-          </Text>
-        </Box>
-      ) : boards?.length > 0 ? (
+      {/* Loading State - Only show when refetching */}
+      {isLoading && boardsData && (
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
+          <BoardCardSkeleton />
+          <BoardCardSkeleton />
+          <BoardCardSkeleton />
+          <BoardCardSkeleton />
+          <BoardCardSkeleton />
+          <BoardCardSkeleton />
+        </SimpleGrid>
+      )}
+
+      {/* Boards Grid */}
+      {!isLoading && boards?.length > 0 && (
         <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
           {boards.map((board) => (
             <Box
@@ -101,7 +157,10 @@ export function MyBoards() {
             </Box>
           ))}
         </SimpleGrid>
-      ) : (
+      )}
+
+      {/* Empty State */}
+      {!isLoading && (!boards || boards.length === 0) && (
         <Box
           p={6}
           border="1px solid"

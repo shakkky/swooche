@@ -1,4 +1,4 @@
-import { ClientModel } from "@swooche/models";
+import { BoardModel, ClientModel } from "@swooche/models";
 import { z } from "zod";
 import { protectedProcedure } from "../procedures";
 import { router } from "../trpc";
@@ -127,6 +127,48 @@ export const clientRouter = router({
       } catch (error) {
         console.error("❌ Error updating client:", error);
         throw new Error("Failed to update client");
+      }
+    }),
+
+  // Delete a client
+  deleteClient: protectedProcedure
+    .input(
+      z.object({
+        clientId: z.string().min(1, "Client ID is required"),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        console.log("🗑️ Deleting client:", input.clientId);
+
+        // Find the client and ensure it belongs to the user's account
+        const client = await ClientModel.findOne({
+          _id: input.clientId,
+          accountId: ctx.user.accountId,
+        });
+
+        if (!client) {
+          throw new Error("Client not found or access denied");
+        }
+
+        // Delete all boards associated with the client
+        await BoardModel.deleteMany({
+          clientId: client._id,
+          accountId: ctx.user.accountId,
+        });
+
+        // Delete the client
+        await ClientModel.findByIdAndDelete(client._id);
+
+        console.log("✅ Client deleted successfully:", input.clientId);
+
+        return {
+          success: true,
+          message: "Client deleted successfully",
+        };
+      } catch (error) {
+        console.error("❌ Error deleting client:", error);
+        throw new Error("Failed to delete client");
       }
     }),
 });

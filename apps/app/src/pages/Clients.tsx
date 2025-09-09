@@ -6,6 +6,7 @@ import {
   Heading,
   HStack,
   Icon,
+  IconButton,
   Input,
   SimpleGrid,
   Skeleton,
@@ -15,7 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { MdAdd } from "react-icons/md";
+import { MdAdd, MdDelete } from "react-icons/md";
 import { useAuthenticatedTrpcQuery } from "../hooks/useAuthenticatedQuery";
 import { trpc } from "../lib/trpc";
 
@@ -98,9 +99,16 @@ export function Clients() {
     onOpen: onEditOpen,
     onClose: onEditClose,
   } = useDisclosure();
+  const {
+    open: deleteOpen,
+    onOpen: onDeleteOpen,
+    onClose: onDeleteClose,
+  } = useDisclosure();
   const [isCreating, setIsCreating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [deletingClient, setDeletingClient] = useState<Client | null>(null);
 
   // Fetch clients data
   const {
@@ -136,6 +144,20 @@ export function Clients() {
     onError: (error) => {
       console.error("Error updating client:", error);
       setIsEditing(false);
+    },
+  });
+
+  // Delete client mutation
+  const deleteClientMutation = trpc.client.deleteClient.useMutation({
+    onSuccess: () => {
+      refetch();
+      onDeleteClose();
+      setIsDeleting(false);
+      setDeletingClient(null);
+    },
+    onError: (error) => {
+      console.error("Error deleting client:", error);
+      setIsDeleting(false);
     },
   });
 
@@ -179,6 +201,18 @@ export function Clients() {
       company: client.company || "",
     });
     onEditOpen();
+  };
+
+  const handleDeleteClient = (client: Client) => {
+    setDeletingClient(client);
+    onDeleteOpen();
+  };
+
+  const confirmDeleteClient = () => {
+    if (deletingClient) {
+      setIsDeleting(true);
+      deleteClientMutation.mutate({ clientId: deletingClient._id });
+    }
   };
 
   const clients: Client[] = clientsData?.clients || [];
@@ -276,12 +310,34 @@ export function Clients() {
               borderRadius="lg"
               bg="white"
               cursor="pointer"
+              position="relative"
               _hover={{
                 boxShadow: "1px 1px 10px 2px rgba(0, 0, 0, 0.1)",
+                "& .delete-icon": {
+                  opacity: 1,
+                },
               }}
               transition="all 0.2s"
               onClick={() => handleEditClient(client)}
             >
+              {/* Delete Icon */}
+              <IconButton
+                className="delete-icon"
+                aria-label="Delete client"
+                size="sm"
+                variant="ghost"
+                position="absolute"
+                top={2}
+                right={2}
+                opacity={0}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteClient(client);
+                }}
+                transition="opacity 0.2s"
+              >
+                <Icon as={MdDelete} color="red.500" />
+              </IconButton>
               <VStack align="start" gap={3}>
                 <Box>
                   <Heading size="sm" color="gray.800" mb={1}>
@@ -626,6 +682,46 @@ export function Clients() {
                   </VStack>
                 </form>
               )}
+            </Dialog.Body>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Dialog.Root>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog.Root open={deleteOpen} onOpenChange={onDeleteClose}>
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content maxW="md">
+            <Dialog.Header>
+              <Dialog.Title>Delete Client</Dialog.Title>
+              <Dialog.CloseTrigger />
+            </Dialog.Header>
+            <Dialog.Body pb={6}>
+              <VStack gap={4} align="start">
+                <Text color="gray.600">
+                  Are you sure you want to delete{" "}
+                  <strong>{deletingClient?.name}</strong>? This action cannot be
+                  undone.
+                </Text>
+                <Text fontSize="sm" color="gray.500">
+                  This will permanently remove the client and all associated
+                  data.
+                </Text>
+                <HStack gap={3} w="full" justify="flex-end" pt={4}>
+                  <Button variant="outline" onClick={onDeleteClose}>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="solid"
+                    colorScheme="red"
+                    loading={isDeleting}
+                    loadingText="Deleting..."
+                    onClick={confirmDeleteClient}
+                  >
+                    Delete Client
+                  </Button>
+                </HStack>
+              </VStack>
             </Dialog.Body>
           </Dialog.Content>
         </Dialog.Positioner>
