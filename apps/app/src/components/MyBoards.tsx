@@ -4,10 +4,12 @@ import {
   Button,
   Heading,
   HStack,
+  Icon,
   SimpleGrid,
   Text,
   VStack,
 } from "@chakra-ui/react";
+import { MdAdd } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useAuthenticatedTrpcQuery } from "../hooks/useAuthenticatedQuery";
 
@@ -41,6 +43,7 @@ export function MyBoards() {
           }}
           onClick={handleCreateBoard}
         >
+          <Icon as={MdAdd} boxSize={5} size="sm" />
           Create new board
         </Button>
       </HStack>
