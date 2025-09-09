@@ -12,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { MdAdd } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import { useCallback, useMemo } from "react";
 import { useAuthenticatedTrpcQuery } from "../hooks/useAuthenticatedQuery";
 
 // Skeleton component for board cards
@@ -60,11 +61,53 @@ export function MyBoards() {
     undefined
   );
 
-  const handleCreateBoard = () => {
+  const handleCreateBoard = useCallback(() => {
     navigate("/app/create-board");
-  };
+  }, [navigate]);
 
   const { boards } = boardsData ?? {};
+
+  const boardCards = useMemo(() => {
+    if (!boards || boards.length === 0) return null;
+
+    return boards.map((board) => (
+      <Box
+        key={board._id}
+        p={4}
+        border="1px solid"
+        borderColor="gray.200"
+        borderRadius="lg"
+        bg="white"
+        cursor="pointer"
+        _hover={{ boxShadow: "1px 1px 10px 2px rgba(0, 0, 0, 0.1)" }}
+        onClick={() => navigate(`/app/boards/${board._id}`)}
+      >
+        <VStack align="start" gap={3}>
+          <Box>
+            <Text fontSize="sm" color="gray.500" mb={1}>
+              {board.clientName}
+            </Text>
+            <Heading size="sm" color="gray.800">
+              {board.projectName}
+            </Heading>
+          </Box>
+          <Text
+            fontSize="sm"
+            color="gray.600"
+            overflow="hidden"
+            textOverflow="ellipsis"
+            display="-webkit-box"
+            style={{ WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}
+          >
+            {board.projectGoal}
+          </Text>
+          <Text fontSize="xs" color="gray.400">
+            Created {new Date(board.createdAt).toLocaleDateString()}
+          </Text>
+        </VStack>
+      </Box>
+    ));
+  }, [boards, navigate]);
 
   // Show full page skeleton on initial load
   if (isLoading && !boardsData) {
@@ -117,45 +160,9 @@ export function MyBoards() {
       )}
 
       {/* Boards Grid */}
-      {!isLoading && boards?.length > 0 && (
+      {!isLoading && boardCards && (
         <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
-          {boards.map((board) => (
-            <Box
-              key={board._id}
-              p={4}
-              border="1px solid"
-              borderColor="gray.200"
-              borderRadius="lg"
-              bg="white"
-              cursor="pointer"
-              _hover={{ boxShadow: "1px 1px 10px 2px rgba(0, 0, 0, 0.1)" }}
-              onClick={() => navigate(`/app/boards/${board._id}`)}
-            >
-              <VStack align="start" gap={3}>
-                <Box>
-                  <Text fontSize="sm" color="gray.500" mb={1}>
-                    {board.clientName}
-                  </Text>
-                  <Heading size="sm" color="gray.800">
-                    {board.projectName}
-                  </Heading>
-                </Box>
-                <Text
-                  fontSize="sm"
-                  color="gray.600"
-                  overflow="hidden"
-                  textOverflow="ellipsis"
-                  display="-webkit-box"
-                  style={{ WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}
-                >
-                  {board.projectGoal}
-                </Text>
-                <Text fontSize="xs" color="gray.400">
-                  Created {new Date(board.createdAt).toLocaleDateString()}
-                </Text>
-              </VStack>
-            </Box>
-          ))}
+          {boardCards}
         </SimpleGrid>
       )}
 

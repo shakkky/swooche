@@ -5,6 +5,8 @@ import {
   useContext,
   useEffect,
   useState,
+  useMemo,
+  useCallback,
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
@@ -72,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, [onUserSignInMutation]);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = useCallback(async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -84,22 +86,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Error signing in with Google:", error);
     }
-  };
+  }, []);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     setUser(null);
     setSession(null);
     await supabase.auth.signOut();
     navigate("/signin");
-  };
+  }, [navigate]);
 
-  const value = {
-    user,
-    session,
-    loading,
-    signInWithGoogle,
-    signOut,
-  };
+  const value = useMemo(
+    () => ({
+      user,
+      session,
+      loading,
+      signInWithGoogle,
+      signOut,
+    }),
+    [user, session, loading, signInWithGoogle, signOut]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
