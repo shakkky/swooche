@@ -15,18 +15,25 @@ import {
 import {
   MdAssignment,
   MdHome,
+  // MdLink,
   MdLogout,
   MdMenu,
   MdPeople,
 } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
 import swoocheLogo from "../assets/logos/swooche.png";
+import { useAuth } from "../contexts/AuthContext";
 
 const menuItems = [
   { id: "Home", label: "Home", icon: MdHome, path: "/app" },
   { id: "Clients", label: "Clients", icon: MdPeople, path: "/app/clients" },
   { id: "Tasks", label: "Tasks", icon: MdAssignment, path: "/app/tasks" },
+  // {
+  //   id: "Connections",
+  //   label: "My connections",
+  //   icon: MdLink,
+  //   path: "/app/connections",
+  // },
 ];
 
 // Sidebar content component that can be reused in both desktop and mobile

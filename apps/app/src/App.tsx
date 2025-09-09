@@ -1,22 +1,24 @@
+import { ChakraProvider } from "@chakra-ui/react";
 import {
+  Navigate,
+  Route,
   BrowserRouter as Router,
   Routes,
-  Route,
-  Navigate,
 } from "react-router-dom";
-import { ChakraProvider } from "@chakra-ui/react";
-import { AuthProvider } from "./contexts/AuthContext";
-import { TRPCProvider } from "./components/TRPCProvider";
-import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AppLayout } from "./components/AppLayout";
-import { SignIn } from "./pages/SignIn";
-import { AppHome } from "./pages/AppHome";
-import { Clients } from "./pages/Clients";
-import { Tasks } from "./pages/Tasks";
-import { CreateBoard } from "./pages/CreateBoard";
-import { BoardDetail } from "./pages/BoardDetail";
-import { Connect } from "./pages/Connect";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { system } from "./components/theme";
+import { TRPCProvider } from "./components/TRPCProvider";
+import { Toaster } from "./components/ui/toaster";
+import { AuthProvider } from "./contexts/AuthContext";
+import { AppHome } from "./pages/AppHome";
+import { BoardDetail } from "./pages/BoardDetail";
+import { Clients } from "./pages/Clients";
+import { Connect } from "./pages/Connect";
+import { CreateBoard } from "./pages/CreateBoard";
+// import { MyConnections } from "./pages/MyConnections";
+import { SignIn } from "./pages/SignIn";
+import { Tasks } from "./pages/Tasks";
 
 const App = () => {
   return (
@@ -40,6 +42,7 @@ const App = () => {
                 <Route index element={<AppHome />} />
                 <Route path="clients" element={<Clients />} />
                 <Route path="tasks" element={<Tasks />} />
+                {/* <Route path="connections" element={<MyConnections />} /> */}
                 <Route path="create-board" element={<CreateBoard />} />
                 <Route path="boards/:boardId" element={<BoardDetail />} />
                 <Route path="connect" element={<Connect />} />
@@ -60,6 +63,7 @@ const App = () => {
           </AuthProvider>
         </Router>
       </TRPCProvider>
+      <Toaster />
     </ChakraProvider>
   );
 };
