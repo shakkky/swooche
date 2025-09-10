@@ -30,6 +30,7 @@ export const api = new sst.aws.Service("ApiService", {
         MONGODB_URI: process.env.MONGODB_URI,
         CLICKUP_CLIENT_ID: process.env.CLICKUP_CLIENT_ID,
         CLICKUP_CLIENT_SECRET: process.env.CLICKUP_CLIENT_SECRET,
+        API_URL: process.env.API_URL,
       },
     },
   ],

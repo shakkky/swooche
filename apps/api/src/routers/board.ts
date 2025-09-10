@@ -1,4 +1,4 @@
-import { BoardModel, ClientModel } from "@swooche/models";
+import { BoardModel, ClientModel, ClickupTaskModel } from "@swooche/models";
 import { z } from "zod";
 import { protectedProcedure } from "../procedures";
 import { router } from "../trpc";
@@ -154,4 +154,58 @@ export const boardRouter = router({
       throw new Error("Failed to fetch boards");
     }
   }),
+
+  // Delete a board and all its linked tasks
+  deleteBoard: protectedProcedure
+    .input(z.object({ boardId: z.string() }))
+    .output(
+      z.object({
+        success: z.boolean(),
+        deletedBoardId: z.string(),
+        deletedTasksCount: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        console.log("🗑️ Deleting board:", input.boardId);
+        console.log("🔑 User:", ctx.user);
+
+        // Verify the board exists and belongs to the user's account
+        const board = await BoardModel.findOne({
+          _id: input.boardId,
+          accountId: ctx.user.accountId,
+        });
+
+        if (!board) {
+          throw new Error("Board not found");
+        }
+
+        // Delete all tasks linked to this board
+        const deleteTasksResult = await ClickupTaskModel.deleteMany({
+          boardId: input.boardId,
+          accountId: ctx.user.accountId,
+        });
+
+        console.log(
+          `🗑️ Deleted ${deleteTasksResult.deletedCount} tasks for board ${input.boardId}`
+        );
+
+        // Delete the board
+        await BoardModel.deleteOne({
+          _id: input.boardId,
+          accountId: ctx.user.accountId,
+        });
+
+        console.log("✅ Board deleted successfully:", input.boardId);
+
+        return {
+          success: true,
+          deletedBoardId: input.boardId,
+          deletedTasksCount: deleteTasksResult.deletedCount,
+        };
+      } catch (error) {
+        console.error("❌ Error deleting board:", error);
+        throw new Error("Failed to delete board");
+      }
+    }),
 });

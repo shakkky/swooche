@@ -7,20 +7,75 @@ import {
   Heading,
   HStack,
   Icon,
+  IconButton,
   Image,
   Skeleton,
   Text,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
-import { FC, useState } from "react";
-import { MdAdd } from "react-icons/md";
+import { FC } from "react";
+import { MdAdd, MdDelete } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import clickupLogo from "../assets/logos/clickup.png";
 import swoocheLogo from "../assets/logos/swooche.png";
 import { TaskSelectionModal } from "../components/TaskSelectionModal";
+import { toaster } from "../components/ui/toaster";
 import { getBaseUrl, getClickUpClientId } from "../config";
 import { useAuthenticatedTrpcQuery } from "../hooks/useAuthenticatedQuery";
+
+const DeleteBoardModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  boardName,
+  isLoading,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  boardName: string;
+  isLoading: boolean;
+}) => {
+  return (
+    <Dialog.Root open={isOpen} onOpenChange={onClose}>
+      <Dialog.Backdrop />
+      <Dialog.Positioner>
+        <Dialog.Content maxW="md">
+          <Dialog.Header>
+            <Dialog.Title>Delete Board</Dialog.Title>
+            <Dialog.CloseTrigger />
+          </Dialog.Header>
+          <Dialog.Body pb={6}>
+            <VStack gap={4} align="stretch">
+              <Text color="gray.600">
+                Are you sure you want to delete the board "{boardName}"? This
+                action cannot be undone.
+              </Text>
+              <HStack justify="space-between">
+                <Button
+                  variant="outline"
+                  onClick={onClose}
+                  disabled={isLoading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  colorScheme="red"
+                  onClick={onConfirm}
+                  loading={isLoading}
+                  loadingText="Deleting..."
+                >
+                  Delete Board
+                </Button>
+              </HStack>
+            </VStack>
+          </Dialog.Body>
+        </Dialog.Content>
+      </Dialog.Positioner>
+    </Dialog.Root>
+  );
+};
 
 const ConnectClickUpModal = ({
   isOpen,
@@ -368,6 +423,12 @@ export function BoardDetail() {
     onClose: onTaskModalClose,
   } = useDisclosure();
 
+  const {
+    open: isDeleteModalOpen,
+    onOpen: onDeleteModalOpen,
+    onClose: onDeleteModalClose,
+  } = useDisclosure();
+
   const utils = trpc.useUtils();
 
   const linkTasksMutation = trpc.tasks.linkTasks.useMutation({
@@ -383,6 +444,28 @@ export function BoardDetail() {
     },
   });
 
+  const deleteBoardMutation = trpc.board.deleteBoard.useMutation({
+    onSuccess: (data: any) => {
+      console.log("Board deleted successfully:", data);
+      toaster.create({
+        title: "Board deleted successfully",
+        description: `Board and ${data.deletedTasksCount} associated tasks have been deleted.`,
+        type: "success",
+      });
+      onDeleteModalClose();
+      navigate("/app");
+    },
+    onError: (error) => {
+      console.error("Error deleting board:", error);
+      toaster.create({
+        title: "Failed to delete board",
+        description:
+          error.message || "An error occurred while deleting the board.",
+        type: "error",
+      });
+    },
+  });
+
   const handleTasksSelected = (tasks: any[]) => {
     if (!boardId) {
       console.error("No board ID available");
@@ -393,6 +476,15 @@ export function BoardDetail() {
       boardId,
       tasks,
     });
+  };
+
+  const handleDeleteBoard = () => {
+    if (!boardId) {
+      console.error("No board ID available");
+      return;
+    }
+
+    deleteBoardMutation.mutate({ boardId });
   };
 
   const {
@@ -461,9 +553,9 @@ export function BoardDetail() {
             </Heading>
           </VStack>
 
-          {/* Import Tasks Button */}
-          {isConnected && (
-            <HStack justify="flex-end" mb={4}>
+          {/* Action Buttons */}
+          <HStack justify="flex-end" mb={4} gap={2}>
+            {isConnected && (
               <Button
                 onClick={onTaskModalOpen}
                 variant="solid"
@@ -476,8 +568,17 @@ export function BoardDetail() {
                 <Icon as={MdAdd} boxSize={5} size="sm" />
                 <Text>Import Tasks from ClickUp</Text>
               </Button>
-            </HStack>
-          )}
+            )}
+            <IconButton
+              onClick={onDeleteModalOpen}
+              variant="outline"
+              colorScheme="red"
+              aria-label="Delete board"
+              _hover={{ bg: "red.50", borderColor: "red.300" }}
+            >
+              <Icon as={MdDelete} boxSize={5} />
+            </IconButton>
+          </HStack>
         </HStack>
         {board.projectGoal && (
           <Text color="gray.600" fontSize="sm">
@@ -498,6 +599,14 @@ export function BoardDetail() {
         onClose={onTaskModalClose}
         onTasksSelected={handleTasksSelected}
         existingTasks={boardTasks || []}
+      />
+
+      <DeleteBoardModal
+        isOpen={isDeleteModalOpen}
+        onClose={onDeleteModalClose}
+        onConfirm={handleDeleteBoard}
+        boardName={board?.projectName || ""}
+        isLoading={deleteBoardMutation.isPending}
       />
     </Box>
   );
