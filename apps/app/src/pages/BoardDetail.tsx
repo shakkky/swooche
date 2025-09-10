@@ -15,7 +15,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { FC } from "react";
-import { MdAdd, MdDelete } from "react-icons/md";
+import { MdAdd, MdDelete, MdEdit } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import clickupLogo from "../assets/logos/clickup.png";
 import swoocheLogo from "../assets/logos/swooche.png";
@@ -569,6 +569,15 @@ export function BoardDetail() {
                 <Text>Import Tasks from ClickUp</Text>
               </Button>
             )}
+            <IconButton
+              onClick={() => navigate(`/app/boards/${boardId}/edit`)}
+              variant="outline"
+              colorScheme="blue"
+              aria-label="Edit board"
+              _hover={{ bg: "blue.50", borderColor: "blue.300" }}
+            >
+              <Icon as={MdEdit} boxSize={5} />
+            </IconButton>
             <IconButton
               onClick={onDeleteModalOpen}
               variant="outline"

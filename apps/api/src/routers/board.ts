@@ -155,6 +155,92 @@ export const boardRouter = router({
     }
   }),
 
+  // Update a board
+  editBoard: protectedProcedure
+    .input(
+      z.object({
+        boardId: z.string(),
+        clientId: z.string(),
+        projectName: z
+          .string()
+          .min(2, "Project name must be at least 2 characters"),
+        projectGoal: z.string().optional(),
+      })
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+        board: z.object({
+          _id: z.string(),
+          clientId: z.string(),
+          projectName: z.string(),
+          projectGoal: z.string().optional(),
+          updatedAt: z.string(),
+        }),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        console.log("✏️ Editing board:", input.boardId);
+        console.log("🔑 User:", ctx.user);
+
+        // Verify the board exists and belongs to the user's account
+        const board = await BoardModel.findOne({
+          _id: input.boardId,
+          accountId: ctx.user.accountId,
+        });
+
+        if (!board) {
+          throw new Error("Board not found");
+        }
+
+        // Verify the client exists and belongs to the user's account
+        const client = await ClientModel.findOne({
+          _id: input.clientId,
+          accountId: ctx.user.accountId,
+        });
+
+        if (!client) {
+          throw new Error("Client not found");
+        }
+
+        // Update the board
+        const updatedBoard = await BoardModel.findOneAndUpdate(
+          {
+            _id: input.boardId,
+            accountId: ctx.user.accountId,
+          },
+          {
+            clientId: input.clientId,
+            projectName: input.projectName,
+            projectGoal: input.projectGoal,
+            updatedAt: new Date(),
+          },
+          { new: true }
+        );
+
+        if (!updatedBoard) {
+          throw new Error("Failed to update board");
+        }
+
+        console.log("✅ Board updated successfully:", updatedBoard._id);
+
+        return {
+          success: true,
+          board: {
+            _id: updatedBoard._id.toString(),
+            clientId: updatedBoard.clientId.toString(),
+            projectName: updatedBoard.projectName,
+            projectGoal: updatedBoard.projectGoal,
+            updatedAt: updatedBoard.updatedAt.toISOString(),
+          },
+        };
+      } catch (error) {
+        console.error("❌ Error updating board:", error);
+        throw new Error("Failed to update board");
+      }
+    }),
+
   // Delete a board and all its linked tasks
   deleteBoard: protectedProcedure
     .input(z.object({ boardId: z.string() }))

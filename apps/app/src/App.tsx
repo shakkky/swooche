@@ -16,6 +16,7 @@ import { BoardDetail } from "./pages/BoardDetail";
 import { Clients } from "./pages/Clients";
 import { Connect } from "./pages/Connect";
 import { CreateBoard } from "./pages/CreateBoard";
+import { EditBoard } from "./pages/EditBoard";
 // import { MyConnections } from "./pages/MyConnections";
 import { SignIn } from "./pages/SignIn";
 import { Tasks } from "./pages/Tasks";
@@ -45,6 +46,7 @@ const App = () => {
                 {/* <Route path="connections" element={<MyConnections />} /> */}
                 <Route path="create-board" element={<CreateBoard />} />
                 <Route path="boards/:boardId" element={<BoardDetail />} />
+                <Route path="boards/:boardId/edit" element={<EditBoard />} />
                 <Route path="connect" element={<Connect />} />
               </Route>
 
