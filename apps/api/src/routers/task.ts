@@ -30,6 +30,30 @@ const RawClickupTaskSchema = z.object({
   assignee: z.string().optional(),
 });
 
+export const rawClickupTaskToClickupTask = (
+  task: z.infer<typeof RawClickupTaskSchema>
+) => {
+  return {
+    clickupTaskId: task.id,
+    name: task.name,
+    description: task.description,
+    status: {
+      status: task.status.status,
+      color: task.status.color,
+      type: task.status.type,
+      orderindex: task.status.orderindex,
+    },
+    dateCreated: task.date_created,
+    dateUpdated: task.date_updated,
+    dateClosed: task.date_closed,
+    priority: task.priority,
+    dueDate: task.due_date,
+    assignee: task.assignee,
+    createdAt: task.date_created,
+    updatedAt: task.date_updated,
+  };
+};
+
 export const taskRouter = router({
   // Get tasks for a board
   getBoardTasks: protectedProcedure
@@ -45,18 +69,7 @@ export const taskRouter = router({
           success: true,
           tasks: tasks.map((task) => ({
             _id: task._id.toString(),
-            clickupTaskId: task.clickupTaskId,
-            name: task.name,
-            description: task.description,
-            status: task.status,
-            dateCreated: task.dateCreated,
-            dateUpdated: task.dateUpdated,
-            dateClosed: task.dateClosed,
-            priority: task.priority,
-            dueDate: task.dueDate,
-            assignee: task.assignee,
-            createdAt: task.createdAt,
-            updatedAt: task.updatedAt,
+            ...rawClickupTaskToClickupTask(task),
           })),
         };
       } catch (error) {

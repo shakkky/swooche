@@ -1,4 +1,4 @@
-import { BoardModel, ClientModel } from "@swooche/models";
+import { BoardModel, ClickupTaskModel, ClientModel } from "@swooche/models";
 import { z } from "zod";
 import { protectedProcedure } from "../procedures";
 import { router } from "../trpc";
@@ -151,9 +151,19 @@ export const clientRouter = router({
           throw new Error("Client not found or access denied");
         }
 
+        const allBoards = await BoardModel.find({
+          clientId: client._id,
+          accountId: ctx.user.accountId,
+        });
+
         // Delete all boards associated with the client
         await BoardModel.deleteMany({
-          clientId: client._id,
+          _id: { $in: allBoards.map((board) => board._id) },
+        });
+
+        // Delete all tasks associated with boards associated with the client
+        await ClickupTaskModel.deleteMany({
+          boardId: { $in: allBoards.map((board) => board._id) },
           accountId: ctx.user.accountId,
         });
 

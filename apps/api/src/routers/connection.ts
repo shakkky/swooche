@@ -3,6 +3,85 @@ import { z } from "zod";
 import { protectedProcedure } from "../procedures";
 import { router } from "../trpc";
 
+// Helper function to register ClickUp webhook
+async function registerClickUpWebhook(
+  accessToken: string,
+  connectionId: string
+) {
+  try {
+    // First, get the user's teams to find the team ID
+    const teamsResponse = await fetch("https://api.clickup.com/api/v2/team", {
+      headers: {
+        Authorization: accessToken,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!teamsResponse.ok) {
+      throw new Error(`Failed to fetch teams: ${teamsResponse.statusText}`);
+    }
+
+    const teamsData = (await teamsResponse.json()) as {
+      teams: Array<{ id: string; name: string }>;
+    };
+
+    if (!teamsData.teams || teamsData.teams.length === 0) {
+      throw new Error("No teams found for user");
+    }
+
+    // Use the first team for webhook registration
+    const teamId = teamsData.teams[0].id;
+
+    const baseWebhookUrl = `${
+      process.env.API_URL || "https://api.swooche.com"
+    }`;
+    const webhookUrl = `${baseWebhookUrl}/webhooks/clickup/tasks/${connectionId}`;
+
+    console.log(`🔗 Registering webhook for team ${teamId} at ${webhookUrl}`);
+
+    const webhookResponse = await fetch(
+      `https://api.clickup.com/api/v2/team/${teamId}/webhook`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: accessToken,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          endpoint: webhookUrl,
+          events: ["taskUpdated", "taskDeleted"],
+        }),
+      }
+    );
+
+    if (!webhookResponse.ok) {
+      const errorData = (await webhookResponse.json()) as { error?: string };
+      throw new Error(
+        `Webhook registration failed: ${
+          errorData.error || webhookResponse.statusText
+        }`
+      );
+    }
+
+    const webhookData = (await webhookResponse.json()) as {
+      id: string;
+      webhook: {
+        id: string;
+        endpoint: string;
+        events: string[];
+        status: string;
+        secret: string;
+      };
+    };
+
+    console.log("✅ Webhook registered:", webhookData);
+    return webhookData;
+  } catch (error) {
+    console.error("❌ Error registering webhook:", error);
+    throw error;
+  }
+}
+
 export const connectionRouter = router({
   // Exchange ClickUp OAuth code for access token
   exchangeClickUpCode: protectedProcedure
@@ -74,6 +153,24 @@ export const connectionRouter = router({
         });
 
         console.log("✅ ClickUp connection established successfully");
+
+        // Register webhook for task changes
+        try {
+          const webhookData = await registerClickUpWebhook(
+            connection.accessToken,
+            connection._id.toString()
+          );
+
+          // Store the webhook secret in the connection
+          await ConnectionModel.findByIdAndUpdate(connection._id, {
+            webhookSecret: webhookData.webhook.secret,
+          } as any);
+
+          console.log("✅ ClickUp webhook registered successfully");
+        } catch (webhookError) {
+          console.error("⚠️ Failed to register ClickUp webhook:", webhookError);
+          // Don't fail the connection if webhook registration fails
+        }
 
         return {
           success: true,
@@ -472,6 +569,219 @@ export const connectionRouter = router({
       } catch (error) {
         console.error("❌ Error fetching ClickUp tasks:", error);
         throw new Error("Failed to fetch ClickUp tasks");
+      }
+    }),
+
+  // Get ClickUp webhooks for a connection
+  getClickUpWebhooks: protectedProcedure
+    .output(
+      z.object({
+        success: z.boolean(),
+        webhooks: z.array(
+          z.object({
+            id: z.string(),
+            endpoint: z.string(),
+            events: z.array(z.string()),
+            status: z.string(),
+          })
+        ),
+      })
+    )
+    .query(async ({ ctx }) => {
+      try {
+        console.log("🔍 Fetching ClickUp webhooks for user:", ctx.user.id);
+
+        // Find ClickUp connection
+        const connection = await ConnectionModel.findOne({
+          accountId: ctx.user.accountId,
+          provider: "clickup",
+        });
+
+        if (!connection) {
+          throw new Error("No ClickUp connection found");
+        }
+
+        // Get teams first
+        const teamsResponse = await fetch(
+          "https://api.clickup.com/api/v2/team",
+          {
+            headers: {
+              Authorization: connection.accessToken,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!teamsResponse.ok) {
+          throw new Error(`ClickUp API error: ${teamsResponse.statusText}`);
+        }
+
+        const teamsData = (await teamsResponse.json()) as {
+          teams: Array<{ id: string; name: string }>;
+        };
+
+        if (!teamsData.teams || teamsData.teams.length === 0) {
+          return { success: true, webhooks: [] };
+        }
+
+        // Get webhooks for the first team
+        const teamId = teamsData.teams[0].id;
+        const webhooksResponse = await fetch(
+          `https://api.clickup.com/api/v2/team/${teamId}/webhook`,
+          {
+            headers: {
+              Authorization: connection.accessToken,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!webhooksResponse.ok) {
+          throw new Error(`ClickUp API error: ${webhooksResponse.statusText}`);
+        }
+
+        const webhooksData = (await webhooksResponse.json()) as {
+          webhooks: Array<{
+            id: string;
+            endpoint: string;
+            events: string[];
+            status: string;
+          }>;
+        };
+
+        return {
+          success: true,
+          webhooks: webhooksData.webhooks || [],
+        };
+      } catch (error) {
+        console.error("❌ Error fetching ClickUp webhooks:", error);
+        throw new Error("Failed to fetch ClickUp webhooks");
+      }
+    }),
+
+  // Delete a ClickUp webhook
+  deleteClickUpWebhook: protectedProcedure
+    .input(
+      z.object({
+        webhookId: z.string(),
+      })
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+        message: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        console.log("🗑️ Deleting ClickUp webhook:", input.webhookId);
+
+        // Find ClickUp connection
+        const connection = await ConnectionModel.findOne({
+          accountId: ctx.user.accountId,
+          provider: "clickup",
+        });
+
+        if (!connection) {
+          throw new Error("No ClickUp connection found");
+        }
+
+        // Get teams first
+        const teamsResponse = await fetch(
+          "https://api.clickup.com/api/v2/team",
+          {
+            headers: {
+              Authorization: connection.accessToken,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!teamsResponse.ok) {
+          throw new Error(`ClickUp API error: ${teamsResponse.statusText}`);
+        }
+
+        const teamsData = (await teamsResponse.json()) as {
+          teams: Array<{ id: string; name: string }>;
+        };
+
+        if (!teamsData.teams || teamsData.teams.length === 0) {
+          throw new Error("No teams found");
+        }
+
+        // Delete webhook
+        const teamId = teamsData.teams[0].id;
+        const deleteResponse = await fetch(
+          `https://api.clickup.com/api/v2/webhook/${input.webhookId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: connection.accessToken,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!deleteResponse.ok) {
+          throw new Error(
+            `Failed to delete webhook: ${deleteResponse.statusText}`
+          );
+        }
+
+        return {
+          success: true,
+          message: "Webhook deleted successfully",
+        };
+      } catch (error) {
+        console.error("❌ Error deleting ClickUp webhook:", error);
+        throw new Error("Failed to delete ClickUp webhook");
+      }
+    }),
+
+  // Manually register a ClickUp webhook
+  registerClickUpWebhook: protectedProcedure
+    .output(
+      z.object({
+        success: z.boolean(),
+        message: z.string(),
+        webhookId: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx }) => {
+      try {
+        console.log(
+          "🔗 Manually registering ClickUp webhook for user:",
+          ctx.user.id
+        );
+
+        // Find ClickUp connection
+        const connection = await ConnectionModel.findOne({
+          accountId: ctx.user.accountId,
+          provider: "clickup",
+        });
+
+        if (!connection) {
+          throw new Error("No ClickUp connection found");
+        }
+
+        const webhookData = await registerClickUpWebhook(
+          connection.accessToken,
+          connection._id.toString()
+        );
+
+        // Store the webhook secret in the connection
+        await ConnectionModel.findByIdAndUpdate(connection._id, {
+          webhookSecret: webhookData.webhook.secret,
+        } as any);
+
+        return {
+          success: true,
+          message: "Webhook registered successfully",
+          webhookId: webhookData.webhook.id,
+        };
+      } catch (error) {
+        console.error("❌ Error registering ClickUp webhook:", error);
+        throw new Error("Failed to register ClickUp webhook");
       }
     }),
 });

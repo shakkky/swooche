@@ -182,10 +182,7 @@ const SwimLane: FC<{ children: React.ReactNode; title: string }> = ({
 
       {/* Content */}
       <Box px={2} pb={8}>
-        <VStack gap={2}>
-          {/* Render all tasks that have a "todo" status */}
-          {children}
-        </VStack>
+        <VStack gap={2}>{children}</VStack>
       </Box>
     </Box>
   );
@@ -313,7 +310,7 @@ const Board: FC<{
   );
 };
 
-const exmapleTasks = [
+const exampleTasks = [
   {
     id: "1",
     name: "Campaign Performance & Optimization (Example Task)",
@@ -489,14 +486,11 @@ export function BoardDetail() {
         )}
       </VStack>
 
-      {!isConnected ? (
-        <Board isConnected={isConnected} tasks={exmapleTasks} />
-      ) : null}
-
       <Board
         isConnected={isConnected}
-        tasks={boardTasks.length > 0 ? boardTasks : exmapleTasks}
-        isLoading={isBoardTasksLoading}
+        tasks={
+          !isConnected || boardTasks.length < 1 ? exampleTasks : boardTasks
+        }
       />
 
       <TaskSelectionModal
