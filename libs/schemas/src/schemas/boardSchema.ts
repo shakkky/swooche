@@ -11,6 +11,8 @@ export const BoardSchema = BaseSchema.extend({
     // .min(10, "Project goal must be at least 10 characters")
     .optional(),
   createdBy: zObjectId(),
+  slug: z.string().optional(),
+  isPublished: z.boolean().default(false),
 });
 
 export type Board = z.infer<typeof BoardSchema>;

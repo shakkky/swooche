@@ -3,6 +3,40 @@ import { z } from "zod";
 import { protectedProcedure } from "../procedures";
 import { router } from "../trpc";
 
+// Utility function to generate a URL-friendly slug from a string
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
+    .trim()
+    .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+}
+
+// Function to ensure slug uniqueness
+async function ensureUniqueSlug(
+  baseSlug: string,
+  excludeBoardId?: string
+): Promise<string> {
+  let slug = baseSlug;
+  let counter = 1;
+
+  while (true) {
+    const existingBoard = await BoardModel.findOne({
+      slug,
+      ...(excludeBoardId && { _id: { $ne: excludeBoardId } }),
+    });
+
+    if (!existingBoard) {
+      return slug;
+    }
+
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+}
+
 export const boardRouter = router({
   // Create a new board
   createBoard: protectedProcedure
@@ -42,6 +76,10 @@ export const boardRouter = router({
           throw new Error("Client not found");
         }
 
+        // Generate a unique slug for the board
+        const baseSlug = generateSlug(input.projectName);
+        const uniqueSlug = await ensureUniqueSlug(baseSlug);
+
         // Create the board
         const board = await BoardModel.create({
           accountId: ctx.user.accountId,
@@ -49,6 +87,8 @@ export const boardRouter = router({
           projectName: input.projectName,
           projectGoal: input.projectGoal,
           createdBy: ctx.user._id,
+          slug: uniqueSlug,
+          isPublished: false,
         });
 
         console.log("✅ Board created successfully:", board._id);
@@ -103,6 +143,8 @@ export const boardRouter = router({
             projectName: board.projectName,
             projectGoal: board.projectGoal,
             createdAt: board.createdAt,
+            isPublished: board.isPublished,
+            slug: board.slug,
           },
         };
       } catch (error) {
@@ -204,18 +246,27 @@ export const boardRouter = router({
           throw new Error("Client not found");
         }
 
+        // Generate new slug if project name changed
+        let updateData: any = {
+          clientId: input.clientId,
+          projectName: input.projectName,
+          projectGoal: input.projectGoal,
+        };
+
+        // If project name changed, generate a new slug
+        if (board.projectName !== input.projectName) {
+          const baseSlug = generateSlug(input.projectName);
+          const uniqueSlug = await ensureUniqueSlug(baseSlug, input.boardId);
+          updateData.slug = uniqueSlug;
+        }
+
         // Update the board
         const updatedBoard = await BoardModel.findOneAndUpdate(
           {
             _id: input.boardId,
             accountId: ctx.user.accountId,
           },
-          {
-            clientId: input.clientId,
-            projectName: input.projectName,
-            projectGoal: input.projectGoal,
-            updatedAt: new Date(),
-          },
+          updateData,
           { new: true }
         );
 
@@ -233,6 +284,8 @@ export const boardRouter = router({
             projectName: updatedBoard.projectName,
             projectGoal: updatedBoard.projectGoal,
             updatedAt: updatedBoard.updatedAt.toISOString(),
+            isPublished: updatedBoard.isPublished,
+            slug: updatedBoard.slug,
           },
         };
       } catch (error) {
@@ -292,6 +345,146 @@ export const boardRouter = router({
       } catch (error) {
         console.error("❌ Error deleting board:", error);
         throw new Error("Failed to delete board");
+      }
+    }),
+
+  // Publish a board to make it publicly accessible
+  publishBoard: protectedProcedure
+    .input(z.object({ boardId: z.string() }))
+    .output(
+      z.object({
+        success: z.boolean(),
+        board: z.object({
+          _id: z.string(),
+          slug: z.string(),
+          isPublished: z.boolean(),
+        }),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        console.log("📢 Publishing board:", input.boardId);
+        console.log("🔑 User:", ctx.user);
+
+        // Verify the board exists and belongs to the user's account
+        const board = await BoardModel.findOne({
+          _id: input.boardId,
+          accountId: ctx.user.accountId,
+        });
+
+        if (!board) {
+          throw new Error("Board not found");
+        }
+
+        // Update the board to be published
+        const updatedBoard = await BoardModel.findOneAndUpdate(
+          {
+            _id: input.boardId,
+            accountId: ctx.user.accountId,
+          },
+          {
+            isPublished: true,
+          },
+          { new: true }
+        );
+
+        if (!updatedBoard) {
+          throw new Error("Failed to publish board");
+        }
+
+        if (!updatedBoard.slug) {
+          throw new Error("Failed to publish board");
+        }
+
+        console.log("✅ Board published successfully:", updatedBoard._id);
+
+        return {
+          success: true,
+          board: {
+            _id: updatedBoard._id.toString(),
+            slug: updatedBoard.slug,
+            isPublished: !!updatedBoard.isPublished,
+          },
+        };
+      } catch (error) {
+        console.error("❌ Error publishing board:", error);
+        throw new Error("Failed to publish board");
+      }
+    }),
+
+  // Toggle board publish status
+  toggleBoardPublish: protectedProcedure
+    .input(
+      z.object({
+        boardId: z.string(),
+      })
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+        board: z.object({
+          _id: z.string(),
+          slug: z.string().optional(),
+          isPublished: z.boolean(),
+          publicUrl: z.string().optional(),
+        }),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        console.log("🔄 Toggling board publish status:", input.boardId);
+        console.log("🔑 User:", ctx.user);
+
+        // Verify the board exists and belongs to the user's account
+        const board = await BoardModel.findOne({
+          _id: input.boardId,
+          accountId: ctx.user.accountId,
+        });
+
+        if (!board) {
+          throw new Error("Board not found");
+        }
+
+        console.log("before:board.isPublished", board.isPublished);
+
+        // Toggle the publish status
+        const updatedBoard = await BoardModel.findOneAndUpdate(
+          {
+            _id: board._id,
+            accountId: ctx.user.accountId,
+          },
+          {
+            isPublished: !board.isPublished,
+          },
+          { new: true }
+        );
+
+        if (!updatedBoard) {
+          throw new Error("Failed to update board publish status");
+        }
+
+        console.log("after:board.isPublished", updatedBoard.isPublished);
+
+        console.log(
+          "✅ Board publish status toggled successfully:",
+          updatedBoard._id
+        );
+
+        return {
+          success: true,
+          board: {
+            _id: updatedBoard._id.toString(),
+            slug: updatedBoard.slug,
+            isPublished: updatedBoard.isPublished,
+          },
+        };
+      } catch (error) {
+        console.error("❌ Error toggling board publish status:", error);
+        throw new Error(
+          error instanceof Error
+            ? error.message
+            : "Failed to toggle board publish status"
+        );
       }
     }),
 });

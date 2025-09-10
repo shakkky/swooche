@@ -9,3 +9,7 @@ export const getBaseUrl = () => {
 export const getClickUpClientId = () => {
   return import.meta.env.VITE_CLICKUP_CLIENT_ID;
 };
+
+export const getBaseWebsiteUrl = () => {
+  return `${import.meta.env.VITE_WEBSITE_URL || "http://localhost:3000"}`;
+};

@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
   },
   env: {
     APP_URL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001",
+    MONGODB_URI: process.env.MONGODB_URI,
   },
 };
 

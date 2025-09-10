@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Yellowtail } from "next/font/google";
 import { ReactNode } from "react";
 import "./globals.css";
+import { LightMode } from "@/components/ui/color-mode";
 
 const yellowtail = Yellowtail({
   variable: "--font-yellowtail",
@@ -26,7 +27,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={yellowtail.variable}>
-        <Provider>{children}</Provider>
+        <Provider>
+          <LightMode>{children}</LightMode>
+        </Provider>
       </body>
     </html>
   );

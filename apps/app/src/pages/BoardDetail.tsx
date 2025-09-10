@@ -14,14 +14,16 @@ import {
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
+import { Switch } from "@chakra-ui/react";
 import { FC } from "react";
-import { MdAdd, MdDelete, MdEdit } from "react-icons/md";
+import { MdAdd, MdDelete, MdEdit, MdPublic, MdLock } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import clickupLogo from "../assets/logos/clickup.png";
 import swoocheLogo from "../assets/logos/swooche.png";
 import { TaskSelectionModal } from "../components/TaskSelectionModal";
+import { PublishBoardModal } from "../components/PublishBoardModal";
 import { toaster } from "../components/ui/toaster";
-import { getBaseUrl, getClickUpClientId } from "../config";
+import { getBaseUrl, getBaseWebsiteUrl, getClickUpClientId } from "../config";
 import { useAuthenticatedTrpcQuery } from "../hooks/useAuthenticatedQuery";
 
 const DeleteBoardModal = ({
@@ -293,6 +295,91 @@ const SkeletonTaskCard: FC = () => {
   );
 };
 
+const PublicStatusIndicator: FC<{
+  isPublished: boolean;
+  publicUrl?: string;
+  onToggle: () => void;
+  isLoading: boolean;
+}> = ({ isPublished, publicUrl, onToggle, isLoading }) => {
+  return (
+    <Box
+      bg={isPublished ? "green.50" : "gray.50"}
+      border="1px solid"
+      borderColor={isPublished ? "green.200" : "gray.200"}
+      borderRadius="lg"
+      p={4}
+      w="full"
+      maxW="320px"
+    >
+      <VStack gap={3} align="stretch">
+        <HStack justify="space-between" align="center">
+          <HStack gap={2} align="center">
+            <Icon
+              as={isPublished ? MdPublic : MdLock}
+              boxSize={5}
+              color={isPublished ? "green.600" : "gray.500"}
+            />
+            <VStack gap={0} align="start">
+              <Text
+                fontSize="sm"
+                fontWeight="semibold"
+                color={isPublished ? "green.700" : "gray.700"}
+              >
+                {isPublished ? "Public Board" : "Private Board"}
+              </Text>
+              <Text fontSize="xs" color="gray.500">
+                {isPublished
+                  ? "Live and accessible to everyone"
+                  : "Only visible to you"}
+              </Text>
+            </VStack>
+          </HStack>
+          <Switch.Root
+            checked={isPublished}
+            onCheckedChange={onToggle}
+            disabled={isLoading}
+            colorPalette="green"
+            size="md"
+          >
+            <Switch.HiddenInput />
+            <Switch.Control>
+              <Switch.Thumb />
+            </Switch.Control>
+          </Switch.Root>
+        </HStack>
+
+        {isPublished && publicUrl && (
+          <Box
+            bg="white"
+            border="1px solid"
+            borderColor="green.200"
+            borderRadius="md"
+            p={3}
+          >
+            <VStack gap={1} align="start">
+              <Text fontSize="xs" color="green.600" fontWeight="medium">
+                Public URL:
+              </Text>
+              <Text
+                fontSize="xs"
+                color="gray.600"
+                fontFamily="mono"
+                bg="gray.50"
+                px={2}
+                py={1}
+                borderRadius="sm"
+                wordBreak="break-all"
+              >
+                {publicUrl}
+              </Text>
+            </VStack>
+          </Box>
+        )}
+      </VStack>
+    </Box>
+  );
+};
+
 const Board: FC<{
   isConnected: boolean;
   tasks: any[];
@@ -429,6 +516,12 @@ export function BoardDetail() {
     onClose: onDeleteModalClose,
   } = useDisclosure();
 
+  const {
+    open: isPublishModalOpen,
+    onOpen: onPublishModalOpen,
+    onClose: onPublishModalClose,
+  } = useDisclosure();
+
   const utils = trpc.useUtils();
 
   const linkTasksMutation = trpc.tasks.linkTasks.useMutation({
@@ -437,10 +530,19 @@ export function BoardDetail() {
       // Invalidate and refetch the board tasks query to get updated data from backend
       utils.tasks.getBoardTasks.invalidate({ boardId });
       onTaskModalClose();
+
+      // Show the publish modal after successful task linking only if board isn't already published
+      if (!board?.isPublished) {
+        onPublishModalOpen();
+      }
     },
     onError: (error) => {
       console.error("Error linking tasks:", error);
-      // TODO: Show error toast/notification
+      toaster.create({
+        title: "Failed to Link Tasks",
+        description: error.message || "Something went wrong. Please try again.",
+        type: "error",
+      });
     },
   });
 
@@ -466,6 +568,30 @@ export function BoardDetail() {
     },
   });
 
+  const togglePublishMutation = trpc.board.toggleBoardPublish.useMutation({
+    onSuccess: (data: any) => {
+      console.log("Board publish status toggled:", data);
+      toaster.create({
+        title: data.board.isPublished ? "Board Published" : "Board Unpublished",
+        description: data.board.isPublished
+          ? "Your board is now live and accessible to everyone!"
+          : "Your board is now private and only visible to you.",
+        type: "success",
+      });
+      // Invalidate and refetch the board query to get updated data
+      utils.board.getBoard.invalidate({ boardId });
+    },
+    onError: (error) => {
+      console.error("Error toggling board publish status:", error);
+      toaster.create({
+        title: "Failed to update board status",
+        description:
+          error.message || "An error occurred while updating the board status.",
+        type: "error",
+      });
+    },
+  });
+
   const handleTasksSelected = (tasks: any[]) => {
     if (!boardId) {
       console.error("No board ID available");
@@ -485,6 +611,15 @@ export function BoardDetail() {
     }
 
     deleteBoardMutation.mutate({ boardId });
+  };
+
+  const handleTogglePublish = () => {
+    if (!boardId) {
+      console.error("No board ID available");
+      return;
+    }
+
+    togglePublishMutation.mutate({ boardId });
   };
 
   const {
@@ -542,8 +677,8 @@ export function BoardDetail() {
   return (
     <Box w="full" h="full" position="relative">
       {/* Header */}
-      <VStack align="start" mb={6} gap={2}>
-        <HStack justify="space-between" w="full" align="center">
+      <VStack align="start" mb={6} gap={4}>
+        <HStack justify="space-between" w="full" align="start">
           <VStack align="start" gap={1}>
             <Text fontSize="sm" color="gray.500">
               {board.clientName}
@@ -551,10 +686,15 @@ export function BoardDetail() {
             <Heading size="xl" color="gray.800">
               {board.projectName}
             </Heading>
+            {board.projectGoal && (
+              <Text color="gray.600" fontSize="sm">
+                {board.projectGoal}
+              </Text>
+            )}
           </VStack>
 
           {/* Action Buttons */}
-          <HStack justify="flex-end" mb={4} gap={2}>
+          <HStack justify="flex-end" gap={2}>
             {isConnected && (
               <Button
                 onClick={onTaskModalOpen}
@@ -589,11 +729,18 @@ export function BoardDetail() {
             </IconButton>
           </HStack>
         </HStack>
-        {board.projectGoal && (
-          <Text color="gray.600" fontSize="sm">
-            {board.projectGoal}
-          </Text>
-        )}
+
+        {/* Public Status Indicator */}
+        <PublicStatusIndicator
+          isPublished={!!board.isPublished}
+          publicUrl={
+            board.slug
+              ? `${getBaseWebsiteUrl()}/boards/${board.slug}`
+              : undefined
+          }
+          onToggle={handleTogglePublish}
+          isLoading={togglePublishMutation.isPending}
+        />
       </VStack>
 
       <Board
@@ -616,6 +763,16 @@ export function BoardDetail() {
         onConfirm={handleDeleteBoard}
         boardName={board?.projectName || ""}
         isLoading={deleteBoardMutation.isPending}
+      />
+
+      <PublishBoardModal
+        isOpen={isPublishModalOpen}
+        onClose={onPublishModalClose}
+        boardId={boardId || ""}
+        boardName={board?.projectName || ""}
+        publicUrl={
+          board.slug ? `${getBaseWebsiteUrl()}/boards/${board.slug}` : undefined
+        }
       />
     </Box>
   );
