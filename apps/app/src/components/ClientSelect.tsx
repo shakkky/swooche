@@ -25,10 +25,10 @@ export function ClientSelect({ register, value, error }: ClientSelectProps) {
     data: clientsData,
     isLoading,
     refetch,
-  } = useAuthenticatedTrpcQuery(trpc.client.getClients.useQuery, undefined);
+  } = useAuthenticatedTrpcQuery(trpc.clients.getClients.useQuery, undefined);
 
   // Create new client mutation
-  const createClientMutation = trpc.client.createAClient.useMutation({
+  const createClientMutation = trpc.clients.createAClient.useMutation({
     onSuccess: (data) => {
       registerOnChange({
         target: { name: register.name, value: data.client._id },

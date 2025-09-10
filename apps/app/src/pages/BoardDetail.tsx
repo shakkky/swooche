@@ -263,7 +263,9 @@ const Board: FC<{
               <SkeletonTaskCard />
             </>
           ) : (
-            todoTasks.map((task) => <TaskCard key={task.id} task={task} />)
+            todoTasks.map((task) => (
+              <TaskCard key={task._id || task.clickupTaskId} task={task} />
+            ))
           )}
         </SwimLane>
 
@@ -274,7 +276,7 @@ const Board: FC<{
             </>
           ) : (
             inProgressTasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
+              <TaskCard key={task._id || task.clickupTaskId} task={task} />
             ))
           )}
         </SwimLane>
@@ -286,7 +288,9 @@ const Board: FC<{
               <SkeletonTaskCard />
             </>
           ) : (
-            reviewTasks.map((task) => <TaskCard key={task.id} task={task} />)
+            reviewTasks.map((task) => (
+              <TaskCard key={task._id || task.clickupTaskId} task={task} />
+            ))
           )}
         </SwimLane>
 
@@ -296,7 +300,9 @@ const Board: FC<{
               <SkeletonTaskCard />
             </>
           ) : (
-            doneTasks.map((task) => <TaskCard key={task.id} task={task} />)
+            doneTasks.map((task) => (
+              <TaskCard key={task._id || task.clickupTaskId} task={task} />
+            ))
           )}
         </SwimLane>
       </HStack>
@@ -307,10 +313,46 @@ const Board: FC<{
   );
 };
 
+const exmapleTasks = [
+  {
+    id: "1",
+    name: "Campaign Performance & Optimization (Example Task)",
+    description: "A/B testing, performance analysis, and campaign optimization",
+    status: {
+      status: "to do",
+    },
+  },
+  {
+    id: "2",
+    name: "Social Media & PPC Launch (Example Task)",
+    description:
+      "Facebook, Instagram, and Google Ads campaigns are live and optimizing",
+    status: {
+      status: "in progress",
+    },
+  },
+  {
+    id: "3",
+    name: "Email Marketing Series (Example Task)",
+    description: "Holiday email sequences and automation workflows being built",
+    status: {
+      status: "review",
+    },
+  },
+  {
+    id: "4",
+    name: "Campaign Strategy & Creative (Example Task)",
+    description:
+      "Campaign concept, messaging, and visual assets approved by ACME team",
+    status: {
+      status: "done",
+    },
+  },
+];
+
 export function BoardDetail() {
   const { boardId } = useParams<{ boardId: string }>();
   const navigate = useNavigate();
-  const [selectedTasks, setSelectedTasks] = useState<any[]>([]);
 
   const { data: connectionsData, isLoading: isConnectionsLoading } =
     useAuthenticatedTrpcQuery(
@@ -329,11 +371,31 @@ export function BoardDetail() {
     onClose: onTaskModalClose,
   } = useDisclosure();
 
+  const utils = trpc.useUtils();
+
+  const linkTasksMutation = trpc.tasks.linkTasks.useMutation({
+    onSuccess: (data: any) => {
+      console.log("Tasks linked successfully:", data);
+      // Invalidate and refetch the board tasks query to get updated data from backend
+      utils.tasks.getBoardTasks.invalidate({ boardId });
+      onTaskModalClose();
+    },
+    onError: (error) => {
+      console.error("Error linking tasks:", error);
+      // TODO: Show error toast/notification
+    },
+  });
+
   const handleTasksSelected = (tasks: any[]) => {
-    console.log("Selected tasks:", tasks);
-    // TODO: Implement task import logic
-    onTaskModalClose();
-    setSelectedTasks(tasks);
+    if (!boardId) {
+      console.error("No board ID available");
+      return;
+    }
+
+    linkTasksMutation.mutate({
+      boardId,
+      tasks,
+    });
   };
 
   const {
@@ -345,9 +407,16 @@ export function BoardDetail() {
     boardId ? { boardId } : undefined
   );
 
-  const { board } = boardData ?? {};
+  const { data: boardTasksData, isLoading: isBoardTasksLoading } =
+    useAuthenticatedTrpcQuery(
+      trpc.tasks.getBoardTasks.useQuery,
+      boardId ? { boardId } : undefined
+    );
 
-  if (isConnectionsLoading || isBoardLoading) {
+  const { board } = boardData ?? {};
+  const { tasks: boardTasks } = boardTasksData ?? {};
+
+  if (isConnectionsLoading || isBoardLoading || isBoardTasksLoading) {
     return (
       <Box w="full" h="full" position="relative">
         {/* Header Skeleton */}
@@ -404,6 +473,8 @@ export function BoardDetail() {
                 color="white"
                 bg="black"
                 _hover={{ bg: "gray.800" }}
+                loading={linkTasksMutation.isPending}
+                loadingText="Importing..."
               >
                 <Icon as={MdAdd} boxSize={5} size="sm" />
                 <Text>Import Tasks from ClickUp</Text>
@@ -419,80 +490,20 @@ export function BoardDetail() {
       </VStack>
 
       {!isConnected ? (
-        <Board
-          isConnected={isConnected}
-          tasks={[
-            {
-              id: "1",
-              name: "Task 1",
-              description: "Task 1 description",
-              status: {
-                status: "to do",
-              },
-            },
-            {
-              id: "2",
-              name: "Task 2",
-              description: "Task 2 description",
-              status: {
-                status: "in progress",
-              },
-            },
-          ]}
-        />
+        <Board isConnected={isConnected} tasks={exmapleTasks} />
       ) : null}
 
-      {isConnected && selectedTasks.length > 0 ? (
-        <Board isConnected={isConnected} tasks={selectedTasks} />
-      ) : (
-        <Board
-          isConnected={isConnected}
-          tasks={[
-            {
-              id: "1",
-              name: "Campaign Performance & Optimization (Example Task)",
-              description:
-                "A/B testing, performance analysis, and campaign optimization",
-              status: {
-                status: "to do",
-              },
-            },
-            {
-              id: "2",
-              name: "Social Media & PPC Launch (Example Task)",
-              description:
-                "Facebook, Instagram, and Google Ads campaigns are live and optimizing",
-              status: {
-                status: "in progress",
-              },
-            },
-            {
-              id: "3",
-              name: "Email Marketing Series (Example Task)",
-              description:
-                "Holiday email sequences and automation workflows being built",
-              status: {
-                status: "review",
-              },
-            },
-            {
-              id: "4",
-              name: "Campaign Strategy & Creative (Example Task)",
-              description:
-                "Campaign concept, messaging, and visual assets approved by ACME team",
-              status: {
-                status: "done",
-              },
-            },
-          ]}
-        />
-      )}
+      <Board
+        isConnected={isConnected}
+        tasks={boardTasks.length > 0 ? boardTasks : exmapleTasks}
+        isLoading={isBoardTasksLoading}
+      />
 
-      {/* Task Selection Modal */}
       <TaskSelectionModal
         isOpen={isTaskModalOpen}
         onClose={onTaskModalClose}
         onTasksSelected={handleTasksSelected}
+        existingTasks={boardTasks || []}
       />
     </Box>
   );

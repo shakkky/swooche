@@ -116,10 +116,10 @@ export function Clients() {
     isLoading,
     error,
     refetch,
-  } = useAuthenticatedTrpcQuery(trpc.client.getClients.useQuery, undefined);
+  } = useAuthenticatedTrpcQuery(trpc.clients.getClients.useQuery, undefined);
 
   // Create client mutation
-  const createClientMutation = trpc.client.createAClient.useMutation({
+  const createClientMutation = trpc.clients.createAClient.useMutation({
     onSuccess: () => {
       refetch();
       onClose();
@@ -133,7 +133,7 @@ export function Clients() {
   });
 
   // Update client mutation
-  const updateClientMutation = trpc.client.updateClient.useMutation({
+  const updateClientMutation = trpc.clients.updateClient.useMutation({
     onSuccess: () => {
       refetch();
       onEditClose();
@@ -148,7 +148,7 @@ export function Clients() {
   });
 
   // Delete client mutation
-  const deleteClientMutation = trpc.client.deleteClient.useMutation({
+  const deleteClientMutation = trpc.clients.deleteClient.useMutation({
     onSuccess: () => {
       refetch();
       onDeleteClose();

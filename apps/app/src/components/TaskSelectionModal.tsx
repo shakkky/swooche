@@ -35,6 +35,7 @@ interface TaskSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onTasksSelected: (tasks: any[]) => void;
+  existingTasks: any[];
 }
 
 interface TaskItemProps {
@@ -42,7 +43,42 @@ interface TaskItemProps {
   isSelected?: boolean;
 }
 
+// Helper function to get a unique identifier for a task
+const getTaskIdentifier = (task: any): string => {
+  // Try to get a unique ID first
+  const id = task.clickupTaskId || task.id || task._id;
+  if (id) return id;
+
+  // If no ID, create a composite identifier from name and description
+  const name = task.name || "Untitled Task";
+  const description = task.description || "";
+  return `${name}-${description}`.replace(/\s+/g, "-").toLowerCase();
+};
+
+// Helper function to check if two tasks are the same
+const areTasksEqual = (task1: any, task2: any): boolean => {
+  // First try ID-based matching
+  const id1 = task1.clickupTaskId || task1.id || task1._id;
+  const id2 = task2.clickupTaskId || task2.id || task2._id;
+
+  if (id1 && id2 && id1 === id2) {
+    return true;
+  }
+
+  // If no IDs or they don't match, try name + description matching
+  if (task1.name && task2.name && task1.name === task2.name) {
+    const desc1 = task1.description || "";
+    const desc2 = task2.description || "";
+    return desc1 === desc2;
+  }
+
+  return false;
+};
+
 const TaskItem = ({ task, isSelected = false }: TaskItemProps) => {
+  // Use the robust identifier function
+  const taskId = getTaskIdentifier(task);
+
   const {
     attributes,
     listeners,
@@ -51,7 +87,7 @@ const TaskItem = ({ task, isSelected = false }: TaskItemProps) => {
     transition,
     isDragging,
   } = useSortable({
-    id: task.id,
+    id: taskId,
     data: { type: "task", task },
   });
 
@@ -90,7 +126,7 @@ const TaskItem = ({ task, isSelected = false }: TaskItemProps) => {
       // Don't interfere with drop zone detection
       pointerEvents="auto"
       // Add a data attribute to identify this as a task
-      data-task-id={task.id}
+      data-task-id={taskId}
     >
       <VStack align="start" gap={1}>
         <HStack justify="space-between" w="full">
@@ -225,6 +261,7 @@ export const TaskSelectionModal = ({
   isOpen,
   onClose,
   onTasksSelected,
+  existingTasks,
 }: TaskSelectionModalProps) => {
   const [selectionState, setSelectionState] = useState<SelectionState>({
     step: "workspace",
@@ -248,11 +285,12 @@ export const TaskSelectionModal = ({
         selectedList: null,
       });
       setAvailableTasks([]);
-      setSelectedTasks([]);
+      // Initialize selectedTasks with existing board tasks
+      setSelectedTasks(existingTasks || []);
       setActiveTask(null);
       setTasksInitialized(false);
     }
-  }, [isOpen]);
+  }, [isOpen, existingTasks]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -361,7 +399,7 @@ export const TaskSelectionModal = ({
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     const task = [...availableTasks, ...selectedTasks].find(
-      (t) => t.id === active.id
+      (t) => getTaskIdentifier(t) === active.id
     );
     setActiveTask(task || null);
   };
@@ -376,18 +414,23 @@ export const TaskSelectionModal = ({
     }
 
     const task = [...availableTasks, ...selectedTasks].find(
-      (t) => t.id === active.id
+      (t) => getTaskIdentifier(t) === active.id
     );
     if (!task) {
       console.log("Task not found:", active.id);
       return;
     }
 
-    console.log("Drag end:", { taskId: task.id, overId: over.id });
+    const taskId = getTaskIdentifier(task);
+    console.log("Drag end:", { taskId, overId: over.id });
 
     // Determine which array the task is currently in
-    const isCurrentlyInAvailable = availableTasks.some((t) => t.id === task.id);
-    const isCurrentlyInSelected = selectedTasks.some((t) => t.id === task.id);
+    const isCurrentlyInAvailable = availableTasks.some(
+      (t) => getTaskIdentifier(t) === taskId
+    );
+    const isCurrentlyInSelected = selectedTasks.some(
+      (t) => getTaskIdentifier(t) === taskId
+    );
 
     console.log("Current state:", {
       isCurrentlyInAvailable,
@@ -400,11 +443,12 @@ export const TaskSelectionModal = ({
     // If we dropped on a task, find which drop zone it belongs to
     if (over.data?.current?.type === "task") {
       const droppedOnTask = over.data.current.task;
+      const droppedOnTaskId = getTaskIdentifier(droppedOnTask);
       const isDroppedTaskInAvailable = availableTasks.some(
-        (t) => t.id === droppedOnTask.id
+        (t) => getTaskIdentifier(t) === droppedOnTaskId
       );
       const isDroppedTaskInSelected = selectedTasks.some(
-        (t) => t.id === droppedOnTask.id
+        (t) => getTaskIdentifier(t) === droppedOnTaskId
       );
 
       if (isDroppedTaskInAvailable) {
@@ -419,12 +463,16 @@ export const TaskSelectionModal = ({
     if (targetDropZone === "available-tasks" && isCurrentlyInSelected) {
       // Moving from selected to available
       console.log("Moving from selected to available");
-      setSelectedTasks((prev) => prev.filter((t) => t.id !== task.id));
+      setSelectedTasks((prev) =>
+        prev.filter((t) => getTaskIdentifier(t) !== taskId)
+      );
       setAvailableTasks((prev) => [...prev, task]);
     } else if (targetDropZone === "selected-tasks" && isCurrentlyInAvailable) {
       // Moving from available to selected
       console.log("Moving from available to selected");
-      setAvailableTasks((prev) => prev.filter((t) => t.id !== task.id));
+      setAvailableTasks((prev) =>
+        prev.filter((t) => getTaskIdentifier(t) !== taskId)
+      );
       setSelectedTasks((prev) => [...prev, task]);
     } else {
       console.log("No valid move detected", {
@@ -445,7 +493,7 @@ export const TaskSelectionModal = ({
         case "tasks":
           // Reset tasks when going back from tasks step
           setAvailableTasks([]);
-          setSelectedTasks([]);
+          setSelectedTasks(existingTasks || []);
           setTasksInitialized(false);
           return { ...prev, step: "list", selectedList: null };
         default:
@@ -710,7 +758,13 @@ export const TaskSelectionModal = ({
 
         // Initialize available tasks when data is loaded (only once)
         if (!tasksInitialized && tasksData.tasks.length > 0) {
-          setAvailableTasks(tasksData.tasks);
+          // Filter out tasks that are already on the board using robust matching
+          const filteredTasks = tasksData.tasks.filter((task) => {
+            return !(existingTasks || []).some((existingTask) =>
+              areTasksEqual(task, existingTask)
+            );
+          });
+          setAvailableTasks(filteredTasks);
           setTasksInitialized(true);
         }
 
@@ -745,12 +799,14 @@ export const TaskSelectionModal = ({
                     borderColor="gray.200"
                   >
                     <SortableContext
-                      items={availableTasks.map((task) => task.id)}
+                      items={availableTasks.map((task) =>
+                        getTaskIdentifier(task)
+                      )}
                       strategy={verticalListSortingStrategy}
                     >
                       <VStack gap={2} align="stretch">
                         {availableTasks.map((task) => (
-                          <TaskItem key={task.id} task={task} />
+                          <TaskItem key={getTaskIdentifier(task)} task={task} />
                         ))}
                       </VStack>
                     </SortableContext>
@@ -776,12 +832,18 @@ export const TaskSelectionModal = ({
                     borderColor="blue.200"
                   >
                     <SortableContext
-                      items={selectedTasks.map((task) => task.id)}
+                      items={selectedTasks.map((task) =>
+                        getTaskIdentifier(task)
+                      )}
                       strategy={verticalListSortingStrategy}
                     >
                       <VStack gap={2} align="stretch">
                         {selectedTasks.map((task) => (
-                          <TaskItem key={task.id} task={task} isSelected />
+                          <TaskItem
+                            key={getTaskIdentifier(task)}
+                            task={task}
+                            isSelected
+                          />
                         ))}
                         {selectedTasks.length === 0 && (
                           <Box
