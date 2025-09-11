@@ -360,70 +360,101 @@ const HideBoardModal = ({
   );
 };
 
+function toSentenceCase(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+function getStatusLanes(tasks: any[]) {
+  // Group tasks by status
+  const statusGroups = tasks.reduce((acc, task) => {
+    const status = task.status?.status;
+    if (!status) return acc;
+
+    if (!acc[status]) {
+      acc[status] = [];
+    }
+    acc[status].push(task);
+    return acc;
+  }, {} as Record<string, any[]>);
+
+  // Define the order of status lanes (you can customize this)
+  const statusOrder = [
+    "to do",
+    "in progress",
+    "in development",
+    "review",
+    "testing",
+    "done",
+    "completed",
+    "blocked",
+  ];
+
+  // Create lanes in the defined order, plus any additional statuses
+  const orderedLanes = statusOrder
+    .filter((status) => statusGroups[status])
+    .map((status) => ({
+      status: toSentenceCase(status),
+      tasks: statusGroups[status],
+    }));
+
+  // Add any remaining statuses that weren't in the predefined order
+  const remainingStatuses = Object.keys(statusGroups).filter(
+    (status) => !statusOrder.includes(status)
+  );
+
+  const additionalLanes = remainingStatuses.map((status) => ({
+    status: toSentenceCase(status),
+    tasks: statusGroups[status],
+  }));
+
+  return [...orderedLanes, ...additionalLanes];
+}
+
 const Board: FC<{
   isConnected: boolean;
   tasks: any[];
   isLoading?: boolean;
 }> = ({ isConnected, tasks, isLoading = false }) => {
-  const inProgressTasks = tasks.filter(
-    (task) => task.status?.status === "in progress"
-  );
-  const reviewTasks = tasks.filter((task) => task.status?.status === "review");
-  const doneTasks = tasks.filter((task) => task.status?.status === "done");
-  const todoTasks = tasks.filter((task) => task.status?.status === "to do");
+  const statusLanes = getStatusLanes(tasks);
 
   return (
     <Box minH="600px" overflowX="auto">
       <HStack gap={2} align="start" width="full">
-        <SwimLane title="To Do">
-          {isLoading ? (
-            <>
+        {isLoading ? (
+          // Show skeleton lanes when loading
+          <>
+            <SwimLane title="To Do">
               <SkeletonTaskCard />
               <SkeletonTaskCard />
-            </>
-          ) : (
-            todoTasks.map((task) => (
-              <TaskCard key={task._id || task.clickupTaskId} task={task} />
-            ))
-          )}
-        </SwimLane>
-
-        <SwimLane title="In Progress">
-          {isLoading ? (
-            <>
+            </SwimLane>
+            <SwimLane title="In Progress">
               <SkeletonTaskCard />
-            </>
-          ) : (
-            inProgressTasks.map((task) => (
-              <TaskCard key={task._id || task.clickupTaskId} task={task} />
-            ))
-          )}
-        </SwimLane>
-
-        <SwimLane title="Review">
-          {isLoading ? (
-            <>
+            </SwimLane>
+            <SwimLane title="Review">
               <SkeletonTaskCard />
               <SkeletonTaskCard />
-            </>
-          ) : (
-            reviewTasks.map((task) => (
-              <TaskCard key={task._id || task.clickupTaskId} task={task} />
-            ))
-          )}
-        </SwimLane>
-
-        <SwimLane title="Done">
-          {isLoading ? (
-            <>
+            </SwimLane>
+            <SwimLane title="Done">
               <SkeletonTaskCard />
-            </>
-          ) : (
-            doneTasks.map((task) => (
-              <TaskCard key={task._id || task.clickupTaskId} task={task} />
-            ))
-          )}
-        </SwimLane>
+            </SwimLane>
+          </>
+        ) : statusLanes.length > 0 ? (
+          // Show dynamic lanes based on actual task statuses
+          statusLanes.map((lane) => (
+            <SwimLane key={lane.status} title={lane.status}>
+              {lane.tasks.map((task) => (
+                <TaskCard key={task._id || task.clickupTaskId} task={task} />
+              ))}
+            </SwimLane>
+          ))
+        ) : (
+          // Show empty state when no tasks
+          <SwimLane title="No Tasks">
+            <Box p={4} textAlign="center" color="gray.500">
+              <Text fontSize="sm">No tasks available</Text>
+            </Box>
+          </SwimLane>
+        )}
       </HStack>
 
       {/* Connection Overlay */}

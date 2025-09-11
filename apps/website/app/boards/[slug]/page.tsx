@@ -204,14 +204,14 @@ function getStatusLanes(tasks: Task[]) {
 
   // Define the order of status lanes (you can customize this)
   const statusOrder = [
-    "To Do",
-    "In Progress",
-    "In Development",
-    "Review",
-    "Testing",
-    "Done",
-    "Completed",
-    "Blocked",
+    "to do",
+    "in progress",
+    "in development",
+    "review",
+    "testing",
+    "done",
+    "completed",
+    "blocked",
   ];
 
   // Create lanes in the defined order, plus any additional statuses
