@@ -6,19 +6,11 @@ import {
   Heading,
   HStack,
   Icon,
-  IconButton,
   Text,
   VStack,
-  useDisclosure,
 } from "@chakra-ui/react";
 import { FC, useState } from "react";
-import {
-  MdCheck,
-  MdClose,
-  MdContentCopy,
-  MdShare,
-  MdWarning,
-} from "react-icons/md";
+import { MdCheck, MdContentCopy, MdShare } from "react-icons/md";
 import { toaster } from "./ui/toaster";
 import { getBaseWebsiteUrl } from "@/config";
 
@@ -28,6 +20,7 @@ interface PublishBoardModalProps {
   boardId: string;
   boardName: string;
   publicUrl?: string;
+  onPublishSuccess?: () => void;
 }
 
 export const PublishBoardModal: FC<PublishBoardModalProps> = ({
@@ -36,19 +29,22 @@ export const PublishBoardModal: FC<PublishBoardModalProps> = ({
   boardId,
   boardName,
   publicUrl,
+  onPublishSuccess,
 }) => {
-  const [isPublished, setIsPublished] = useState(false);
   const [isCopying, setIsCopying] = useState(false);
+  const [publishSuccess, setPublishSuccess] = useState(false);
 
   const publishBoardMutation = trpc.board.publishBoard.useMutation({
     onSuccess: (data) => {
       console.log("Board published successfully:", data);
-      setIsPublished(true);
+      setPublishSuccess(true);
       toaster.create({
         title: "🎉 Board Published!",
         description: "Your board is now live and shareable with the world!",
         type: "success",
       });
+      // Call the parent callback to refetch board data
+      onPublishSuccess?.();
     },
     onError: (error) => {
       console.error("Error publishing board:", error);
@@ -71,15 +67,15 @@ export const PublishBoardModal: FC<PublishBoardModalProps> = ({
     try {
       await navigator.clipboard.writeText(publicUrl);
       toaster.create({
-        title: "Link Copied!",
-        description: "The public board link has been copied to your clipboard.",
+        title: "Link copied!",
+        description: "The public board URL has been copied to your clipboard.",
         type: "success",
       });
     } catch (error) {
-      console.error("Failed to copy link:", error);
+      console.error("Failed to copy URL:", error);
       toaster.create({
-        title: "Failed to Copy Link",
-        description: "Please copy the link manually.",
+        title: "Failed to copy",
+        description: "Could not copy the URL to clipboard.",
         type: "error",
       });
     } finally {
@@ -88,7 +84,7 @@ export const PublishBoardModal: FC<PublishBoardModalProps> = ({
   };
 
   const handleClose = () => {
-    setIsPublished(false);
+    setPublishSuccess(false);
     onClose();
   };
 
@@ -99,14 +95,14 @@ export const PublishBoardModal: FC<PublishBoardModalProps> = ({
         <Dialog.Content maxW="lg">
           <Dialog.Header>
             <Dialog.Title>
-              {isPublished
+              {publishSuccess
                 ? "🎉 Board Published!"
                 : `Ready to share "${boardName}" with the world?`}
             </Dialog.Title>
             <Dialog.CloseTrigger />
           </Dialog.Header>
           <Dialog.Body pb={6}>
-            {!isPublished ? (
+            {!publishSuccess ? (
               <VStack gap={6} align="stretch">
                 <VStack gap={8} align="stretch">
                   <VStack gap={2} align="stretch">
@@ -123,25 +119,30 @@ export const PublishBoardModal: FC<PublishBoardModalProps> = ({
                       Your board will be available at:
                     </Text>
                     <Box
-                      p={3}
+                      p={2}
                       bg="gray.50"
                       border="1px solid"
                       borderColor="gray.200"
                       borderRadius="md"
                       fontFamily="mono"
+                      height="40px"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="start"
                       fontSize="sm"
                     >
-                      {publicUrl}
+                      {publicUrl ||
+                        `${getBaseWebsiteUrl()}/boards/your-board-slug`}
                     </Box>
                   </VStack>
                 </VStack>
 
-                <HStack gap={3} justify="end">
+                <HStack justify="space-between">
                   <Button variant="outline" onClick={handleClose}>
                     Cancel
                   </Button>
                   <Button
-                    colorScheme="blue"
+                    colorScheme="green"
                     onClick={handlePublish}
                     loading={publishBoardMutation.isPending}
                     loadingText="Publishing..."
@@ -172,15 +173,12 @@ export const PublishBoardModal: FC<PublishBoardModalProps> = ({
                       Share this link with anyone to let them view your board
                     </Text>
                   </VStack>
-                </VStack>
 
-                <VStack gap={3} align="stretch">
-                  <Text fontSize="sm" fontWeight="semibold">
-                    Public Board URL:
-                  </Text>
-                  <HStack gap={2}>
+                  <VStack gap={2} align="stretch" w="full">
+                    <Text fontSize="sm" color="gray.600">
+                      Public URL:
+                    </Text>
                     <Box
-                      flex={1}
                       p={3}
                       bg="gray.50"
                       border="1px solid"
@@ -188,35 +186,27 @@ export const PublishBoardModal: FC<PublishBoardModalProps> = ({
                       borderRadius="md"
                       fontFamily="mono"
                       fontSize="sm"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
+                      wordBreak="break-all"
                     >
                       {publicUrl}
                     </Box>
-                    <IconButton
-                      aria-label="Copy link"
+                  </VStack>
+
+                  <HStack gap={2} w="full">
+                    <Button
+                      variant="outline"
                       onClick={handleCopyLink}
                       loading={isCopying}
-                      variant="outline"
+                      flex={1}
                     >
                       <Icon as={MdContentCopy} />
-                    </IconButton>
+                      Copy Link
+                    </Button>
+                    <Button colorScheme="blue" onClick={handleClose}>
+                      Done
+                    </Button>
                   </HStack>
                 </VStack>
-
-                <HStack gap={3} justify="end">
-                  <Button variant="outline" onClick={handleClose}>
-                    Close
-                  </Button>
-                  <Button
-                    colorScheme="blue"
-                    onClick={handleCopyLink}
-                    loading={isCopying}
-                  >
-                    <Icon as={MdContentCopy} />
-                    Copy Link
-                  </Button>
-                </HStack>
               </VStack>
             )}
           </Dialog.Body>

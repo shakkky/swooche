@@ -1,5 +1,6 @@
 import { trpc } from "@/lib/trpc";
 import {
+  Badge,
   Box,
   Button,
   Center,
@@ -14,9 +15,8 @@ import {
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
-import { Switch } from "@chakra-ui/react";
 import { FC } from "react";
-import { MdAdd, MdDelete, MdEdit, MdPublic, MdLock } from "react-icons/md";
+import { MdAdd, MdDelete, MdEdit, MdContentCopy } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import clickupLogo from "../assets/logos/clickup.png";
 import swoocheLogo from "../assets/logos/swooche.png";
@@ -295,88 +295,68 @@ const SkeletonTaskCard: FC = () => {
   );
 };
 
-const PublicStatusIndicator: FC<{
-  isPublished: boolean;
-  publicUrl?: string;
-  onToggle: () => void;
+const HideBoardModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  boardName,
+  isLoading,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  boardName: string;
   isLoading: boolean;
-}> = ({ isPublished, publicUrl, onToggle, isLoading }) => {
+}) => {
   return (
-    <Box
-      bg={isPublished ? "green.50" : "gray.50"}
-      border="1px solid"
-      borderColor={isPublished ? "green.200" : "gray.200"}
-      borderRadius="lg"
-      p={4}
-      w="full"
-      maxW="320px"
-    >
-      <VStack gap={3} align="stretch">
-        <HStack justify="space-between" align="center">
-          <HStack gap={2} align="center">
-            <Icon
-              as={isPublished ? MdPublic : MdLock}
-              boxSize={5}
-              color={isPublished ? "green.600" : "gray.500"}
-            />
-            <VStack gap={0} align="start">
-              <Text
-                fontSize="sm"
-                fontWeight="semibold"
-                color={isPublished ? "green.700" : "gray.700"}
+    <Dialog.Root open={isOpen} onOpenChange={onClose}>
+      <Dialog.Backdrop />
+      <Dialog.Positioner>
+        <Dialog.Content maxW="md">
+          <Dialog.Header>
+            <Dialog.Title>Hide Board</Dialog.Title>
+            <Dialog.CloseTrigger />
+          </Dialog.Header>
+          <Dialog.Body pb={6}>
+            <VStack gap={4} align="stretch">
+              <Text color="gray.600">
+                Are you sure you want to hide the board "{boardName}"? This will
+                make it private and no longer accessible to the public.
+              </Text>
+              <Box
+                p={4}
+                bg="orange.50"
+                borderRadius="md"
+                border="1px solid"
+                borderColor="orange.200"
               >
-                {isPublished ? "Public Board" : "Private Board"}
-              </Text>
-              <Text fontSize="xs" color="gray.500">
-                {isPublished
-                  ? "Live and accessible to everyone"
-                  : "Only visible to you"}
-              </Text>
+                <Text fontSize="sm" color="orange.700" fontWeight="medium">
+                  ⚠️ Warning: Anyone with the public link will no longer be able
+                  to access this board.
+                </Text>
+              </Box>
+              <HStack justify="space-between">
+                <Button
+                  variant="outline"
+                  onClick={onClose}
+                  disabled={isLoading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  colorScheme="orange"
+                  onClick={onConfirm}
+                  loading={isLoading}
+                  loadingText="Hiding..."
+                >
+                  Hide Board
+                </Button>
+              </HStack>
             </VStack>
-          </HStack>
-          <Switch.Root
-            checked={isPublished}
-            onCheckedChange={onToggle}
-            disabled={isLoading}
-            colorPalette="green"
-            size="md"
-          >
-            <Switch.HiddenInput />
-            <Switch.Control>
-              <Switch.Thumb />
-            </Switch.Control>
-          </Switch.Root>
-        </HStack>
-
-        {isPublished && publicUrl && (
-          <Box
-            bg="white"
-            border="1px solid"
-            borderColor="green.200"
-            borderRadius="md"
-            p={3}
-          >
-            <VStack gap={1} align="start">
-              <Text fontSize="xs" color="green.600" fontWeight="medium">
-                Public URL:
-              </Text>
-              <Text
-                fontSize="xs"
-                color="gray.600"
-                fontFamily="mono"
-                bg="gray.50"
-                px={2}
-                py={1}
-                borderRadius="sm"
-                wordBreak="break-all"
-              >
-                {publicUrl}
-              </Text>
-            </VStack>
-          </Box>
-        )}
-      </VStack>
-    </Box>
+          </Dialog.Body>
+        </Dialog.Content>
+      </Dialog.Positioner>
+    </Dialog.Root>
   );
 };
 
@@ -489,6 +469,55 @@ const exampleTasks = [
   },
 ];
 
+const TogglePublicBoard: FC<{
+  isPublished: boolean;
+  slug: string;
+  handleCopyUrl: () => void;
+  onHideModalOpen: () => void;
+  onPublishModalOpen: () => void;
+}> = ({
+  isPublished,
+  slug,
+  handleCopyUrl,
+  onHideModalOpen,
+  onPublishModalOpen,
+}) => {
+  return isPublished ? (
+    <HStack gap={0} align="center">
+      <HStack gap={1} align="center">
+        <Text
+          fontSize="xs"
+          color="green.600"
+          fontFamily="mono"
+          cursor="pointer"
+          onClick={handleCopyUrl}
+          _hover={{ textDecoration: "underline" }}
+        >
+          {getBaseWebsiteUrl()}/boards/{slug}{" "}
+          <Icon as={MdContentCopy} boxSize={3} onClick={handleCopyUrl} />
+        </Text>
+      </HStack>
+      <Button size="xs" variant="plain" onClick={onHideModalOpen} fontSize="xs">
+        Hide board
+      </Button>
+    </HStack>
+  ) : (
+    <HStack gap={0} align="center">
+      <Badge colorScheme="gray" variant="subtle">
+        Board not publicly available
+      </Badge>
+      <Button
+        size="xs"
+        variant="plain"
+        onClick={onPublishModalOpen}
+        textDecoration="underline"
+      >
+        Make available
+      </Button>
+    </HStack>
+  );
+};
+
 export function BoardDetail() {
   const { boardId } = useParams<{ boardId: string }>();
   const navigate = useNavigate();
@@ -520,6 +549,12 @@ export function BoardDetail() {
     open: isPublishModalOpen,
     onOpen: onPublishModalOpen,
     onClose: onPublishModalClose,
+  } = useDisclosure();
+
+  const {
+    open: isHideModalOpen,
+    onOpen: onHideModalOpen,
+    onClose: onHideModalClose,
   } = useDisclosure();
 
   const utils = trpc.useUtils();
@@ -568,25 +603,25 @@ export function BoardDetail() {
     },
   });
 
-  const togglePublishMutation = trpc.board.toggleBoardPublish.useMutation({
+  const hideBoardMutation = trpc.board.toggleBoardPublish.useMutation({
     onSuccess: (data: any) => {
-      console.log("Board publish status toggled:", data);
+      console.log("Board hidden:", data);
       toaster.create({
-        title: data.board.isPublished ? "Board Published" : "Board Unpublished",
-        description: data.board.isPublished
-          ? "Your board is now live and accessible to everyone!"
-          : "Your board is now private and only visible to you.",
+        title: "Board Hidden",
+        description:
+          "Your board is now private and no longer accessible to the public.",
         type: "success",
       });
       // Invalidate and refetch the board query to get updated data
       utils.board.getBoard.invalidate({ boardId });
+      onHideModalClose();
     },
     onError: (error) => {
-      console.error("Error toggling board publish status:", error);
+      console.error("Error hiding board:", error);
       toaster.create({
-        title: "Failed to update board status",
+        title: "Failed to hide board",
         description:
-          error.message || "An error occurred while updating the board status.",
+          error.message || "An error occurred while hiding the board.",
         type: "error",
       });
     },
@@ -613,13 +648,34 @@ export function BoardDetail() {
     deleteBoardMutation.mutate({ boardId });
   };
 
-  const handleTogglePublish = () => {
+  const handleHideBoard = () => {
     if (!boardId) {
       console.error("No board ID available");
       return;
     }
 
-    togglePublishMutation.mutate({ boardId });
+    hideBoardMutation.mutate({ boardId });
+  };
+
+  const handleCopyUrl = async () => {
+    if (!board?.slug) return;
+
+    const url = `${getBaseWebsiteUrl()}/boards/${board.slug}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toaster.create({
+        title: "Link copied!",
+        description: "The public board URL has been copied to your clipboard.",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Failed to copy URL:", error);
+      toaster.create({
+        title: "Failed to copy",
+        description: "Could not copy the URL to clipboard.",
+        type: "error",
+      });
+    }
   };
 
   const {
@@ -691,56 +747,55 @@ export function BoardDetail() {
                 {board.projectGoal}
               </Text>
             )}
+
+            {/* Public Status Display */}
+            <TogglePublicBoard
+              isPublished={board.isPublished}
+              slug={board.slug}
+              handleCopyUrl={handleCopyUrl}
+              onHideModalOpen={onHideModalOpen}
+              onPublishModalOpen={onPublishModalOpen}
+            />
           </VStack>
 
           {/* Action Buttons */}
-          <HStack justify="flex-end" gap={2}>
-            {isConnected && (
-              <Button
-                onClick={onTaskModalOpen}
-                variant="solid"
-                color="white"
-                bg="black"
-                _hover={{ bg: "gray.800" }}
-                loading={linkTasksMutation.isPending}
-                loadingText="Importing..."
+          <VStack justify="flex-end" gap={2}>
+            <HStack justify="flex-end" gap={2}>
+              {isConnected && (
+                <Button
+                  onClick={onTaskModalOpen}
+                  variant="solid"
+                  color="white"
+                  bg="black"
+                  _hover={{ bg: "gray.800" }}
+                  loading={linkTasksMutation.isPending}
+                  loadingText="Importing..."
+                >
+                  <Icon as={MdAdd} boxSize={5} size="sm" />
+                  <Text>Import Tasks from ClickUp</Text>
+                </Button>
+              )}
+              <IconButton
+                onClick={() => navigate(`/app/boards/${boardId}/edit`)}
+                variant="outline"
+                colorScheme="blue"
+                aria-label="Edit board"
+                _hover={{ bg: "blue.50", borderColor: "blue.300" }}
               >
-                <Icon as={MdAdd} boxSize={5} size="sm" />
-                <Text>Import Tasks from ClickUp</Text>
-              </Button>
-            )}
-            <IconButton
-              onClick={() => navigate(`/app/boards/${boardId}/edit`)}
-              variant="outline"
-              colorScheme="blue"
-              aria-label="Edit board"
-              _hover={{ bg: "blue.50", borderColor: "blue.300" }}
-            >
-              <Icon as={MdEdit} boxSize={5} />
-            </IconButton>
-            <IconButton
-              onClick={onDeleteModalOpen}
-              variant="outline"
-              colorScheme="red"
-              aria-label="Delete board"
-              _hover={{ bg: "red.50", borderColor: "red.300" }}
-            >
-              <Icon as={MdDelete} boxSize={5} />
-            </IconButton>
-          </HStack>
+                <Icon as={MdEdit} boxSize={5} />
+              </IconButton>
+              <IconButton
+                onClick={onDeleteModalOpen}
+                variant="outline"
+                colorScheme="red"
+                aria-label="Delete board"
+                _hover={{ bg: "red.50", borderColor: "red.300" }}
+              >
+                <Icon as={MdDelete} boxSize={5} />
+              </IconButton>
+            </HStack>
+          </VStack>
         </HStack>
-
-        {/* Public Status Indicator */}
-        <PublicStatusIndicator
-          isPublished={!!board.isPublished}
-          publicUrl={
-            board.slug
-              ? `${getBaseWebsiteUrl()}/boards/${board.slug}`
-              : undefined
-          }
-          onToggle={handleTogglePublish}
-          isLoading={togglePublishMutation.isPending}
-        />
       </VStack>
 
       <Board
@@ -773,6 +828,18 @@ export function BoardDetail() {
         publicUrl={
           board.slug ? `${getBaseWebsiteUrl()}/boards/${board.slug}` : undefined
         }
+        onPublishSuccess={() => {
+          // Refetch board data after successful publish
+          utils.board.getBoard.invalidate({ boardId });
+        }}
+      />
+
+      <HideBoardModal
+        isOpen={isHideModalOpen}
+        onClose={onHideModalClose}
+        onConfirm={handleHideBoard}
+        boardName={board?.projectName || ""}
+        isLoading={hideBoardMutation.isPending}
       />
     </Box>
   );
