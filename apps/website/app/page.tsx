@@ -666,7 +666,7 @@ export default function Home() {
         </Box>
 
         {/* Pricing Section */}
-        <Box padding={{ base: 16, md: 24 }} bg="brand.muted">
+        <Box padding={{ base: 16, md: 24 }} bg="gray.100">
           <VStack maxWidth="1200px" margin="0 auto" gap={16}>
             <VStack textAlign="center" gap={6}>
               <Heading
@@ -683,7 +683,7 @@ export default function Home() {
             </VStack>
 
             <SimpleGrid columns={{ base: 1, md: 3 }} gap={8} width="100%">
-              {/* Starter Plan */}
+              {/* Solo Plan */}
               <Box
                 bg="white"
                 border="1px solid"
@@ -695,38 +695,53 @@ export default function Home() {
                 position="relative"
               >
                 <Heading size="lg" color="base.fg" mb={4}>
-                  Starter
+                  Solo
                 </Heading>
                 <Text fontSize="4xl" fontWeight="bold" color="brand.600" mb={2}>
-                  $49
+                  $14
                   <span style={{ fontSize: "1.5rem", fontWeight: "normal" }}>
                     /mo
                   </span>
                 </Text>
                 <Text color="gray.600" fontSize="lg" mb={6}>
-                  5 portals
+                  3 public boards
                 </Text>
                 <VStack gap={4} alignItems="flex-start" textAlign="left">
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>5 client portals</Text>
+                    <Text>3 public boards at a time</Text>
                   </HStack>
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>Basic integrations</Text>
+                    <Text>Unlimited draft boards</Text>
                   </HStack>
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>Client dashboard</Text>
+                    <Text>Unlimited tasks</Text>
                   </HStack>
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>Email support</Text>
+                    <Text>Unlimited clients</Text>
+                  </HStack>
+                  <HStack gap={3}>
+                    <Icon as={MdCheckCircle} color="green.500" />
+                    <Text>Real human support</Text>
                   </HStack>
                 </VStack>
+                <Button
+                  bg="brand.contrast"
+                  color="white"
+                  _hover={{ bg: "onBrand.contrastEmphasized" }}
+                  size="lg"
+                  borderRadius="full"
+                  width="full"
+                  mt={6}
+                >
+                  Start 7 day free trial <MdArrowForward />
+                </Button>
               </Box>
 
-              {/* Growing Plan */}
+              {/* Agency Plan */}
               <Box
                 bg="white"
                 border="2px solid"
@@ -753,42 +768,53 @@ export default function Home() {
                   Most Popular
                 </Box>
                 <Heading size="lg" color="base.fg" mb={4}>
-                  Growing
+                  Agency
                 </Heading>
                 <Text fontSize="4xl" fontWeight="bold" color="brand.600" mb={2}>
-                  $99
+                  $29
                   <span style={{ fontSize: "1.5rem", fontWeight: "normal" }}>
                     /mo
                   </span>
                 </Text>
                 <Text color="gray.600" fontSize="lg" mb={6}>
-                  20 portals + white-label + automations
+                  10 public boards
                 </Text>
                 <VStack gap={4} alignItems="flex-start" textAlign="left">
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>20 client portals</Text>
+                    <Text>10 public boards</Text>
                   </HStack>
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>White-label branding</Text>
+                    <Text>Unlimited draft boards</Text>
                   </HStack>
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>Automated reporting</Text>
+                    <Text>Unlimited tasks</Text>
                   </HStack>
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>Advanced integrations</Text>
+                    <Text>Unlimited clients</Text>
                   </HStack>
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>Priority support</Text>
+                    <Text>Real human support</Text>
                   </HStack>
                 </VStack>
+                <Button
+                  bg="brand.contrast"
+                  color="white"
+                  _hover={{ bg: "onBrand.contrastEmphasized" }}
+                  size="lg"
+                  borderRadius="full"
+                  width="full"
+                  mt={6}
+                >
+                  Start 7 day free trial <MdArrowForward />
+                </Button>
               </Box>
 
-              {/* Scaling Plan */}
+              {/* Brand House Plan */}
               <Box
                 bg="white"
                 border="1px solid"
@@ -799,42 +825,90 @@ export default function Home() {
                 textAlign="center"
                 position="relative"
               >
+                <Box
+                  position="absolute"
+                  top={-3}
+                  left="50%"
+                  transform="translateX(-50%)"
+                  bg="brand.400"
+                  color="white"
+                  px={4}
+                  py={1}
+                  borderRadius="full"
+                  fontSize="sm"
+                  fontWeight="bold"
+                >
+                  Best deal
+                </Box>
                 <Heading size="lg" color="base.fg" mb={4}>
-                  Scaling
+                  Brand House
                 </Heading>
                 <Text fontSize="4xl" fontWeight="bold" color="brand.600" mb={2}>
-                  $199
+                  $99
                   <span style={{ fontSize: "1.5rem", fontWeight: "normal" }}>
                     /mo
                   </span>
                 </Text>
                 <Text color="gray.600" fontSize="lg" mb={6}>
-                  Unlimited portals + custom domain + advanced reporting
+                  Unlimited public boards
                 </Text>
                 <VStack gap={4} alignItems="flex-start" textAlign="left">
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>Unlimited client portals</Text>
+                    <Text>Unlimited public boards</Text>
                   </HStack>
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>Custom domain</Text>
+                    <Text>Unlimited draft boards</Text>
                   </HStack>
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>Advanced reporting</Text>
+                    <Text>Unlimited tasks</Text>
                   </HStack>
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>API access</Text>
+                    <Text>Unlimited clients</Text>
                   </HStack>
                   <HStack gap={3}>
                     <Icon as={MdCheckCircle} color="green.500" />
-                    <Text>Dedicated support</Text>
+                    <Text>Priority real human support</Text>
                   </HStack>
                 </VStack>
+                <Button
+                  bg="brand.contrast"
+                  color="white"
+                  _hover={{ bg: "onBrand.contrastEmphasized" }}
+                  size="lg"
+                  borderRadius="full"
+                  width="full"
+                  mt={6}
+                >
+                  Start 7 day free trial <MdArrowForward />
+                </Button>
               </Box>
             </SimpleGrid>
+
+            <VStack gap={4} textAlign="center">
+              <Heading size="xl" color="base.fg">
+                Don&apos;t just take our word for it. See it in action.
+              </Heading>
+              <Text fontSize="lg" color="gray.600" maxWidth="500px">
+                Check out a live demo to see how your clients will experience
+                your professional portals.
+              </Text>
+              <Link href="/boards/demo">
+                <Button
+                  bg="brand.contrast"
+                  color="white"
+                  _hover={{ bg: "onBrand.contrastEmphasized" }}
+                  size="lg"
+                  borderRadius="full"
+                  px={8}
+                >
+                  View Live Demo <MdArrowForward />
+                </Button>
+              </Link>
+            </VStack>
           </VStack>
         </Box>
 
