@@ -17,7 +17,6 @@ import {
   MdDashboard,
   MdPeople,
   MdShare,
-  MdStar,
   MdSync,
   MdTrendingUp,
 } from "react-icons/md";
@@ -30,110 +29,242 @@ export default function Home() {
       <main>
         {/* Hero Section */}
         <Box
-          bg="brand.solid"
-          padding={{ base: 8, md: 20 }}
-          minHeight="90vh"
+          paddingTop={{ base: 8, md: 24 }}
+          paddingLeft={{ base: 8, md: 36 }}
+          paddingRight={{ base: 8, md: 36 }}
+          paddingBottom={{ base: 8, md: 36 }}
           display="flex"
           flexDirection="column"
           alignItems="start"
           justifyContent="center"
           gap={12}
         >
-          <VStack maxWidth="1200px" gap={8} alignItems="start">
-            <Heading
-              as="h1"
-              fontSize={{ base: "5xl", md: "5xl" }}
-              fontWeight={900}
-              letterSpacing="-0.03em"
-              lineHeight="1.2"
-              color="onBrand.fg"
-              width="full"
-            >
-              Professional client portals
-              <br />
-              <span style={{ color: "#1a1a1a" }}>without ERP complexity.</span>
-            </Heading>
+          <VStack maxWidth="1200px" gap={12} alignItems="start">
+            <VStack maxWidth="1200px" gap={6} alignItems="start">
+              <Heading
+                as="h1"
+                fontSize={{ base: "5xl", md: "6xl" }}
+                fontWeight={900}
+                letterSpacing="-0.03em"
+                lineHeight="1.2"
+                color="onBrand.fg"
+                width="full"
+              >
+                Stop client status calls
+                <br />
+                <span style={{ color: "#1a1a1a" }}>forever</span>
+              </Heading>
 
-            <Text
-              fontSize={{ base: "xl", md: "2xl" }}
-              maxWidth="800px"
-              color="onBrand.muted"
-              lineHeight="1.4"
-            >
-              Stop client status calls forever. White-label portals that make
-              you look professional while saving hours every week.
-            </Text>
+              <VStack gap={6} alignItems="start" maxWidth="700px">
+                <Text
+                  fontSize={{ base: "lg", md: "xl" }}
+                  color="onBrand.muted"
+                  lineHeight="1.4"
+                >
+                  With white-label portals that make you look professional while
+                  saving hours every week.
+                </Text>
 
-            <HStack gap={4} flexWrap="wrap" justifyContent="start">
-              <Link href={`${process.env.APP_URL}/signin`}>
+                <VStack gap={4} alignItems="stretch" width="100%">
+                  <HStack gap={4} alignItems="start">
+                    <Box
+                      bg="green.100"
+                      color="green.400"
+                      borderRadius="full"
+                      boxSize="8"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      fontSize="sm"
+                      fontWeight="bold"
+                      flexShrink={0}
+                    >
+                      1
+                    </Box>
+                    <Text fontSize="md" color="onBrand.muted" lineHeight="1.5">
+                      Connect to ClickUp and tell us what the deliverables are
+                    </Text>
+                  </HStack>
+
+                  <HStack gap={4} alignItems="start">
+                    <Box
+                      bg="green.100"
+                      color="green.400"
+                      borderRadius="full"
+                      boxSize="8"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      fontSize="sm"
+                      fontWeight="bold"
+                      flexShrink={0}
+                    >
+                      2
+                    </Box>
+                    <Text fontSize="md" color="onBrand.muted" lineHeight="1.5">
+                      We automatically pull updates from ClickUp
+                    </Text>
+                  </HStack>
+
+                  <HStack gap={4} alignItems="start">
+                    <Box
+                      bg="green.100"
+                      color="green.400"
+                      borderRadius="full"
+                      boxSize="8"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      fontSize="sm"
+                      fontWeight="bold"
+                      flexShrink={0}
+                    >
+                      3
+                    </Box>
+                    <Text fontSize="md" color="onBrand.muted" lineHeight="1.5">
+                      Share the link with your clients to keep them up-to-date
+                      without daily catch-ups
+                    </Text>
+                  </HStack>
+                </VStack>
+              </VStack>
+
+              <HStack gap={4} flexWrap="wrap" justifyContent="start">
+                <Link href={`${process.env.APP_URL}/signin`}>
+                  <Button
+                    bg="brand.contrast"
+                    color="white"
+                    _hover={{ bg: "onBrand.contrastEmphasized" }}
+                    size="xl"
+                    borderRadius="full"
+                  >
+                    Create a free account
+                  </Button>
+                </Link>
                 <Button
-                  bg="brand.contrast"
-                  color="white"
-                  _hover={{ bg: "onBrand.contrastEmphasized" }}
+                  variant="outline"
+                  bg="white"
+                  borderColor="white"
+                  color="onBrand.solid"
                   size="xl"
                   borderRadius="full"
                 >
-                  Create a free account
+                  Get a demo
                 </Button>
-              </Link>
-              <Button
-                variant="outline"
-                bg="white"
-                borderColor="white"
-                color="onBrand.solid"
-                size="xl"
-                borderRadius="full"
-              >
-                Get a demo
-              </Button>
-            </HStack>
-          </VStack>
-        </Box>
+              </HStack>
+            </VStack>
 
-        {/* Testimonials */}
-        <Box padding={{ base: 16, md: 24 }} bg="white">
-          <VStack maxWidth="1200px" margin="0 auto" gap={8}>
-            <SimpleGrid columns={{ base: 1, md: 2 }} gap={8} width="100%">
-              <Box
-                bg="gray.50"
-                border="1px solid"
-                borderColor="gray.200"
-                borderRadius="md"
-                p={8}
-              >
-                <HStack mb={4}>
-                  {[...Array(5)].map((_, i) => (
-                    <Icon key={i} as={MdStar} color="yellow.400" />
-                  ))}
-                </HStack>
-                <Text fontSize="lg" color="base.fg" mb={4} fontStyle="italic">
-                  &ldquo;My clients stopped asking for status updates.&rdquo;
-                </Text>
-                <Text fontSize="sm" color="gray.600">
-                  — Sarah Chen, Creative Director at Pixel & Co
-                </Text>
-              </Box>
+            {/* Testimonials */}
+            <Box bg="white">
+              <VStack maxWidth="1200px" margin="0 auto" gap={8}>
+                <SimpleGrid columns={{ base: 1, md: 3 }} gap={6} width="100%">
+                  {/* Reddit-style post 1 */}
+                  <Box
+                    bg="white"
+                    border="1px solid"
+                    borderColor="gray.200"
+                    borderRadius="lg"
+                    p={6}
+                  >
+                    <HStack gap={2} mb={3}>
+                      <Box
+                        bg="brand.500"
+                        color="white"
+                        px={2}
+                        py={1}
+                        borderRadius="md"
+                        fontSize="xs"
+                        fontWeight="bold"
+                      >
+                        u/sarah_pixelco
+                      </Box>
+                    </HStack>
+                    <HStack gap={1} mb={3}>
+                      <Icon as={MdTrendingUp} color="gray.400" boxSize={3} />
+                      <Text fontSize="xs" color="gray.500">
+                        247 upvotes
+                      </Text>
+                    </HStack>
+                    <Text fontSize="sm" color="base.fg" lineHeight="1.5">
+                      Swooche saved us 8 hours every week on client updates. We
+                      used to use Scoro but it was so expensive and confusing.
+                      Swooche just works - our clients love the clean dashboards
+                      and we never get status call requests anymore.
+                    </Text>
+                  </Box>
 
-              <Box
-                bg="gray.50"
-                border="1px solid"
-                borderColor="gray.200"
-                borderRadius="md"
-                p={8}
-              >
-                <HStack mb={4}>
-                  {[...Array(5)].map((_, i) => (
-                    <Icon key={i} as={MdStar} color="yellow.400" />
-                  ))}
-                </HStack>
-                <Text fontSize="lg" color="base.fg" mb={4} fontStyle="italic">
-                  &ldquo;We cut client reporting time in half.&rdquo;
-                </Text>
-                <Text fontSize="sm" color="gray.600">
-                  — Mike Rodriguez, Founder at GrowthLab
-                </Text>
-              </Box>
-            </SimpleGrid>
+                  {/* Reddit-style post 2 */}
+                  <Box
+                    bg="white"
+                    border="1px solid"
+                    borderColor="gray.200"
+                    borderRadius="lg"
+                    p={6}
+                  >
+                    <HStack gap={2} mb={3}>
+                      <Box
+                        bg="green.500"
+                        color="white"
+                        px={2}
+                        py={1}
+                        borderRadius="md"
+                        fontSize="xs"
+                        fontWeight="bold"
+                      >
+                        u/mike_growthlab
+                      </Box>
+                    </HStack>
+                    <HStack gap={1} mb={3}>
+                      <Icon as={MdTrendingUp} color="gray.400" boxSize={3} />
+                      <Text fontSize="xs" color="gray.500">
+                        189 upvotes
+                      </Text>
+                    </HStack>
+                    <Text fontSize="sm" color="base.fg" lineHeight="1.5">
+                      We switched from Productive to Swooche and it's been a
+                      game-changer. Productive was $300/month and way too
+                      complex for client dashboards. Swooche costs a fraction
+                      and our clients actually understand what's happening with
+                      their projects.
+                    </Text>
+                  </Box>
+
+                  {/* Reddit-style post 3 */}
+                  <Box
+                    bg="white"
+                    border="1px solid"
+                    borderColor="gray.200"
+                    borderRadius="lg"
+                    p={6}
+                  >
+                    <HStack gap={2} mb={3}>
+                      <Box
+                        bg="blue.500"
+                        color="white"
+                        px={2}
+                        py={1}
+                        borderRadius="md"
+                        fontSize="xs"
+                        fontWeight="bold"
+                      >
+                        u/alex_designstudio
+                      </Box>
+                    </HStack>
+                    <HStack gap={1} mb={3}>
+                      <Icon as={MdTrendingUp} color="gray.400" boxSize={3} />
+                      <Text fontSize="xs" color="gray.500">
+                        156 upvotes
+                      </Text>
+                    </HStack>
+                    <Text fontSize="sm" color="base.fg" lineHeight="1.5">
+                      Our clients used to call us constantly asking for updates.
+                      With Swooche, they can see everything in real-time. It's
+                      so much better than the clunky dashboards we had before.
+                    </Text>
+                  </Box>
+                </SimpleGrid>
+              </VStack>
+            </Box>
           </VStack>
         </Box>
 

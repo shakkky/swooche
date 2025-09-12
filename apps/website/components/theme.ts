@@ -11,7 +11,7 @@ const config = defineConfig({
       padding: 0,
     },
     body: {
-      bg: "base.bg",
+      bg: "white",
       color: "base.fg",
     },
   },
