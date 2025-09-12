@@ -8,16 +8,16 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
+import type { ClickupTaskDocument } from "@swooche/models";
+import { BoardModel, ClickupTaskModel, ClientModel } from "@swooche/models";
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import "server-only";
-
-// Force dynamic rendering to avoid build-time data fetching
-export const dynamic = "force-dynamic";
 import { MdCalendarToday, MdPerson, MdPriorityHigh } from "react-icons/md";
-import type { ClickupTaskDocument } from "@swooche/models";
+import "server-only";
+import { ensureDatabaseConnection } from "../../../lib/db";
+export const dynamic = "force-dynamic";
 
 interface PublicBoardPageProps {
   params: Promise<{
@@ -67,13 +67,7 @@ const getPublicBoard = cache(
       }
 
       // Ensure database connection
-      const { ensureDatabaseConnection } = await import("../../../lib/db");
       await ensureDatabaseConnection();
-
-      // Import models dynamically to avoid build-time issues
-      const { BoardModel, ClientModel, ClickupTaskModel } = await import(
-        "@swooche/models"
-      );
 
       // First, get the board
       const board = await BoardModel.findOne({

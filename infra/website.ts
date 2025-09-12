@@ -24,7 +24,8 @@ export const website = new sst.aws.Service("WebsiteService", {
       name: `website-${$app.stage}`,
       ports: [{ container: "3000/http" }],
       environment: {
-        MONGODB_URI: "todo",
+        NODE_ENV: "production",
+        MONGODB_URI: process.env.MONGODB_URI,
       },
     },
   ],
